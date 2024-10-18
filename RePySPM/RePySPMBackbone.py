@@ -4,7 +4,7 @@ import math
 from enum import Enum
 
 
-# To do list: ramp, get image (number of channels to get), get signals like scopes
+# To do list: get image (number of channels to get),
 
 # Do the other modes and then update the mode control capabilities in ZControlPID class
 
@@ -19,8 +19,138 @@ class ExcType(Enum):
     PZ = "Piezo"
     PT = "Photothermal"
 
+class Signals:
+    """
+    A class to handle the signals from a scanning system.
+    
+    This class provides methods to set and get the signals, representing various measurements 
+    such as deflection and amplitude from the system. It allows initialization with specific 
+    signal values and updating the current signals dynamically.
+    
+    Attributes:
+        __vertical_deflection (float): The vertical deflection signal [V].
+        __lateral_deflection (float): The lateral deflection signal [V].
+        __photodiode_sum (float): The sum of photodiode signals [V].
+        __X (float): The X-axis position signal [V].
+        __Y (float): The Y-axis position signal [V].
+        __Z (float): The Z-axis position signal [V].
+        __amplitude (float): The amplitude of the signal [V].
+        __phase (float): The phase of the signal [degrees].
+        __exc_amplitude (float): The excitation amplitude [V].
+        __exc_phase (float): The excitation phase [degrees].
+    
+    Methods:
+        init_signals_with_params: Initializes an instance with specific signal values.
+        get_signals: Retrieves the current signal values from the system.
+        set_signals: Sets the signal values on the system.
+    """
+    
+    def __init__(self):
+        self.get_signals()
+        
+    @classmethod
+    def init_signals_with_params(cls, vertical_deflection, lateral_deflection, photodiode_sum, X, Y, Z, amplitude, phase, exc_amplitude, exc_phase):
+        """Initialize the instance with specific values for all attributes"""
+        instance = cls()       
+        instance.set_signals(vertical_deflection, lateral_deflection, photodiode_sum, X, Y, Z, amplitude, phase, exc_amplitude, exc_phase)
+        return instance
+    
+    def get_signals(self):
+        """Get the actual scanning status of the system"""
+        # self.__vertical deflection = 0  # Read that from target system [V]
+        # self.__lateral deflection = 0  # Read that from target system [V]
+        # self.__photodiode_sum = 0  # Read that from target system [V]
+        # self.__X = 0  # Read that from target system [V]
+        # self.__Y = 0  # Read that from target system [V]
+        # self.__Z = 0  # Read that from target system [V]
+        # self.__amplitude = 0  # Read that from target system [V]
+        # self.__phase = 0  # Read that from target system [deg]
+        # self.__exc_amplitude = 0  # Read that from target system [V]
+        # self.__exc_phase = 0  # Read that from target system [deg]
 
-class ScanParameters:
+        # Retrieve these values from the target system
+        
+        pass
+    
+    def set_signals(self, vertical_deflection, lateral_deflection, photodiode_sum, X, Y, Z, amplitude, phase, exc_amplitude, exc_phase):
+        """Set scan control parameters on the target system"""
+        self.__vertical_deflection = vertical_deflection
+        self.__lateral_deflection = lateral_deflection
+        self.__photodiode_sum = photodiode_sum
+        self.__X = X
+        self.__Y = Y
+        self.__Z = Z
+        self.__amplitude = amplitude
+        self.__phase= phase
+        self.__exc_amplitude = exc_amplitude
+        self.__exc_phase = exc_phase
+        # Update these values on the target system if necessary
+
+    @property
+    def vertical_deflection(self):
+        """The 'vertical_deflection' property getter"""
+        return self.__vertical_deflection    
+ 
+    @property
+    def lateral_deflection(self):
+        """The 'lateral_deflection' property getter"""
+        return self.__lateral_deflection   
+    
+    @property
+    def photodiode_sum(self):
+        """The 'photodiode_sum' property getter"""
+        return self.__photodiode_sum
+    
+    @property
+    def X(self):
+        """The 'X' property getter"""
+        return self.__X   
+    
+    @property
+    def Y(self):
+        """The 'Y' property getter"""
+        return self.__Y    
+    
+    @property
+    def Z(self):
+        """The 'Z' property getter"""
+        return self.__Z    
+    
+    @property
+    def amplitude(self):
+        """The 'amplitude' property getter"""
+        return self.__amplitude    
+    
+    @property
+    def phase(self):
+        """The 'phase' property getter"""
+        return self.__phase    
+    
+    @property
+    def exc_amplitude(self):
+        """The 'exc_amplitude' property getter"""
+        return self.__exc_amplitude    
+    
+    @property
+    def exc_phase(self):
+        """The 'exc_phase' property getter"""
+        return self.__exc_phase    
+    
+    def __repr__(self):
+        return (f"Signals("
+                f"vertical_deflection={self.__vertical_deflection}, "
+                f"lateral_deflection={self.__lateral_deflection}, "
+                f"photodiode_sum={self.__photodiode_sum}, "
+                f"X={self.__X}, "
+                f"Y={self.__Y}, "
+                f"Z={self.__Z}, "
+                f"amplitude={self.__amplitude}, "
+                f"phase={self.__phase}, "
+                f"exc_amplitude={self.__exc_amplitude}, "
+                f"exc_phase={self.__exc_phase} "
+                f")")
+
+class ScanParameters:   
     """
     A class to handle scan parameters for a scanning system.
     
@@ -359,8 +489,7 @@ class ScanParameters:
         )
 
 
-class ScanControl:
-    
+class ScanControl:   
     """
     A class to control scanning operations for a given system.
     
@@ -396,6 +525,11 @@ class ScanControl:
         get_pixel_pos: Retrieve the actual scanning XY pixel numbers.
         get_xyposition: Retrieve the actual XY scanner position.
         set_xyposition: Move the tip to the desired XY position.
+        do_ramp_absolute: Performs a Z ramp with absolute starting and ending points.
+        do_ramp_absolute_length: Performs a Z ramp with absolute starting point and ramp length.
+        do_ramp_absolute_trig: Performs a Z ramp with an absolute starting point and a trigger-based endpoint.
+        do_ramp_relative_length: Performs a Z ramp relative to the actual position with specified length.
+        do_ramp_relative_trig: Performs a Z ramp relative to the actual position with a trigger-based endpoint.
     """
     
     def __init__(self):
@@ -604,11 +738,115 @@ class ScanControl:
             # Implement scan control parameters on the target system
             pass
 
+    def do_ramp_absolute(self, init, end, N, speed_f, speed_b, wait_s):
+        """
+        Perform a Z ramp with absolute starting and ending points.
+    
+        Args:
+            init (float): Initial position in meters [m].
+            end (float): Final position in meters [m].
+            N (int): Number of steps in the ramp.
+            speed_f (float): Forward speed in meters per second [m/s].
+            speed_b (float): Backward speed in meters per second [m/s].
+            wait_s (float): Waiting time at the turnaround point in seconds [s].
+    
+        This method controls the ramp by defining absolute starting and ending points for the Z ramp,
+        at specific forward and backward speeds, with a waiting period at the turnaround point.
+        """
+        # Implement scan control parameters on the target system
+        pass
+    
+    def do_ramp_absolute_length(self, init, length, N, speed_f, speed_b, wait_s):
+        """
+        Perform a Z ramp with absolute starting and total ramp length.
+    
+        Args:
+            init (float): Initial position in meters [m].
+            length (float): Length of the Z movement in meters [m].
+            N (int): Number of steps in the ramp.
+            speed_f (float): Forward speed in meters per second [m/s].
+            speed_b (float): Backward speed in meters per second [m/s].
+            wait_s (float): Waiting time at the turnaround point in seconds [s].
+    
+        This method controls the ramp by defining absolute starting and  and length for the Z ramp,
+        at specific forward and backward speeds, with a waiting period at the turnaround point.
+        """
+        # Implement scan control parameters on the target system
+        pass
+    
+    def do_ramp_absolute_trig(self, init, trig_val, trig_signal, trig_sig, N, speed_f, speed_b, wait_s):
+        """
+        Perform a Z ramp with an absolute starting point and a trigger-based endpoint.
+    
+        Args:
+            init (float): Initial position in meters [m].
+            trig_val (float): Trigger value that determines when to end the ramp [m].
+            trig_signal (str): The signal used for triggering (e.g., force or voltage).
+            trig_sig (str): The trigger condition, either '>' or '<', defining whether the ramp stops 
+                            when the signal exceeds or drops below `trig_val`.
+            N (int): Number of steps in the ramp.
+            speed_f (float): Forward speed in meters per second [m/s].
+            speed_b (float): Backward speed in meters per second [m/s].
+            wait_s (float): Waiting time at the turnaround point in seconds [s].
+    
+        This method controls the ramp by defining an absolute starting point and a dynamic endpoint
+        based on a trigger condition (`trig_sig`). The ramp will stop when `trig_signal` meets the condition 
+        defined by `trig_sig` (either `>` or `<`) in relation to `trig_val`, while the speed and number of 
+        steps are also specified. The scan will pause for `wait_s` seconds at the turnaround point.
+        """
+        # Implement scan control parameters on the target system
+        pass
+    
+    def do_ramp_relative_length(self, init, length, N, speed_f, speed_b, wait_s):
+        """
+        Perform a Z ramp relative to the actual position.
+    
+        Args:
+            init (float): Initial position in meters [m] relative to the actual position.
+            length (float): Length of the Z movement in meters [m].
+            N (int): Number of steps in the ramp.
+            speed_f (float): Forward speed in meters per second [m/s].
+            speed_b (float): Backward speed in meters per second [m/s].
+            wait_s (float): Waiting time at the turnaround point in seconds [s].
+    
+        This method controls the ramp by defining absolute starting points and length for the Z ramp,
+        at specific forward and backward speeds, with a waiting period at the turnaround point.
+        """
+        # Implement scan control parameters on the target system
+        pass
+    
+    def do_ramp_relative_trig(self, init, trig_val, trig_signal, trig_sig, N, speed_f, speed_b, wait_s):
+        """
+        Perform a Z ramp relative to the actual position and a trigger-based endpoint.
+    
+        Args:
+            init (float): Initial position in meters [m] relative to the actual position.
+            trig_val (float): Trigger value that determines when to end the ramp [m].
+            trig_signal (str): The signal used for triggering (e.g., force or voltage).
+            trig_sig (str): The trigger condition, either '>' or '<', defining whether the ramp stops 
+                            when the signal exceeds or drops below `trig_val`.
+            N (int): Number of steps in the ramp.
+            speed_f (float): Forward speed in meters per second [m/s].
+            speed_b (float): Backward speed in meters per second [m/s].
+            wait_s (float): Waiting time at the turnaround point in seconds [s].
+    
+        This method controls the ramp by defining an absolute starting point and a dynamic endpoint
+        based on a trigger condition (`trig_sig`). The ramp will stop when `trig_signal` meets the condition 
+        defined by `trig_sig` (either `>` or `<`) in relation to `trig_val`, while the speed and number of 
+        steps are also specified. The scan will pause for `wait_s` seconds at the turnaround point.
+        """
+        # Implement scan control parameters on the target system
+        pass
+
     def __repr__(self):
-        return (f"ScanControl(isScanningUp={self.__isScanningUp}, "
-                f"isScanningDown={self.__isScanningDown}, isBouncing={self.__isBouncing}, "
-                f"isContinuousScan={self.__isContinuousScan}, isAutoSave={self.__isAutoSave}, "
-                f"path={self.__path}, file_name={self.__file_name})")
+        return (f"ScanControl("
+                f"isScanningUp={self.__isScanningUp}, "
+                f"isScanningDown={self.__isScanningDown}, "
+                f"isBouncing={self.__isBouncing}, "
+                f"isContinuousScan={self.__isContinuousScan}, "
+                f"isAutoSave={self.__isAutoSave}, "
+                f"path={self.__path}, "
+                f"file_name={self.__file_name})")
 
 class AFMMode:
     """
@@ -1443,7 +1681,6 @@ class ZControlPID:
             f"feedback={self.__feedback})"
             f"afm_mode={self.__afm_mode})"
         )
-
 
 class AcquiredImage:
     def __init__(self):
