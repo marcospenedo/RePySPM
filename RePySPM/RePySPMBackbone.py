@@ -4,10 +4,6 @@ import math
 from enum import Enum
 
 
-# To do list: get image (number of channels to get),
-
-# Do the other modes and then update the mode control capabilities in ZControlPID class
-
 class AFMModes(Enum):
     CONTACT = "Contact Mode"
     AM = "AM Mode"
@@ -19,136 +15,71 @@ class ExcType(Enum):
     PZ = "Piezo"
     PT = "Photothermal"
 
+
 class Signals:
     """
     A class to handle the signals from a scanning system.
-    
-    This class provides methods to set and get the signals, representing various measurements 
-    such as deflection and amplitude from the system. It allows initialization with specific 
-    signal values and updating the current signals dynamically.
-    
-    Attributes:
-        __vertical_deflection (float): The vertical deflection signal [V].
-        __lateral_deflection (float): The lateral deflection signal [V].
-        __photodiode_sum (float): The sum of photodiode signals [V].
-        __X (float): The X-axis position signal [V].
-        __Y (float): The Y-axis position signal [V].
-        __Z (float): The Z-axis position signal [V].
-        __amplitude (float): The amplitude of the signal [V].
-        __phase (float): The phase of the signal [degrees].
-        __exc_amplitude (float): The excitation amplitude [V].
-        __exc_phase (float): The excitation phase [degrees].
-    
+
+    This class provides methods to retrieve various signal measurements, 
+    such as deflection, amplitude, and phase from the system. It allows 
+    updating the current signals dynamically.
+
     Methods:
-        init_signals_with_params: Initializes an instance with specific signal values.
-        get_signals: Retrieves the current signal values from the system.
-        set_signals: Sets the signal values on the system.
+        get_vertical_deflection: Retrieves the vertical deflection signal.
+        get_lateral_deflection: Retrieves the lateral deflection signal.
+        get_photodiode_sum: Retrieves the photodiode sum signal.
+        get_X: Retrieves the X-coordinate signal.
+        get_Y: Retrieves the Y-coordinate signal.
+        get_Z: Retrieves the Z-coordinate signal.
+        get_amplitude: Retrieves the amplitude signal.
+        get_phase: Retrieves the phase signal.
+        get_exc_amplitude: Retrieves the excitation amplitude signal.
+        get_exc_phase: Retrieves the excitation phase signal.
     """
     
     def __init__(self):
-        self.get_signals()
-        
-    @classmethod
-    def init_signals_with_params(cls, vertical_deflection, lateral_deflection, photodiode_sum, X, Y, Z, amplitude, phase, exc_amplitude, exc_phase):
-        """Initialize the instance with specific values for all attributes"""
-        instance = cls()       
-        instance.set_signals(vertical_deflection, lateral_deflection, photodiode_sum, X, Y, Z, amplitude, phase, exc_amplitude, exc_phase)
-        return instance
-    
-    def get_signals(self):
-        """Get the actual scanning status of the system"""
-        # self.__vertical deflection = 0  # Read that from target system [V]
-        # self.__lateral deflection = 0  # Read that from target system [V]
-        # self.__photodiode_sum = 0  # Read that from target system [V]
-        # self.__X = 0  # Read that from target system [V]
-        # self.__Y = 0  # Read that from target system [V]
-        # self.__Z = 0  # Read that from target system [V]
-        # self.__amplitude = 0  # Read that from target system [V]
-        # self.__phase = 0  # Read that from target system [deg]
-        # self.__exc_amplitude = 0  # Read that from target system [V]
-        # self.__exc_phase = 0  # Read that from target system [deg]
-
-        # Retrieve these values from the target system
-        
         pass
-    
-    def set_signals(self, vertical_deflection, lateral_deflection, photodiode_sum, X, Y, Z, amplitude, phase, exc_amplitude, exc_phase):
-        """Set scan control parameters on the target system"""
-        self.__vertical_deflection = vertical_deflection
-        self.__lateral_deflection = lateral_deflection
-        self.__photodiode_sum = photodiode_sum
-        self.__X = X
-        self.__Y = Y
-        self.__Z = Z
-        self.__amplitude = amplitude
-        self.__phase= phase
-        self.__exc_amplitude = exc_amplitude
-        self.__exc_phase = exc_phase
-        # Update these values on the target system if necessary
 
-    @property
-    def vertical_deflection(self):
-        """The 'vertical_deflection' property getter"""
-        return self.__vertical_deflection    
- 
-    @property
-    def lateral_deflection(self):
-        """The 'lateral_deflection' property getter"""
-        return self.__lateral_deflection   
-    
-    @property
-    def photodiode_sum(self):
-        """The 'photodiode_sum' property getter"""
-        return self.__photodiode_sum
-    
-    @property
-    def X(self):
-        """The 'X' property getter"""
-        return self.__X   
-    
-    @property
-    def Y(self):
-        """The 'Y' property getter"""
-        return self.__Y    
-    
-    @property
-    def Z(self):
-        """The 'Z' property getter"""
-        return self.__Z    
-    
-    @property
-    def amplitude(self):
-        """The 'amplitude' property getter"""
-        return self.__amplitude    
-    
-    @property
-    def phase(self):
-        """The 'phase' property getter"""
-        return self.__phase    
-    
-    @property
-    def exc_amplitude(self):
-        """The 'exc_amplitude' property getter"""
-        return self.__exc_amplitude    
-    
-    @property
-    def exc_phase(self):
-        """The 'exc_phase' property getter"""
-        return self.__exc_phase    
-    
-    def __repr__(self):
-        return (f"Signals("
-                f"vertical_deflection={self.__vertical_deflection}, "
-                f"lateral_deflection={self.__lateral_deflection}, "
-                f"photodiode_sum={self.__photodiode_sum}, "
-                f"X={self.__X}, "
-                f"Y={self.__Y}, "
-                f"Z={self.__Z}, "
-                f"amplitude={self.__amplitude}, "
-                f"phase={self.__phase}, "
-                f"exc_amplitude={self.__exc_amplitude}, "
-                f"exc_phase={self.__exc_phase} "
-                f")")
+    def get_vertical_deflection(self):
+        """Retrieves the vertical deflection signal from the system."""
+        pass
+
+    def get_lateral_deflection(self):
+        """Retrieves the lateral deflection signal from the system."""
+        pass
+
+    def get_photodiode_sum(self):
+        """Retrieves the photodiode sum signal from the system."""
+        pass
+
+    def get_X(self):
+        """Retrieves the X-coordinate signal from the system."""
+        pass
+
+    def get_Y(self):
+        """Retrieves the Y-coordinate signal from the system."""
+        pass
+
+    def get_Z(self):
+        """Retrieves the Z-coordinate signal from the system."""
+        pass
+
+    def get_amplitude(self):
+        """Retrieves the amplitude signal from the system."""
+        pass
+
+    def get_phase(self):
+        """Retrieves the phase signal from the system."""
+        return self.__phase
+
+    def get_exc_amplitude(self):
+        """Retrieves the excitation amplitude signal from the system."""
+        return self.__exc_amplitude
+
+    def get_exc_phase(self):
+        """Retrieves the excitation phase signal from the system."""
+        pass
+
 
 class ScanParameters:   
     """
@@ -1682,27 +1613,385 @@ class ZControlPID:
             f"afm_mode={self.__afm_mode})"
         )
 
+
 class AcquiredImage:
+    """
+    A class to handle image acquisition and manage image channels.
+
+    This class provides methods to retrieve the names, units, and data for various image channels. 
+    It allows users to access specific channels by name and retrieve all channel data.
+
+    Methods:
+        get_channels_names_units: Retrieves the names and units of all channels in the image.
+        get_all_channels_data: Retrieves the data for all image channels.
+        get_channel: Retrieves the data of a specific image channel by name.
+    """
+    
     def __init__(self):
-        self.image_data = []  # Get data from the target system
-
-        # Implement image control on the target system
-
-    def save(self, filepath):
-        # Implement saving logic here
         pass
     
-    def get_image(self):
-        # Implement acquiring logic here
+    def get_channels_names_units(self):
+        """Retrieve the names and units of all image channels."""
         pass
-
+    
+    def get_all_channels_data(self):
+        """Retrieve the data from all image channels."""
+        pass
+    
+    def get_channel(self, name):
+        """Retrieve the data from the image channel with the given name."""
+        pass
+    
     def __repr__(self):
-        return f"AcquiredImage(image_data={self.image_data})"
-
+        return (
+            f"{self.__class__.__name__}()"
+        )
+   
 
 class Motors:
-    # Z motor, XY motors, readout laser motor, excitation laser motor
-    pass
+    """
+    A class to control the motors of the stage, lasers, and photodiode in a scanning arm system.
+    
+    This class provides methods to move and control different components of the system, 
+    including the stage, readout laser, excitation laser, and photodiode, in the X, Y, and Z directions.
+    The movement can be defined by steps, time, or distance.
+    
+    Methods:
+        moveX_stage_steps: Move the stage by a specified number of steps in the X direction.
+        moveX_stage_time: Move the stage for a specified duration in the X direction.
+        moveX_stage_distance: Move the stage by a specific distance in the X direction.
+        moveY_stage_steps: Move the stage by a specified number of steps in the Y direction.
+        moveY_stage_time: Move the stage for a specified duration in the Y direction.
+        moveY_stage_distance: Move the stage by a specific distance in the Y direction.
+        moveZ_stage_steps: Move the stage by a specified number of steps in the Z direction.
+        moveZ_stage_time: Move the stage for a specified duration in the Z direction.
+        moveZ_stage_distance: Move the stage by a specific distance in the Z direction.
+        center_stage: Move the stage to its center position.
+        
+        moveX_readout_laser_steps: Move the readout laser by a specified number of steps in the X direction.
+        moveX_readout_laser_time: Move the readout laser for a specified duration in the X direction.
+        moveX_readout_laser_distance: Move the readout laser by a specific distance in the X direction.
+        moveY_readout_laser_steps: Move the readout laser by a specified number of steps in the Y direction.
+        moveY_readout_laser_time: Move the readout laser for a specified duration in the Y direction.
+        moveY_readout_laser_distance: Move the readout laser by a specific distance in the Y direction.
+        moveZ_readout_laser_steps: Move the readout laser by a specified number of steps in the Z direction.
+        moveZ_readout_laser_time: Move the readout laser for a specified duration in the Z direction.
+        moveZ_readout_laser_distance: Move the readout laser by a specific distance in the Z direction.
+        center_readout_laser: Center the readout laser.
+        maximize_readout_laser: Maximize the signal from the readout laser.
+        
+        moveX_excitation_laser_steps: Move the excitation laser by a specified number of steps in the X direction.
+        moveX_excitation_laser_time: Move the excitation laser for a specified duration in the X direction.
+        moveX_excitation_laser_distance: Move the excitation laser by a specific distance in the X direction.
+        moveY_excitation_laser_steps: Move the excitation laser by a specified number of steps in the Y direction.
+        moveY_excitation_laser_time: Move the excitation laser for a specified duration in the Y direction.
+        moveY_excitation_laser_distance: Move the excitation laser by a specific distance in the Y direction.
+        moveZ_excitation_laser_steps: Move the excitation laser by a specified number of steps in the Z direction.
+        moveZ_excitation_laser_time: Move the excitation laser for a specified duration in the Z direction.
+        moveZ_excitation_laser_distance: Move the excitation laser by a specific distance in the Z direction.
+        center_excitation_laser: Center the excitation laser.
+        maximize_excitation_laser: Maximize the signal from the excitation laser.
+        
+        moveX_photodiode_steps: Move the photodiode by a specified number of steps in the X direction.
+        moveX_photodiode_time: Move the photodiode for a specified duration in the X direction.
+        moveX_photodiode_distance: Move the photodiode by a specific distance in the X direction.
+        moveY_photodiode_steps: Move the photodiode by a specified number of steps in the Y direction.
+        moveY_photodiode_time: Move the photodiode for a specified duration in the Y direction.
+        moveY_photodiode_distance: Move the photodiode by a specific distance in the Y direction.
+        center_photodiode: Center the photodiode.
+        autoalign_photodiode: Automatically align the photodiode for optimal signal.
+    """
+    
+    def __init__(self):
+        pass
+
+    def moveX_stage_steps(self, Nsteps):
+        """Move the stage by a specified number of steps in the X direction."""
+        pass
+
+    def moveX_stage_time(self, duration):
+        """Move the stage for a specified duration in the X direction."""
+        pass
+
+    def moveX_stage_distance(self, distance):
+        """Move the stage by a specific distance in the X direction."""
+        pass
+
+    def moveY_stage_steps(self, Nsteps):
+        """Move the stage by a specified number of steps in the Y direction."""
+        pass
+
+    def moveY_stage_time(self, duration):
+        """Move the stage for a specified duration in the Y direction."""
+        pass
+
+    def moveY_stage_distance(self, distance):
+        """Move the stage by a specific distance in the Y direction."""
+        pass
+
+    def moveZ_stage_steps(self, Nsteps):
+        """Move the stage by a specified number of steps in the Z direction."""
+        pass
+
+    def moveZ_stage_time(self, duration):
+        """Move the stage for a specified duration in the Z direction."""
+        pass
+
+    def moveZ_stage_distance(self, distance):
+        """Move the stage by a specific distance in the Z direction."""
+        pass
+
+    def center_stage(self):
+        """Move the stage to its center position."""
+        pass
+
+    def moveX_readout_laser_steps(self, Nsteps):
+        """Move the readout laser by a specified number of steps in the X direction."""
+        pass
+
+    def moveX_readout_laser_time(self, duration):
+        """Move the readout laser for a specified duration in the X direction."""
+        pass
+
+    def moveX_readout_laser_distance(self, distance):
+        """Move the readout laser by a specific distance in the X direction."""
+        pass
+
+    def moveY_readout_laser_steps(self, Nsteps):
+        """Move the readout laser by a specified number of steps in the Y direction."""
+        pass
+
+    def moveY_readout_laser_time(self, duration):
+        """Move the readout laser for a specified duration in the Y direction."""
+        pass
+
+    def moveY_readout_laser_distance(self, distance):
+        """Move the readout laser by a specific distance in the Y direction."""
+        pass
+
+    def moveZ_readout_laser_steps(self, Nsteps):
+        """Move the readout laser by a specified number of steps in the Z direction."""
+        pass
+
+    def moveZ_readout_laser_time(self, duration):
+        """Move the readout laser for a specified duration in the Z direction."""
+        pass
+
+    def moveZ_readout_laser_distance(self, distance):
+        """Move the readout laser by a specific distance in the Z direction."""
+        pass
+
+    def center_readout_laser(self):
+        """Center the readout laser."""
+        pass
+
+    def maximize_readout_laser(self):
+        """Maximize the signal from the readout laser."""
+        pass
+
+    def moveX_excitation_laser_steps(self, Nsteps):
+        """Move the excitation laser by a specified number of steps in the X direction."""
+        pass
+
+    def moveX_excitation_laser_time(self, duration):
+        """Move the excitation laser for a specified duration in the X direction."""
+        pass
+
+    def moveX_excitation_laser_distance(self, distance):
+        """Move the excitation laser by a specific distance in the X direction."""
+        pass
+
+    def moveY_excitation_laser_steps(self, Nsteps):
+        """Move the excitation laser by a specified number of steps in the Y direction."""
+        pass
+
+    def moveY_excitation_laser_time(self, duration):
+        """Move the excitation laser for a specified duration in the Y direction."""
+        pass
+
+    def moveY_excitation_laser_distance(self, distance):
+        """Move the excitation laser by a specific distance in the Y direction."""
+        pass
+
+    def moveZ_excitation_laser_steps(self, Nsteps):
+        """Move the excitation laser by a specified number of steps in the Z direction."""
+        pass
+
+    def moveZ_excitation_laser_time(self, duration):
+        """Move the excitation laser for a specified duration in the Z direction."""
+        pass
+
+    def moveZ_excitation_laser_distance(self, distance):
+        """Move the excitation laser by a specific distance in the Z direction."""
+        pass
+
+    def center_excitation_laser(self):
+        """Center the excitation laser."""
+        pass
+
+    def maximize_excitation_laser(self):
+        """Maximize the signal from the excitation laser."""
+        pass
+
+    def moveX_photodiode_steps(self, Nsteps):
+        """Move the photodiode by a specified number of steps in the X direction."""
+        pass
+
+    def moveX_photodiode_time(self, duration):
+        """Move the photodiode for a specified duration in the X direction."""
+        pass
+
+    def moveX_photodiode_distance(self, distance):
+        """Move the photodiode by a specific distance in the X direction."""
+        pass
+
+    def moveY_photodiode_steps(self, Nsteps):
+        """Move the photodiode by a specified number of steps in the Y direction."""
+        pass
+
+    def moveY_photodiode_time(self, duration):
+        """Move the photodiode for a specified duration in the Y direction."""
+        pass
+
+    def moveY_photodiode_distance(self, distance):
+        """Move the photodiode by a specific distance in the Y direction."""
+        pass
+
+    def center_photodiode(self):
+        """Center the photodiode."""
+        pass
+
+    def autoalign_photodiode(self):
+        """Automatically align the photodiode for optimal signal."""
+        pass
+
+
+class Lasers:
+    """
+    A class to control and manage the lasers in a scanning system.
+
+    This class provides methods to initialize, set, and retrieve parameters for the lasers,
+    including the readout power, excitation power, and excitation offset. It also controls
+    the laser states (on/off) and allows dynamic adjustment of these values.
+
+    Attributes:
+        readout_mW: Power of the readout laser in milliwatts.
+        excitation_mW: Power of the excitation laser in milliwatts.
+        excitation_offset: Offset value for the excitation laser.
+        readout_ON: Boolean indicating whether the readout laser is on.
+        excitation_ON: Boolean indicating whether the excitation laser is on.
+
+    Methods:
+        init_laser_with_params: Initializes an instance with specific laser parameters.
+        get_laser_parameters: Retrieves the current laser parameters from the system.
+        set_laser_parameters: Sets laser parameters such as power and state.
+    """
+    
+    def __init__(self):
+        self.get_laser_parameters()
+        
+    @classmethod
+    def init_laser_with_params(cls, readout_power, excitation_power, excitation_offset, readout_ON, excitation_ON):
+        """Initialize the instance with specific values for laser power, offset, and states."""
+        instance = cls()       
+        instance.set_laser_parameters(readout_power, excitation_power, excitation_offset, readout_ON, excitation_ON)
+        return instance  
+        
+    def get_laser_parameters(self):
+        """Retrieve the current laser power, offset, and state values from the system."""
+        # The following should be replaced with actual calls to retrieve values from the system:
+        # self.__readout_mW = 0  # Example value from the system in mW
+        # self.__excitation_mW = 0  # Example value from the system in mW
+        # self.__excitation_offset = 0  # Example value from the system
+        # self.__readout_ON = False  # Example value from the system
+        # self.__excitation_ON = False  # Example value from the system
+        
+        # Actual system retrieval code goes here
+        pass
+    
+    def set_laser_parameters(self, readout_mW, excitation_mW, excitation_offset, readout_ON, excitation_ON):
+        """Set the laser parameters such as power, offset, and state on the system."""
+        self.__readout_mW = readout_mW
+        self.__excitation_mW = excitation_mW
+        self.__excitation_offset = excitation_offset
+        self.__readout_ON = readout_ON
+        self.__excitation_ON = excitation_ON
+
+        # Code to update the system with these values goes here
+    
+    @property
+    def readout_mW(self):
+        """Get the current readout laser power in milliwatts."""
+        return self.__readout_mW 
+    
+    @readout_mW.setter
+    def readout_mW(self, value):
+        """Set the readout laser power, ensuring the value is non-negative."""
+        if 0 <= value:
+            self.__readout_mW  = value
+            # Code to update the laser control on the system goes here
+        else:
+            raise ValueError("Readout power must be equal to or greater than 0.")   
+            
+    @property
+    def excitation_mW(self):
+        """Get the current excitation laser power in milliwatts."""
+        return self.__excitation_mW 
+    
+    @excitation_mW.setter
+    def excitation_mW(self, value):
+        """Set the excitation laser power, ensuring the value is non-negative."""
+        if 0 <= value:
+            self.__excitation_mW  = value
+            # Code to update the laser control on the system goes here
+        else:
+            raise ValueError("Excitation power must be equal to or greater than 0.")   
+            
+    @property
+    def excitation_offset(self):
+        """Get the current excitation laser offset."""
+        return self.__excitation_offset
+    
+    @excitation_offset.setter
+    def excitation_offset(self, value):
+        """Set the excitation laser offset, ensuring the value is non-negative."""
+        if 0 <= value:
+            self.__excitation_offset  = value
+            # Code to update the laser control on the system goes here
+        else:
+            raise ValueError("Excitation offset must be equal to or greater than 0.")   
+            
+    @property
+    def readout_ON(self):
+        """Get the current state of the readout laser (on or off)."""
+        return self.__readout_ON
+    
+    @readout_ON.setter
+    def readout_ON(self, value):
+        """Set the readout laser state (on or off)."""
+        self.__readout_ON  = value
+        # Code to update the laser control on the system goes here
+
+    @property
+    def excitation_ON(self):
+        """Get the current state of the excitation laser (on or off)."""
+        return self.__excitation_ON
+    
+    @excitation_ON.setter
+    def excitation_ON(self, value):
+        """Set the excitation laser state (on or off)."""
+        self.__excitation_ON  = value
+        # Code to update the laser control on the system goes here
+        
+    def __repr__(self):
+        return (
+            f"{self.__class__.__name__}("
+            f"readout_mW={self.__readout_mW}, "
+            f"excitation_mW={self.__excitation_mW}, "
+            f"excitation_offset={self.__excitation_offset}, "
+            f"readout_ON={self.__readout_ON}, "
+            f"excitation_ON={self.__excitation_ON})"
+        )
 
 
 class AFMController:
