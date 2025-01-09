@@ -31,6 +31,10 @@ class Signals:
         get_X: Retrieves the X-coordinate signal.
         get_Y: Retrieves the Y-coordinate signal.
         get_Z: Retrieves the Z-coordinate signal.
+        get_sensor_X: Retrieves the X-coordinate sensor signal.
+        get_sensor_Y: Retrieves the Y-coordinate sensor signal.
+        get_sensor_Z: Retrieves the Z-coordinate sensor signal.
+        get_measured_Z: Retrieves the height measured by the sensor signal.
         get_amplitude: Retrieves the amplitude signal.
         get_phase: Retrieves the phase signal.
         get_exc_amplitude: Retrieves the excitation amplitude signal.
@@ -63,6 +67,22 @@ class Signals:
     def get_Z(self):
         """Retrieves the Z-coordinate signal from the system."""
         pass
+    
+    def get_sensor_X(self):
+        """Retrieves the X-coordinate sensor signal from the system."""
+        pass
+
+    def get_sensor_Y(self):
+        """Retrieves the Y-coordinate sensor signal from the system."""
+        pass
+
+    def get_sensor_Z(self):
+        """Retrieves the Z-coordinate sensor signal from the system."""
+        pass
+    
+    def get_measured_Z(self):
+        """Retrieves the hight from the sensor signal from the system."""
+        pass
 
     def get_amplitude(self):
         """Retrieves the amplitude signal from the system."""
@@ -81,367 +101,181 @@ class Signals:
         pass
 
 
-class ScanParameters:   
+class ScanParameters:
     """
     A class to handle scan parameters for a scanning system.
-    
-    This class provides methods to set and get scan parameters, ensuring
-    that the parameters stay within the defined bounds. It also checks if the
-    scan area is within the limits defined by the maximum scan dimensions.
-    
-    Attributes:
-        max_scan_x (float): The maximum allowed scan width.
-        max_scan_y (float): The maximum allowed scan height.
-        max_scan_speed (float): The maximum allowed scan speed.
-        min_scan_speed (float): The minimum allowed scan speed.
-        max_pixels_x (int): The maximum allowed pixels in the x-axis.
-        max_pixels_y (int): The maximum allowed pixels in the y-axis.
-        __width (float): Width of the scan area [m].
-        __height (float): Height of the scan area [m].
-        __rotation (float): Rotation of the scan area [deg].
-        __offset_x (float): X offset of the scan area [m].
-        __offset_y (float): Y offset of the scan area [m].
-        __scan_speed (float): Speed of the scan [Hz].
-        __pixels_x (int): Number of pixels in the x-axis.
-        __pixels_y (int): Number of pixels in the y-axis.
-        __tilt_x (float): Tilt in the x-axis [%].
-        __tilt_y (float): Tilt in the y-axis [%].
-        __close_loopXY (bool): Close loop control for XY plane.
-        __close_loopZ (bool): Close loop control for Z-axis.
-    
+
+    This class provides methods to set and get scan parameters. The implementation
+    allows for later integration of functionality to ensure that the parameters stay
+    within the defined bounds and that the scan area complies with the system's
+    specifications.
+
     Methods:
-        init_scan_parameters_with_params: Initializes an instance with specific scan parameters.
-        get_scan_parameters: Gets the current scan parameters from the system.
-        set_scan_parameters: Sets the scan parameters on the system.
-        __is_scan_area_out_of_bounds: Checks if the scan area is within bounds.
+        set_scan_parameters: Sets all scan parameters for the system.
+        get_scan_parameters: Retrieves all current scan parameters from the system.
+        get_width: Retrieves the current width of the scan area.
+        set_width: Sets the width of the scan area.
+        get_height: Retrieves the current height of the scan area.
+        set_height: Sets the height of the scan area.
+        get_rotation: Retrieves the current rotation of the scan area.
+        set_rotation: Sets the rotation of the scan area.
+        get_offset_x: Retrieves the current X offset of the scan area.
+        set_offset_x: Sets the X offset of the scan area.
+        get_offset_y: Retrieves the current Y offset of the scan area.
+        set_offset_y: Sets the Y offset of the scan area.
+        get_scan_speed: Retrieves the current scan speed.
+        set_scan_speed: Sets the scan speed.
+        get_pixels_x: Retrieves the number of pixels in the X-axis.
+        set_pixels_x: Sets the number of pixels in the X-axis.
+        get_pixels_y: Retrieves the number of pixels in the Y-axis.
+        set_pixels_y: Sets the number of pixels in the Y-axis.
+        get_tilt_x: Retrieves the tilt in the X-axis.
+        set_tilt_x: Sets the tilt in the X-axis.
+        get_tilt_y: Retrieves the tilt in the Y-axis.
+        set_tilt_y: Sets the tilt in the Y-axis.
+        get_close_loopXY: Retrieves the status of close-loop control for the XY plane.
+        set_close_loopXY: Sets the status of close-loop control for the XY plane.
+        get_close_loopZ: Retrieves the status of close-loop control for the Z-axis.
+        set_close_loopZ: Sets the status of close-loop control for the Z-axis.
     """
-    
-    # Common for all created ScanParameters objects 
-    max_scan_x = -1 # Init value [m]
-    max_scan_y = -1 # Init value [m]
-    max_scan_speed = -1 # Init value [Hz]
-    min_scan_speed = -1 # Init value [Hz]
-    max_pixels_x = -1 # Init value 
-    max_pixels_y = -1 # Init value 
-    
-    def __init__(self):   
-        # Acquire all scan parameters from the target system
-        self.get_scan_parameters()
+
+    def __init__(self):
+        pass
 
     @classmethod
-    def init_scan_parameters_with_params(cls, width, height, rotation, offset_x, offset_y, scan_speed, pixels_x, pixels_y, tilt_x, tilt_y, close_loopXY, close_loopZ):
+    def init_scan_parameters_with_params(
+        cls, width, height, rotation, offset_x, offset_y, scan_speed, pixels_x, pixels_y, tilt_x, tilt_y, close_loopXY, close_loopZ
+    ):
         """Initialize the instance with specific values for all attributes"""
         # Initialize the instance with specific values for all attributes
         instance = cls()
-        
-        instance.set_scan_parameters(width, height, rotation, offset_x, offset_y, scan_speed, pixels_x, pixels_y, tilt_x, tilt_y, close_loopXY, close_loopZ)
-        return instance
-        
-    def get_scan_parameters(self):
-        """Get the actual scanning parameters of the system"""
-        # self.__width = -1  # Read that from target system [m]
-        # self.__height = -1  # Read that from target system [m]
-        # self.__rotation = -1  # Read that from target system [deg]
-        # self.__offset_x = -1  # Read that from target system [m]
-        # self.__offset_y = -1  # Read that from target system [m]
-        # self.__scan_speed = -1  # Read that from target system [Hz]
-        # self.__pixels_x = -1  # Read that from target system
-        # self.__pixels_y = -1  # Read that from target system
-        # self.__tilt_x = -1  # Read that from target system [%]
-        # self.__tilt_y = -1  # Read that from target system [%]
-        # self.__close_loopXY = False  # Read that from target system
-        # self.__close_loopZ = False  # Read that from target system
-        
-        # self.max_scan_x = -1 # Init value [m]
-        # self.max_scan_y = -1 # Init value [m]
-        # self.max_scan_speed = -1 # Init value [Hz]
-        # self.min_scan_speed = -1 # Init value [Hz]
-        # self.max_pixels_x = -1 # Init value
-        # self.max_pixels_y = -1 # Init value
-
-        # Retrieve these values from the target system     
-        
-        pass
-    
-    def set_scan_parameters(self, width, height, rotation, offset_x, offset_y, scan_speed, pixels_x, pixels_y, tilt_x, tilt_y, close_loopXY, close_loopZ):
-        """Set scan parameters on the target system"""
-        self.__width = width
-        self.__height = height
-        self.__rotation = rotation
-        self.__offset_x = offset_x
-        self.__offset_y = offset_y
-        self.__scan_speed = scan_speed
-        self.__pixels_x = pixels_x
-        self.__pixels_y = pixels_y
-        self.__tilt_x = tilt_x
-        self.__tilt_y = tilt_y
-        self.__close_loopXY = close_loopXY
-        self.__close_loopZ = close_loopZ
-
-        # Update these values on the target system if necessary   
-    
-    @property
-    def width(self):
-        """The 'width' property getter"""
-        return self.__width
-    
-    @width.setter
-    def width(self, value):
-        """The 'width' property setter"""
-        temp_value  = self.__width # To save the value in case of out of bounds
-        self.__width = value
-        if self.__is_scan_area_out_of_bounds(self.__width, self.__height, self.__rotation, self.__offset_x, self.__offset_y, self.__max_scan_x, self.__max_scan_y):
-            # Width out of bounds
-            self.__width = temp_value
-            raise ValueError("Width out of bounds")
-        else:
-            # Set scan parameter on the target system   
-            pass
-            
-    @property
-    def height(self):
-        """The 'height' property getter"""
-        return self.__height
-    
-    @height.setter
-    def height(self, value):
-        """The 'height' property setter"""
-        temp_value  = self.__height # To save the value in case of out of bounds
-        self.__height = value
-        if self.__is_scan_area_out_of_bounds(self.__width, self.__height, self.__rotation, self.__offset_x, self.__offset_y, self.__max_scan_x, self.__max_scan_y):
-            # Height out of bounds
-            self.__height = temp_value
-            raise ValueError("Height out of bounds")
-        else:
-            # Set scan parameter on the target system   
-            pass
-             
-    @property
-    def rotation(self):
-        """The 'rotation' property getter"""
-        return self.__rotation
-    
-    @rotation.setter
-    def rotation(self, value):
-        """The 'rotation' property setter"""
-        temp_value  = self.__rotation # To save the value in case of out of bounds
-        self.__rotation = value
-        if self.__is_scan_area_out_of_bounds(self.__width, self.__height, self.__rotation, self.__offset_x, self.__offset_y, self.__max_scan_x, self.__max_scan_y):
-            # Rotation out of bounds
-            self.__rotation = temp_value
-            raise ValueError("Rotation out of bounds")
-        else:
-            # Set scan parameter on the target system   
-            pass
-                
-    @property
-    def offset_x(self):
-        """The 'offset_x' property getter"""
-        return self.__offset_x
-    
-    @offset_x.setter
-    def offset_x(self, value):
-        """The 'offset_x' property setter"""
-        temp_value  = self.__offset_x # To save the value in case of out of bounds
-        self.__offset_x = value
-        if self.__is_scan_area_out_of_bounds(self.__width, self.__height, self.__rotation, self.__offset_x, self.__offset_y, self.__max_scan_x, self.__max_scan_y):
-            # Offset_x out of bounds
-            self.__offset_x = temp_value
-            raise ValueError("Offset X out of bounds")
-        else:
-            # Set scan parameter on the target system   
-            pass
-                
-    @property
-    def offset_y(self):
-        """The 'offset_y' property getter"""
-        return self.__offset_y
-    
-    @offset_y.setter
-    def offset_y(self, value):
-        """The 'offset_y' property setter"""
-        temp_value  = self.__offset_y # To save the value in case of out of bounds
-        self.__offset_y= value
-        if self.__is_scan_area_out_of_bounds(self.__width, self.__height, self.__rotation, self.__offset_x, self.__offset_y, self.__max_scan_x, self.__max_scan_y):
-            # Offset_y out of bounds
-            self.__offset_y = temp_value
-            raise ValueError("Offset Y out of bounds")
-        else:
-            # Set scan parameter on the target system   
-            pass
-             
-    @property
-    def scan_speed(self):
-        """The 'scan_speed' property getter"""
-        return self.__scan_speed
-    
-    @scan_speed.setter
-    def scan_speed(self, value):
-        """The 'scan_speed' property setter"""
-        if self.min_scan_speed <= value <= self.max_scan_speed:
-            self.__scan_speed = value
-            # Set scan parameter on the target system   
-        else:
-            raise ValueError("Scan speed out of bounds")
-                         
-    @property
-    def pixels_x(self):
-        """The 'pixels_x' property getter"""
-        return self.__pixels_x
-    
-    @pixels_x.setter
-    def pixels_x(self, value):
-        """The 'pixels_x' property setter"""
-        if 0 < value <= self.max_pixels_x:
-            self.__pixels_x = value
-            # Set scan parameter on the target system   
-        else:
-            raise ValueError("Pixels X out of bounds")
-                         
-    @property
-    def pixels_y(self):
-        """The 'pixels_y' property getter"""
-        return self.__pixels_y
-    
-    @pixels_y.setter
-    def pixels_y(self, value):
-        """The 'pixels_y' property setter"""
-        if 0 < value <= self.max_pixels_y:
-            self.__pixels_y = value
-            # Set scan parameter on the target system   
-        else:
-            raise ValueError("Pixels Y out of bounds")
-                         
-    @property
-    def tilt_x(self):
-        """The 'tilt_x' property getter"""
-        return self.__tilt_x
-    
-    @tilt_x.setter
-    def tilt_x(self, value):
-        """The 'tilt_x' property setter"""
-        if 0 <= value < 100:
-            self.__tilt_x = value
-            # Set scan parameter on the target system   
-        else:
-            raise ValueError("Tilt X out of bounds")
-                         
-    @property
-    def tilt_y(self):
-        """The 'tilt_y' property getter"""
-        return self.__tilt_y
-    
-    @tilt_y.setter
-    def tilt_y(self, value):
-        """The 'width' property setter"""
-        if 0 <= value < 100:
-            self.__tilt_y = value
-            # Set scan parameter on the target system   
-        else:
-            raise ValueError("Tilt Y out of bounds")
-                         
-    @property
-    def close_loopXY(self):
-        """The 'close_loopXY' property getter"""
-        return self.__close_loopXY
-    
-    @close_loopXY.setter
-    def close_loopXY(self, value):
-        """The 'close_loopXY' property setter"""
-        self.__close_loopXY = value
-        # Set scan parameter on the target system   
-        
-    @property
-    def close_loopZ(self):
-        """The 'close_loopZ' property getter"""
-        return self.__close_loopZ
-    
-    @close_loopZ.setter
-    def close_loopZ(self, value):
-        """The 'close_loopZ' property setter"""
-        self.__close_loopZ = value
-        # Set scan parameter on the target system  
-        
-    def __is_scan_area_out_of_bounds(self, width, height, rotation, offset_x, offset_y, max_scan_x, max_scan_y):
-        """Private method to check if the scan area is within the allowed bounds."""
-        # Convert rotation angle to radians
-        rotation_rad = math.radians(rotation)
-        
-        # Calculate the four corners of the rectangle before rotation
-        corners = [
-            (-width / 2, -height / 2),
-            (width / 2, -height / 2),
-            (width / 2, height / 2),
-            (-width / 2, height / 2)
-        ]
-        
-        # Rotate the corners around the origin (0, 0)
-        rotated_corners = []
-        for x, y in corners:
-            x_rot = x * math.cos(rotation_rad) - y * math.sin(rotation_rad)
-            y_rot = x * math.sin(rotation_rad) + y * math.cos(rotation_rad)
-            rotated_corners.append((x_rot, y_rot))
-        
-        # Offset the rotated corners
-        offset_corners = [(x + offset_x, y + offset_y) for x, y in rotated_corners]
-        
-        # Find the bounding box of the rotated rectangle
-        min_x = min(x for x, y in offset_corners)
-        max_x = max(x for x, y in offset_corners)
-        min_y = min(y for x, y in offset_corners)
-        max_y = max(y for x, y in offset_corners)
-        
-        # Check if the bounding box is out of the defined limits
-        if min_x < 0 or max_x > max_scan_x or min_y < 0 or max_y > max_scan_y:
-            return True  # The scan area is out of bounds
-        return False  # The scan area is within bounds
-                    
-    def __repr__(self):
-        return (
-            f"ScanParameters("
-            f"width={self.__width}, "
-            f"height={self.__height}, "
-            f"rotation={self.__rotation}, "
-            f"offset_x={self.__offset_x}, "
-            f"offset_y={self.__offset_y}, "
-            f"scan_speed={self.__scan_speed}, "
-            f"pixels_x={self.__pixels_x}, "
-            f"pixels_y={self.__pixels_y}, "
-            f"tilt_x={self.__tilt_x}, "
-            f"tilt_y={self.__tilt_y}, "
-            f"close_loopXY={self.__close_loopXY}, "
-            f"close_loopZ={self.__close_loopZ}, "
-            f"max_scan_x={ScanParameters.max_scan_x}, "
-            f"max_scan_y={ScanParameters.max_scan_y}, "
-            f"max_scan_speed={ScanParameters.max_scan_speed}, "
-            f"min_scan_speed={ScanParameters.min_scan_speed}, "
-            f"max_pixels_x={ScanParameters.max_pixels_x}, "
-            f"max_pixels_y={ScanParameters.max_pixels_y})"
+        instance.set_scan_parameters(
+            width, height, rotation, offset_x, offset_y, scan_speed, pixels_x, pixels_y, tilt_x, tilt_y, close_loopXY, close_loopZ
         )
+        return instance
+
+    def set_scan_parameters(
+        self, width, height, rotation, offset_x, offset_y, scan_speed, pixels_x, pixels_y, tilt_x, tilt_y, close_loopXY, close_loopZ
+    ):
+        """Sets all scan parameters on the system."""
+        pass
+
+    def get_scan_parameters(self):
+        """Retrieves all current scan parameters from the system."""
+        pass
+
+    def get_width(self):
+        """Retrieves the current width of the scan area."""
+        pass
+
+    def set_width(self, value):
+        """Sets the width of the scan area."""
+        pass
+
+    def get_height(self):
+        """Retrieves the current height of the scan area."""
+        pass
+
+    def set_height(self, value):
+        """Sets the height of the scan area."""
+        pass
+
+    def get_rotation(self):
+        """Retrieves the current rotation of the scan area."""
+        pass
+
+    def set_rotation(self, value):
+        """Sets the rotation of the scan area."""
+        pass
+
+    def get_offset_x(self):
+        """Retrieves the current X offset of the scan area."""
+        pass
+
+    def set_offset_x(self, value):
+        """Sets the X offset of the scan area."""
+        pass
+
+    def get_offset_y(self):
+        """Retrieves the current Y offset of the scan area."""
+        pass
+
+    def set_offset_y(self, value):
+        """Sets the Y offset of the scan area."""
+        pass
+
+    def get_scan_speed(self):
+        """Retrieves the current scan speed."""
+        pass
+
+    def set_scan_speed(self, value):
+        """Sets the scan speed."""
+        pass
+
+    def get_pixels_x(self):
+        """Retrieves the number of pixels in the X-axis."""
+        pass
+
+    def set_pixels_x(self, value):
+        """Sets the number of pixels in the X-axis."""
+        pass
+
+    def get_pixels_y(self):
+        """Retrieves the number of pixels in the Y-axis."""
+        pass
+
+    def set_pixels_y(self, value):
+        """Sets the number of pixels in the Y-axis."""
+        pass
+
+    def get_tilt_x(self):
+        """Retrieves the tilt in the X-axis."""
+        pass
+
+    def set_tilt_x(self, value):
+        """Sets the tilt in the X-axis."""
+        pass
+
+    def get_tilt_y(self):
+        """Retrieves the tilt in the Y-axis."""
+        pass
+
+    def set_tilt_y(self, value):
+        """Sets the tilt in the Y-axis."""
+        pass
+
+    def get_close_loopXY(self):
+        """Retrieves the status of close-loop control for the XY plane."""
+        pass
+
+    def set_close_loopXY(self, value):
+        """Sets the status of close-loop control for the XY plane."""
+        pass
+
+    def get_close_loopZ(self):
+        """Retrieves the status of close-loop control for the Z-axis."""
+        pass
+
+    def set_close_loopZ(self, value):
+        """Sets the status of close-loop control for the Z-axis."""
+        pass
+
+    def __repr__(self):
+        """Represents the ScanParameters object as a string."""
+        return "ScanParameters()"
 
 
-class ScanControl:   
+class ScanControl:
     """
     A class to control scanning operations for a given system.
-    
-    This class provides methods to start, stop, and manage scanning operations, 
-    including setting parameters such as the scan direction, bounce mode, continuous scan, 
-    auto-save options, and file paths. It ensures proper validation and encapsulation of 
-    the parameters used in the scanning process.
-    
-    Attributes:
-        __isScanningUp (bool): Indicates if the scanning is in the upward direction.
-        __isScanningDown (bool): Indicates if the scanning is in the downward direction.
-        __isBouncing (bool): Indicates if the scanning is in bouncing mode.
-        __isContinuousScan (bool): Indicates if the scanning is continuous.
-        __isAutoSave (bool): Indicates if auto-save is enabled.
-        __path (str): Path where the scan results will be saved.
-        __file_name (str): Name of the file where the scan results will be saved.
-    
+
+    This class provides methods to start, stop, and manage scanning operations,
+    including setting parameters such as the scan direction, bounce mode, continuous scan,
+    auto-save options, and file paths.
+
     Methods:
-        init_scan_control_with_params: Initializes the instance with specific values for all attributes.
-        get_scan_control_parameters: Get the actual scanning status of the system.
-        set_scan_control_parameters: Sets parameters on the target system.
+        get_scan_control_parameters: Retrieves the current scanning parameters from the system.
+        set_scan_control_parameters: Sets the scanning parameters on the system.
         scan_up: Starts scanning in the upward direction.
         scan_down: Starts scanning in the downward direction.
         scan_bouncing: Starts bouncing scan.
@@ -449,335 +283,257 @@ class ScanControl:
         scan_pause: Pauses scanning.
         scan_resume: Resumes scanning.
         scan_continuous: Enables or disables continuous scan.
+        get_scan_direction: Retrieves the current scan direction.
         scan_auto_save: Enables or disables auto-save.
         scan_save_now: Saves current scan data immediately.
         is_scanning: Checks if scanning is active.
         is_paused: Checks if scanning is paused.
-        get_pixel_pos: Retrieve the actual scanning XY pixel numbers.
-        get_xyposition: Retrieve the actual XY scanner position.
-        set_xyposition: Move the tip to the desired XY position.
+        isContinuousScan: Checks if continuous scanning is enabled.
+        isAutoSave: Checks if auto-save is enabled.
+        get_pixel_pos: Retrieves the current scanning XY pixel numbers.
+        get_xyposition: Retrieves the current XY scanner position.
+        set_xyposition: Moves the tip to the desired XY position.
+        get_path: Retrieves the path associated with the scan.
+        set_path: Sets the path associated with the scan.
+        get_file_name: Retrieves the file name for the scan.
+        set_file_name: Sets the file name for the scan.
         do_ramp_absolute: Performs a Z ramp with absolute starting and ending points.
         do_ramp_absolute_length: Performs a Z ramp with absolute starting point and ramp length.
         do_ramp_absolute_trig: Performs a Z ramp with an absolute starting point and a trigger-based endpoint.
-        do_ramp_relative_length: Performs a Z ramp relative to the actual position with specified length.
+        do_ramp_relative_length: Performs a Z ramp relative to the actual position with a specified length.
         do_ramp_relative_trig: Performs a Z ramp relative to the actual position with a trigger-based endpoint.
+        get_path_ramp: Retrieves the path for ramp data storage.
+        set_path_ramp: Sets the path for ramp data storage.
+        get_file_name_ramp: Retrieves the file name for ramp data storage.
+        set_file_name_ramp: Sets the file name for ramp data storage.
     """
-    
+
     def __init__(self):
-        self.get_scan_control_parameters()
-        
+        pass
+
     @classmethod
     def init_scan_control_with_params(cls, isScanningUp, isScanningDown, isBouncing, isContinuousScan, isAutoSave, path, file_name):
-        """Initialize the instance with specific values for all attributes"""
-        instance = cls()       
+        """Initialize the instance with specific values for all attributes."""
+        instance = cls()
         instance.set_scan_control_parameters(isScanningUp, isScanningDown, isBouncing, isContinuousScan, isAutoSave, path, file_name)
         return instance
-    
-    def get_scan_control_parameters(self):
-        """Get the actual scanning status of the system"""
-        # self.__isScanningUp = False  # Read that from target system
-        # self.__isScanningDown = False  # Read that from target system
-        # self.__isBouncing = False  # Read that from target system
-        # self.__isContinuousScan = False  # Read that from target system
-        # self.__isAutoSave = False  # Read that from target system
-        # self.__path = ''  # Read that from target system
-        # self.__file_name = ''  # Read that from target system
-        
-        # Retrieve these values from the target system
-        
-        pass
-    
-    def set_scan_control_parameters(self, isScanningUp, isScanningDown, isBouncing, isContinuousScan, isAutoSave, path, file_name):
-        """Set scan control parameters on the target system"""
-        self.__isScanningUp = isScanningUp
-        self.__isScanningDown = isScanningDown
-        self.__isBouncing = isBouncing
-        self.__isContinuousScan = isContinuousScan
-        self.__isAutoSave = isAutoSave
-        self.__path = path
-        self.__file_name = file_name
-        # Update these values on the target system if necessary
 
-    @property
-    def isScanningUp(self):
-        """The 'isScanningUp' property getter"""
-        return self.__isScanningUp
-    
-    @isScanningUp.setter
-    def isScanningUp(self, value):
-        """The 'isScanningUp' property setter"""
-        if value:
-            self.scan_up()
-        elif self.__isScanningUp:
-            self.scan_stop()
-            
+    def get_scan_control_parameters(self):
+        """Retrieves the current scanning parameters from the system."""
+        pass
+
+    def set_scan_control_parameters(self, isScanningUp, isScanningDown, isBouncing, isContinuousScan, isAutoSave, path, file_name):
+        """Sets the scanning parameters on the system."""
+        pass
+
     def scan_up(self):
-        """Start scanning up"""
-        self.__isScanningUp = True
-        self.__isScanningDown = False
-        self.__isBouncing = False
-        # Implement scan control parameters on the target system        
-            
-    @property
-    def isScanningDown(self):
-        """The 'isScanningDown' property getter"""
-        return self.__isScanningDown
-    
-    @isScanningDown.setter
-    def isScanningDown(self, value):
-        """The 'isScanningDown' property setter"""
-        if value:
-            self.scan_down()
-        elif self.__isScanningDown:
-            self.scan_stop()   
-    
+        """Starts scanning in the upward direction."""
+        pass
+
     def scan_down(self):
-        """Start scanning down"""
-        self.__isScanningUp = False
-        self.__isScanningDown = True
-        self.__isBouncing = False
-        # Implement scan control parameters on the target system
-    
-    @property
-    def isBouncing(self):
-        """The 'isBouncing' property getter"""
-        return self.__isBouncing
-    
-    @isBouncing.setter
-    def isBouncing(self, value):
-        """The 'isBouncing' property setter"""
-        if value:
-            self.scan_bouncing()
-        elif self.__isBouncing:
-            self.scan_stop()      
+        """Starts scanning in the downward direction."""
+        pass
 
     def scan_bouncing(self):
-        """Start bouncing scan"""
-        self.__isScanningUp = False
-        self.__isScanningDown = False
-        self.__isBouncing = True
-        # Implement scan control parameters on the target system
-    
+        """Starts bouncing scan."""
+        pass
+
     def scan_stop(self):
-        """Stop scanning"""
-        self.__isScanningUp = False
-        self.__isScanningDown = False
-        self.__isBouncing = False
-        # Implement scan control parameters on the target system
-       
+        """Stops scanning."""
+        pass
+
     def scan_pause(self):
-        """Pause scanning"""
-        # Implement scan control parameters on the target system
+        """Pauses scanning."""
         pass
-    
+
     def scan_resume(self):
-        """Resume scanning"""
-        # Implement scan control parameters on the target system
-        pass     
+        """Resumes scanning."""
+        pass
 
-    @property
-    def path(self):
-        """The 'path' property getter"""
-        return self.__path
-    
-    @path.setter
-    def path(self, value):
-        """The 'path' property setter"""
-        if not os.path.exists(value):
-            os.makedirs(value)  # Create the directory if it does not exist
-        self.__path = value    
-        # Implement scan control parameters on the target system
-    
-    @property
-    def file_name(self):
-        """The 'file_name' property getter"""
-        return self.__file_name 
-
-    @file_name.setter
-    def file_name(self, value):
-        """The 'file_name' property setter"""
-        if not re.match(r'^[\w\-. ]+$', value):
-            raise ValueError(f"The file name '{value}' is not valid.")
-        self.__file_name = value
-        # Implement scan control parameters on the target system
-
-    @property
-    def isContinuousScan(self):
-        """The 'isContinuousScan' property getter"""
-        return self.__isContinuousScan
-    
-    @isContinuousScan.setter
-    def isContinuousScan(self, value):
-        """The 'isContinuousScan' property setter"""
-        self.__isContinuousScan = value
-        self.scan_continuous(value)
-        
     def scan_continuous(self, value):
-        """Enable or disable continuous scan"""
-        self.__isContinuousScan = value
-        # Implement scan control parameters on the target system
-        
-    @property
-    def isAutoSave(self):
-        """The 'isAutoSave' property getter"""
-        return self.__isAutoSave
-    
-    @isAutoSave.setter
-    def isAutoSave(self, value):
-        """The 'isAutoSave' property setter"""
-        self.__isAutoSave = value
-        self.scan_auto_save(value)
-    
+        """Enables or disables continuous scan.
+
+        Args:
+            value (bool): True to enable continuous scan, False to disable.
+        """
+        pass
+
+    def get_scan_direction(self):
+        """Retrieves the current scan direction."""
+        pass
+
     def scan_auto_save(self, value):
-        """Enable or disable auto-save"""
-        self.__isAutoSave = value
-        # Implement scan control parameters on the target system
-     
+        """Enables or disables auto-save.
+
+        Args:
+            value (bool): True to enable auto-save, False to disable.
+        """
+        pass
+
     def scan_save_now(self):
-        """Save current scan data immediately"""
-        # Implement scan control parameters on the target system
+        """Saves current scan data immediately."""
         pass
-    
+
     def is_scanning(self):
-        """Check if scanning is active"""
-        # Implement scan control parameters on the target system
+        """Checks if scanning is active."""
         pass
-    
+
     def is_paused(self):
-        """Check if scanning is paused"""
-        # Implement scan control parameters on the target system
+        """Checks if scanning is paused."""
         pass
     
+    def isContinuousScan(self):
+        """Checks if continuous scanning is enabled."""
+        pass
+
+    def isAutoSave(self):
+        """Checks if auto-save is enabled."""
+        pass
+
     def get_pixel_pos(self):
-        """Retrieve the actual scanning XY pixel numbers"""
-        # Implement scan control parameters on the target system
+        """Retrieves the current scanning XY pixel numbers."""
         pass
-    
+
     def get_xyposition(self):
-        """Retrieve the actual XY scanner position"""
-        # Implement scan control parameters on the target system
+        """Retrieves the current XY scanner position."""
         pass
-    
-    def set_xyposition(self, x, y, forced = False):
-        """Move the tip to the desired XY position"""
-        if self.__isScanningUp or self.__isScanningUp or self.__isScanningUp: # If scanning
-            if forced: # If scanning, it is forced to stop and move the the desired position
-                self.scan_stop()
-                # Implement scan control parameters on the target system
-                pass
-        else:
-            # Implement scan control parameters on the target system
-            pass
+
+    def set_xyposition(self, x, y, forced=False):
+        """Moves the tip to the desired XY position.
+
+        Args:
+            x (float): Desired X position in meters.
+            y (float): Desired Y position in meters.
+            forced (bool): If True, scanning stops to move the tip.
+        """
+        pass
+
+    def get_path(self):
+        """Retrieves the path associated with the scan."""
+        pass
+
+    def set_path(self, path):
+        """Sets the path associated with the scan.
+
+        Args:
+            path (str): Path for the scan.
+        """
+        pass
+
+    def get_file_name(self):
+        """Retrieves the file name for the scan."""
+        pass
+
+    def set_file_name(self, file_name):
+        """Sets the file name for the scan.
+
+        Args:
+            file_name (str): Name of the file.
+        """
+        pass
 
     def do_ramp_absolute(self, init, end, N, speed_f, speed_b, wait_s):
         """
-        Perform a Z ramp with absolute starting and ending points.
-    
+        Performs a Z ramp with absolute starting and ending points.
+
         Args:
-            init (float): Initial position in meters [m].
-            end (float): Final position in meters [m].
+            init (float): Initial position in meters.
+            end (float): Final position in meters.
             N (int): Number of steps in the ramp.
-            speed_f (float): Forward speed in meters per second [m/s].
-            speed_b (float): Backward speed in meters per second [m/s].
-            wait_s (float): Waiting time at the turnaround point in seconds [s].
-    
-        This method controls the ramp by defining absolute starting and ending points for the Z ramp,
-        at specific forward and backward speeds, with a waiting period at the turnaround point.
+            speed_f (float): Forward speed in meters per second.
+            speed_b (float): Backward speed in meters per second.
+            wait_s (float): Waiting time at the turnaround point in seconds.
         """
-        # Implement scan control parameters on the target system
         pass
-    
+
     def do_ramp_absolute_length(self, init, length, N, speed_f, speed_b, wait_s):
         """
-        Perform a Z ramp with absolute starting and total ramp length.
-    
+        Performs a Z ramp with absolute starting point and ramp length.
+
         Args:
-            init (float): Initial position in meters [m].
-            length (float): Length of the Z movement in meters [m].
+            init (float): Initial position in meters.
+            length (float): Length of the Z movement in meters.
             N (int): Number of steps in the ramp.
-            speed_f (float): Forward speed in meters per second [m/s].
-            speed_b (float): Backward speed in meters per second [m/s].
-            wait_s (float): Waiting time at the turnaround point in seconds [s].
-    
-        This method controls the ramp by defining absolute starting and  and length for the Z ramp,
-        at specific forward and backward speeds, with a waiting period at the turnaround point.
+            speed_f (float): Forward speed in meters per second.
+            speed_b (float): Backward speed in meters per second.
+            wait_s (float): Waiting time at the turnaround point in seconds.
         """
-        # Implement scan control parameters on the target system
         pass
-    
+
     def do_ramp_absolute_trig(self, init, trig_val, trig_signal, trig_sig, N, speed_f, speed_b, wait_s):
         """
-        Perform a Z ramp with an absolute starting point and a trigger-based endpoint.
-    
+        Performs a Z ramp with an absolute starting point and a trigger-based endpoint.
+
         Args:
-            init (float): Initial position in meters [m].
-            trig_val (float): Trigger value that determines when to end the ramp [m].
+            init (float): Initial position in meters.
+            trig_val (float): Trigger value that determines when to end the ramp.
             trig_signal (str): The signal used for triggering (e.g., force or voltage).
-            trig_sig (str): The trigger condition, either '>' or '<', defining whether the ramp stops 
-                            when the signal exceeds or drops below `trig_val`.
+            trig_sig (str): Trigger condition ('>' or '<') to stop the ramp.
             N (int): Number of steps in the ramp.
-            speed_f (float): Forward speed in meters per second [m/s].
-            speed_b (float): Backward speed in meters per second [m/s].
-            wait_s (float): Waiting time at the turnaround point in seconds [s].
-    
-        This method controls the ramp by defining an absolute starting point and a dynamic endpoint
-        based on a trigger condition (`trig_sig`). The ramp will stop when `trig_signal` meets the condition 
-        defined by `trig_sig` (either `>` or `<`) in relation to `trig_val`, while the speed and number of 
-        steps are also specified. The scan will pause for `wait_s` seconds at the turnaround point.
+            speed_f (float): Forward speed in meters per second.
+            speed_b (float): Backward speed in meters per second.
+            wait_s (float): Waiting time at the turnaround point in seconds.
         """
-        # Implement scan control parameters on the target system
         pass
-    
+
     def do_ramp_relative_length(self, init, length, N, speed_f, speed_b, wait_s):
         """
-        Perform a Z ramp relative to the actual position.
-    
+        Performs a Z ramp relative to the actual position with a specified length.
+
         Args:
-            init (float): Initial position in meters [m] relative to the actual position.
-            length (float): Length of the Z movement in meters [m].
+            init (float): Initial position relative to the actual position in meters.
+            length (float): Length of the Z movement in meters.
             N (int): Number of steps in the ramp.
-            speed_f (float): Forward speed in meters per second [m/s].
-            speed_b (float): Backward speed in meters per second [m/s].
-            wait_s (float): Waiting time at the turnaround point in seconds [s].
-    
-        This method controls the ramp by defining absolute starting points and length for the Z ramp,
-        at specific forward and backward speeds, with a waiting period at the turnaround point.
+            speed_f (float): Forward speed in meters per second.
+            speed_b (float): Backward speed in meters per second.
+            wait_s (float): Waiting time at the turnaround point in seconds.
         """
-        # Implement scan control parameters on the target system
         pass
-    
+
     def do_ramp_relative_trig(self, init, trig_val, trig_signal, trig_sig, N, speed_f, speed_b, wait_s):
         """
-        Perform a Z ramp relative to the actual position and a trigger-based endpoint.
-    
+        Performs a Z ramp relative to the actual position with a trigger-based endpoint.
+
         Args:
-            init (float): Initial position in meters [m] relative to the actual position.
-            trig_val (float): Trigger value that determines when to end the ramp [m].
+            init (float): Initial position relative to the actual position in meters.
+            trig_val (float): Trigger value that determines when to end the ramp.
             trig_signal (str): The signal used for triggering (e.g., force or voltage).
-            trig_sig (str): The trigger condition, either '>' or '<', defining whether the ramp stops 
-                            when the signal exceeds or drops below `trig_val`.
+            trig_sig (str): Trigger condition ('>' or '<') to stop the ramp.
             N (int): Number of steps in the ramp.
-            speed_f (float): Forward speed in meters per second [m/s].
-            speed_b (float): Backward speed in meters per second [m/s].
-            wait_s (float): Waiting time at the turnaround point in seconds [s].
-    
-        This method controls the ramp by defining an absolute starting point and a dynamic endpoint
-        based on a trigger condition (`trig_sig`). The ramp will stop when `trig_signal` meets the condition 
-        defined by `trig_sig` (either `>` or `<`) in relation to `trig_val`, while the speed and number of 
-        steps are also specified. The scan will pause for `wait_s` seconds at the turnaround point.
+            speed_f (float): Forward speed in meters per second.
+            speed_b (float): Backward speed in meters per second.
+            wait_s (float): Waiting time at the turnaround point in seconds.
         """
-        # Implement scan control parameters on the target system
+        pass
+
+    def get_path_ramp(self):
+        """Retrieves the path for ramp data storage."""
+        pass
+
+    def set_path_ramp(self, path):
+        """Sets the path for ramp data storage.
+
+        Args:
+            path (str): Path for ramp data.
+        """
+        pass
+
+    def get_file_name_ramp(self):
+        """Retrieves the file name for ramp data storage."""
+        pass
+
+    def set_file_name_ramp(self, file_name):
+        """Sets the file name for ramp data storage.
+
+        Args:
+            file_name (str): Name of the file for ramp data.
+        """
         pass
 
     def __repr__(self):
-        return (f"ScanControl("
-                f"isScanningUp={self.__isScanningUp}, "
-                f"isScanningDown={self.__isScanningDown}, "
-                f"isBouncing={self.__isBouncing}, "
-                f"isContinuousScan={self.__isContinuousScan}, "
-                f"isAutoSave={self.__isAutoSave}, "
-                f"path={self.__path}, "
-                f"file_name={self.__file_name})")
+        """Represents the ScanControl object as a string."""
+        return "ScanControl()"
+
 
 class AFMMode:
     """
