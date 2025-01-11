@@ -1,6 +1,3 @@
-import os
-import re
-import math
 from enum import Enum
 
 
@@ -568,188 +565,170 @@ class AMMode(AFMMode):
     This class provides methods to initialize, get, and set parameters specific to the AM Mode, 
     including the ability to manage excitation settings, lock-in amplifier parameters, and the free amplitude.
 
-    Attributes:
-        __exc_type (ExcType): Type of excitation used, either 'piezo' or 'photothermal'.
-        __exc_amplitude (float): Amplitude of the excitation signal in volts.
-        __exc_offset (float): Offset of the excitation signal in volts.
-        __exc_frequency (float): Frequency of the excitation signal in Hertz.
-        __exc_phase (float): Phase of the excitation signal in degrees, ranging from -180 to 180.
-        __lockin_bandwidth (float): Bandwidth of the lock-in amplifier in Hertz.
-        __lockin_order (int): Order of the lock-in amplifier, restricted to values 1, 2, 3, or 4.
-        __free_amplitude (float): Free amplitude of the cantilever in volts.
-
     Methods:
-        init_mode_with_params: Initializes the instance with specific values for all attributes and returns the instance.
         get_mode_parameters: Fetches the current AM Mode parameters from the system.
         set_mode_parameters: Sets the AM Mode parameters on the target system.
+        get_exc_type: Retrieves the excitation type used.
+        set_exc_type: Sets the excitation type used.
+        get_exc_amplitude: Retrieves the excitation amplitude.
+        set_exc_amplitude: Sets the excitation amplitude.
+        get_exc_offset: Retrieves the excitation offset.
+        set_exc_offset: Sets the excitation offset.
+        get_exc_frequency: Retrieves the excitation frequency.
+        set_exc_frequency: Sets the excitation frequency.
+        get_exc_phase: Retrieves the excitation phase.
+        set_exc_phase: Sets the excitation phase.
+        get_lockin_bandwidth: Retrieves the lock-in amplifier bandwidth.
+        set_lockin_bandwidth: Sets the lock-in amplifier bandwidth.
+        get_lockin_order: Retrieves the lock-in amplifier order.
+        set_lockin_order: Sets the lock-in amplifier order.
+        get_free_amplitude: Retrieves the free amplitude of the cantilever.
+        set_free_amplitude: Sets the free amplitude of the cantilever.
         do_sweep: Performs a frequency sweep based on the given parameters.
-    """       
-        
+    """
+
     def __init__(self):
-        super().__init__(AFMModes.AM)
-        self.get_mode_parameters()
-    
+        pass
+
     @classmethod
     def init_mode_with_params(cls, exc_type, exc_amplitude, exc_offset, exc_frequency, exc_phase, lockin_bandwidth, lockin_order, free_amplitude):
         """Initialize the instance with specific values for all attributes and return the instance."""
-        instance = cls()       
+        instance = cls()
         instance.set_mode_parameters(exc_type, exc_amplitude, exc_offset, exc_frequency, exc_phase, lockin_bandwidth, lockin_order, free_amplitude)
-        return instance  
-    
+        return instance
+
     def get_mode_parameters(self):
-        """Get the actual mode parameters"""
-        # self.__exc_type = ExcType.PZ # Read that from target system [piezo, photothermal]
-        # self.__exc_amplitude = 0  # Read that from target system [V]
-        # self.__exc_offset = 0  # Read that from target system [V]
-        # self.__exc_frequency = 0  # Read that from target system [Hz]
-        # self.__exc_phase = 0  # Read that from target system [deg]
-        # self.__lockin_bandwidth = 0  # Read that from target system [Hz]
-        # self.__lockin_order = 1 # Read that from target system 
-        # self.__free_amplitude = 0 # Read that from target system [V]
-
-        # Retrieve these values from the target 
-        
+        """Fetches the current AM Mode parameters from the system."""
         pass
-    
-    def set_mode_parameters(self, exc_type, exc_amplitude, exc_offset, exc_frequency, exc_phase, lockin_bandwidth, lockin_order, free_amplitude):
-        """Set the contact mode parameters on the target system"""
-        self.__exc_type = exc_type # [piezo, photothermal]
-        self.__exc_amplitude = exc_amplitude
-        self.__exc_offset = exc_offset
-        self.__exc_frequency = exc_frequency
-        self.__exc_phase = exc_phase
-        self.__lockin_bandwidth = lockin_bandwidth
-        self.__lockin_order = lockin_order
-        self.__free_amplitude = free_amplitude
-        
-        # Update these values on the target system if necessary   
 
-    @property
-    def exc_type(self):
-        """The 'exc_type' property getter"""
-        return self.__exc_type
-    
-    @exc_type.setter
-    def exc_type(self, value):
-        """The 'exc_type' property setter"""
-        if not isinstance(value, ExcType):
-            raise ValueError("exc_type must be an instance of ExcType.")
-        self.__exc_type = value
-        # Set the mode parameter on the target system
-        
-    @property
-    def exc_amplitude(self):
-        """The 'exc_amplitude' property getter"""
-        return self.__exc_amplitude
-    
-    @exc_amplitude.setter
-    def exc_amplitude(self, value):
-        """The 'exc_amplitude' property setter"""
-        if 0 <= value:
-            self.__exc_amplitude = value
-            # Set the mode parameter on the target system   
-        else:
-            raise ValueError("Excitation amplitude must be equal to or greater than 0.")     
-   
-    @property
-    def exc_offset(self):
-        """The 'exc_offset' property getter"""
-        return self.__exc_offset
-    
-    @exc_offset.setter
-    def exc_offset(self, value):
-        """The 'exc_offset' property setter"""
-        self.__exc_offset = value
-        # Set the mode parameter on the target system  
-        
-    @property
-    def exc_frequency(self):
-        """The 'exc_frequency' property getter"""
-        return self.__exc_frequency
-    
-    @exc_frequency.setter
-    def exc_frequency(self, value):
-        """The 'exc_frequency' property setter"""
-        if 0 < value:
-            self.__exc_frequency = value
-            # Set the mode parameter on the target system   
-        else:
-            raise ValueError("Excitation frequency must be greater than 0.")   
-            
-    @property
-    def exc_phase(self):
-        """The 'exc_phase' property getter"""
-        return self.__exc_phase
-    
-    @exc_phase.setter
-    def exc_phase(self, value):
-        """The 'exc_phase' property setter"""
-        if -180 <= value <= 180:
-            self.__exc_phase= value
-            # Set the mode parameter on the target system   
-        else:
-            raise ValueError("Excitation phase must be between -180 and 180 degrees.")     
-    
-    @property
-    def lockin_bandwidth(self):
-        """The 'lockin_bandwidth' property getter"""
-        return self.__lockin_bandwidth
-    
-    @lockin_bandwidth.setter
-    def lockin_bandwidth(self, value):
-        """The 'lockin_bandwidth' property setter"""
-        if 0 <= value:
-            self.__lockin_bandwidth = value
-            # Set PID control parameter on the target system   
-        else:
-            raise ValueError("Lock-in bandwidth must be equal to or greater than 0.")    
-            
-    @property
-    def lockin_order(self):
-        """The 'lockin_order' property getter"""
-        return self.__lockin_order
-    
-    @lockin_order.setter
-    def lockin_order(self, value):
-        """The 'lockin_order' property setter"""
-        if value in [1, 2, 3, 4]:
-            self.__lockin_order = value
-            # Set PID control parameter on the target system   
-        else:
-            raise ValueError("Lockin order must be 1, 2, 3, or 4.")           
+    def set_mode_parameters(self, exc_type, exc_amplitude, exc_offset, exc_frequency, exc_phase, lockin_bandwidth, lockin_order, free_amplitude):
+        """Sets the AM Mode parameters on the target system.
+
+        Args:
+            exc_type (ExcType): Type of excitation used (e.g., 'piezo', 'photothermal').
+            exc_amplitude (float): Excitation amplitude in volts.
+            exc_offset (float): Excitation offset in volts.
+            exc_frequency (float): Excitation frequency in Hertz.
+            exc_phase (float): Excitation phase in degrees (-180 to 180).
+            lockin_bandwidth (float): Lock-in amplifier bandwidth in Hertz.
+            lockin_order (int): Lock-in amplifier order (1, 2, 3, or 4).
+            free_amplitude (float): Free amplitude of the cantilever in volts.
+        """
+        pass
+
+    def get_exc_type(self):
+        """Retrieves the excitation type used."""
+        pass
+
+    def set_exc_type(self, exc_type):
+        """Sets the excitation type used.
+
+        Args:
+            exc_type (ExcType): Type of excitation (e.g., 'piezo', 'photothermal').
+        """
+        pass
+
+    def get_exc_amplitude(self):
+        """Retrieves the excitation amplitude."""
+        pass
+
+    def set_exc_amplitude(self, exc_amplitude):
+        """Sets the excitation amplitude.
+
+        Args:
+            exc_amplitude (float): Amplitude in volts.
+        """
+        pass
+
+    def get_exc_offset(self):
+        """Retrieves the excitation offset."""
+        pass
+
+    def set_exc_offset(self, exc_offset):
+        """Sets the excitation offset.
+
+        Args:
+            exc_offset (float): Offset in volts.
+        """
+        pass
+
+    def get_exc_frequency(self):
+        """Retrieves the excitation frequency."""
+        pass
+
+    def set_exc_frequency(self, exc_frequency):
+        """Sets the excitation frequency.
+
+        Args:
+            exc_frequency (float): Frequency in Hertz.
+        """
+        pass
+
+    def get_exc_phase(self):
+        """Retrieves the excitation phase."""
+        pass
+
+    def set_exc_phase(self, exc_phase):
+        """Sets the excitation phase.
+
+        Args:
+            exc_phase (float): Phase in degrees (-180 to 180).
+        """
+        pass
+
+    def get_lockin_bandwidth(self):
+        """Retrieves the lock-in amplifier bandwidth."""
+        pass
+
+    def set_lockin_bandwidth(self, lockin_bandwidth):
+        """Sets the lock-in amplifier bandwidth.
+
+        Args:
+            lockin_bandwidth (float): Bandwidth in Hertz.
+        """
+        pass
+
+    def get_lockin_order(self):
+        """Retrieves the lock-in amplifier order."""
+        pass
+
+    def set_lockin_order(self, lockin_order):
+        """Sets the lock-in amplifier order.
+
+        Args:
+            lockin_order (int): Order of the lock-in amplifier (1, 2, 3, or 4).
+        """
+        pass
+
+    def get_free_amplitude(self):
+        """Retrieves the free amplitude of the cantilever."""
+        pass
+
+    def set_free_amplitude(self, free_amplitude):
+        """Sets the free amplitude of the cantilever.
+
+        Args:
+            free_amplitude (float): Amplitude in volts.
+        """
+        pass
 
     def do_sweep(self, freq_init, freq_end, num_points):
-        matrix_sweep = []
-        # Retrieve these values from the target 
-        
-        return matrix_sweep       
+        """
+        Performs a frequency sweep based on the given parameters.
 
-    @property
-    def free_amplitude(self):
-        """The 'free_amplitude' property getter"""
-        return self.__free_amplitude
-    
-    @free_amplitude.setter
-    def free_amplitude(self, value):
-        """The 'free_amplitude' property setter"""
-        if 0 <= value:
-            self.__free_amplitude = value
-            # Set the mode parameter on the target system   
-        else:
-            raise ValueError("Free amplitude must be equal to or greater than 0.")     
+        Args:
+            freq_init (float): Initial frequency in Hertz.
+            freq_end (float): Final frequency in Hertz.
+            num_points (int): Number of points in the sweep.
+
+        Returns:
+            list: Sweep data as a list of measured values.
+        """
+        pass
 
     def __repr__(self):
-        return (
-            f"AMMode("
-            f"exc_type={self.__exc_type}, "
-            f"exc_amplitude={self.__exc_amplitude}, "
-            f"free_amplitude={self.__free_amplitudey}, "
-            f"exc_frequency={self.__exc_frequency}, "
-            f"exc_phase={self.__exc_phase}, "
-            f"lockin_bandwidth={self.__lockin_bandwidth}, "
-            f"lockin_order={self.__lockin_order}, "
-            f"free_amplitude={self.__free_amplitude})"
-        )
+        """Represents the AMMode object as a string."""
+        return "AMMode()"
 
 
 class FMMode(AFMMode):
@@ -759,228 +738,215 @@ class FMMode(AFMMode):
     This class provides methods to initialize, get, and set parameters specific to the FM Mode, 
     including the ability to manage excitation settings, lock-in amplifier parameters, and PLL gains.
 
-    Attributes:
-        __exc_type (ExcType): Type of excitation used, either 'piezo' or 'photothermal'.
-        __exc_amplitude (float): Amplitude of the excitation signal in volts.
-        __exc_offset (float): Offset of the excitation signal in volts.
-        __exc_init_frequency (float): Initial frequency of the excitation signal in Hertz.
-        __exc_phase (float): Phase of the excitation signal in degrees, ranging from -180 to 180.
-        __lockin_bandwidth (float): Bandwidth of the lock-in amplifier in Hertz.
-        __lockin_order (int): Order of the lock-in amplifier, restricted to values 1, 2, 3, or 4.
-        __pll_p_gain (float): Proportional gain of the Phase-Locked Loop (PLL).
-        __pll_i_gain (float): Integral gain of the PLL.
-        __pll_d_gain (float): Derivative gain of the PLL.
-        __pll_lock_pll (bool): Indicates whether the PLL is locked.
-
     Methods:
-        init_mode_with_params: Initializes the instance with specific values for all attributes and returns the instance.
         get_mode_parameters: Fetches the current FM Mode parameters from the system.
         set_mode_parameters: Sets the FM Mode parameters on the target system.
+        get_exc_type: Retrieves the excitation type used.
+        set_exc_type: Sets the excitation type used.
+        get_exc_amplitude: Retrieves the excitation amplitude.
+        set_exc_amplitude: Sets the excitation amplitude.
+        get_exc_offset: Retrieves the excitation offset.
+        set_exc_offset: Sets the excitation offset.
+        get_exc_frequency: Retrieves the excitation frequency.
+        set_exc_frequency: Sets the excitation frequency.
+        get_exc_phase: Retrieves the excitation phase.
+        set_exc_phase: Sets the excitation phase.
+        get_lockin_bandwidth: Retrieves the lock-in amplifier bandwidth.
+        set_lockin_bandwidth: Sets the lock-in amplifier bandwidth.
+        get_lockin_order: Retrieves the lock-in amplifier order.
+        set_lockin_order: Sets the lock-in amplifier order.
+        get_pll_p_gain: Retrieves the PLL proportional gain.
+        set_pll_p_gain: Sets the PLL proportional gain.
+        get_pll_i_gain: Retrieves the PLL integral gain.
+        set_pll_i_gain: Sets the PLL integral gain.
+        get_pll_d_gain: Retrieves the PLL derivative gain.
+        set_pll_d_gain: Sets the PLL derivative gain.
+        get_pll_lock: Checks if the PLL is locked.
+        set_pll_lock: Locks or unlocks the PLL.
         do_sweep: Performs a frequency sweep based on the given parameters.
     """
 
     def __init__(self):
-        super().__init__(AFMModes.FM)
-        self.get_mode_parameters()
-    
+        pass
+
     @classmethod
     def init_mode_with_params(cls, exc_type, exc_amplitude, exc_offset, exc_frequency, exc_phase, lockin_bandwidth, lockin_order, p_gain, i_gain, d_gain, lock_pll):
         """Initialize the instance with specific values for all attributes and return the instance."""
-        instance = cls()       
+        instance = cls()
         instance.set_mode_parameters(exc_type, exc_amplitude, exc_offset, exc_frequency, exc_phase, lockin_bandwidth, lockin_order, p_gain, i_gain, d_gain, lock_pll)
-        return instance  
-    
+        return instance
+
     def get_mode_parameters(self):
-        """Get the actual mode parameters"""
-        # self.__exc_type = ExcType.PZ # Read that from target system [piezo, photothermal]
-        # self.__exc_amplitude = 0  # Read that from target system [V]
-        # self.__exc_offset = 0  # Read that from target system [V]
-        # self.__exc_init_frequency = 0  # Read that from target system [Hz]
-        # self.__exc_phase = 0  # Read that from target system [deg]
-        # self.__lockin_bandwidth = 0  # Read that from target system [Hz]
-        # self.__lockin_order = 1 # Read that from target system 
-        # self.__pll_p_gain = 1 # Read that from target system 
-        # self.__pll_i_gain = 1 # Read that from target system 
-        # self.__pll_d_gain = 1 # Read that from target system 
-        # self.__pll_lock_pll = True # Read that from target system 
-
-        # Retrieve these values from the target 
-        
+        """Fetches the current FM Mode parameters from the system."""
         pass
-    
-    def set_mode_parameters(self, exc_type, exc_amplitude, exc_offset, exc_init_frequency, exc_phase, lockin_bandwidth, lockin_order, p_gain, i_gain, d_gain, lock_pll):
-        """Set the contact mode parameters on the target system"""
-        self.__exc_type = exc_type # [piezo, photothermal]
-        self.__exc_amplitude = exc_amplitude
-        self.__exc_offset = exc_offset
-        self.__exc_init_frequency = exc_init_frequency
-        self.__exc_phase = exc_phase
-        self.__lockin_bandwidth = lockin_bandwidth
-        self.__lockin_order = lockin_order
-        self.__pll_p_gain = p_gain
-        self.__pll_i_gain = i_gain
-        self.__pll_d_gain = d_gain
-        self.__pll_lock_pll = lock_pll
-        
-        # Update these values on the target system if necessary   
 
-    @property
-    def exc_type(self):
-        """The 'exc_type' property getter"""
-        return self.__exc_type
-    
-    @exc_type.setter
-    def exc_type(self, value):
-        """The 'exc_type' property setter"""
-        if not isinstance(value, ExcType):
-            raise ValueError("exc_type must be an instance of ExcType.")
-        self.__exc_type = value
-        # Set the mode parameter on the target system
-        
-    @property
-    def exc_amplitude(self):
-        """The 'exc_amplitude' property getter"""
-        return self.__exc_amplitude
-    
-    @exc_amplitude.setter
-    def exc_amplitude(self, value):
-        """The 'exc_amplitude' property setter"""
-        if 0 <= value:
-            self.__exc_amplitude = value
-            # Set the mode parameter on the target system   
-        else:
-            raise ValueError("Excitation amplitude must be equal to or greater than 0.")     
-   
-    @property
-    def exc_offset(self):
-        """The 'exc_offset' property getter"""
-        return self.__exc_offset
-    
-    @exc_offset.setter
-    def exc_offset(self, value):
-        """The 'exc_offset' property setter"""
-        self.__exc_offset = value
-        # Set the mode parameter on the target system  
-        
-    @property
-    def exc_init_frequency(self):
-        """The 'exc_init_frequency' property getter"""
-        return self.__exc_init_frequency
-    
-    @exc_init_frequency.setter
-    def exc_init_frequency(self, value):
-        """The 'exc_init_frequency' property setter"""
-        if 0 < value:
-            self.__exc_init_frequency = value
-            # Set the mode parameter on the target system   
-        else:
-            raise ValueError("Excitation initial frequency must be greater than 0.")   
-            
-    @property
-    def exc_phase(self):
-        """The 'exc_phase' property getter"""
-        return self.__exc_phase
-    
-    @exc_phase.setter
-    def exc_phase(self, value):
-        """The 'exc_phase' property setter"""
-        if -180 <= value <= 180:
-            self.__exc_phase= value
-            # Set the mode parameter on the target system   
-        else:
-            raise ValueError("Excitation phase must be between -180 and 180 degrees.")     
-    
-    @property
-    def lockin_bandwidth(self):
-        """The 'lockin_bandwidth' property getter"""
-        return self.__lockin_bandwidth
-    
-    @lockin_bandwidth.setter
-    def lockin_bandwidth(self, value):
-        """The 'lockin_bandwidth' property setter"""
-        if 0 <= value:
-            self.__lockin_bandwidth = value
-            # Set PID control parameter on the target system   
-        else:
-            raise ValueError("Lock-in bandwidth must be equal to or greater than 0.")    
-            
-    @property
-    def lockin_order(self):
-        """The 'lockin_order' property getter"""
-        return self.__lockin_order
-    
-    @lockin_order.setter
-    def lockin_order(self, value):
-        """The 'lockin_order' property setter"""
-        if value in [1, 2, 3, 4]:
-            self.__lockin_order = value
-            # Set PID control parameter on the target system   
-        else:
-            raise ValueError("Lockin order must be 1, 2, 3, or 4.") 
-            
-    @property
-    def pll_p_gain(self):
-        """The 'pll_p_gain' property getter"""
-        return self.__pll_p_gain
-    
-    @pll_p_gain.setter
-    def pll_p_gain(self, value):
-        """The 'pll_p_gain' property setter"""
-        if 0 <= value:
-            self.__pll_p_gain = value
-            # Set PID control parameter on the target system   
-        else:
-            raise ValueError("P must be equal to or greater than 0.")        
-            
-    @property
-    def pll_i_gain(self):
-        """The 'pll_i_gain' property getter"""
-        return self.__pll_i_gain
-    
-    @pll_i_gain.setter
-    def pll_i_gain(self, value):
-        """The 'pll_i_gain' property setter"""
-        if 0 <= value:
-            self.__pll_i_gain = value
-            # Set PID control parameter on the target system   
-        else:
-            raise ValueError("I must be equal to or greater than 0.")  
+    def set_mode_parameters(self, exc_type, exc_amplitude, exc_offset, exc_frequency, exc_phase, lockin_bandwidth, lockin_order, p_gain, i_gain, d_gain, lock_pll):
+        """Sets the FM Mode parameters on the target system.
 
-    @property
-    def pll_d_gain(self):
-        """The 'pll_d_gain' property getter"""
-        return self.__pll_d_gain
-    
-    @pll_d_gain.setter
-    def pll_d_gain(self, value):
-        """The 'pll_d_gain' property setter"""
-        if 0 <= value:
-            self.__pll_d_gain = value
-            # Set PID control parameter on the target system   
-        else:
-            raise ValueError("D must be equal to or greater than 0.")  
+        Args:
+            exc_type (ExcType): Type of excitation used (e.g., 'piezo', 'photothermal').
+            exc_amplitude (float): Excitation amplitude in volts.
+            exc_offset (float): Excitation offset in volts.
+            exc_frequency (float): Excitation frequency in Hertz.
+            exc_phase (float): Excitation phase in degrees (-180 to 180).
+            lockin_bandwidth (float): Lock-in amplifier bandwidth in Hertz.
+            lockin_order (int): Lock-in amplifier order (1, 2, 3, or 4).
+            p_gain (float): PLL proportional gain.
+            i_gain (float): PLL integral gain.
+            d_gain (float): PLL derivative gain.
+            lock_pll (bool): True to lock the PLL, False to unlock.
+        """
+        pass
+
+    def get_exc_type(self):
+        """Retrieves the excitation type used."""
+        pass
+
+    def set_exc_type(self, exc_type):
+        """Sets the excitation type used.
+
+        Args:
+            exc_type (ExcType): Type of excitation (e.g., 'piezo', 'photothermal').
+        """
+        pass
+
+    def get_exc_amplitude(self):
+        """Retrieves the excitation amplitude."""
+        pass
+
+    def set_exc_amplitude(self, exc_amplitude):
+        """Sets the excitation amplitude.
+
+        Args:
+            exc_amplitude (float): Amplitude in volts.
+        """
+        pass
+
+    def get_exc_offset(self):
+        """Retrieves the excitation offset."""
+        pass
+
+    def set_exc_offset(self, exc_offset):
+        """Sets the excitation offset.
+
+        Args:
+            exc_offset (float): Offset in volts.
+        """
+        pass
+
+    def get_exc_frequency(self):
+        """Retrieves the excitation frequency."""
+        pass
+
+    def set_exc_frequency(self, exc_frequency):
+        """Sets the excitation frequency.
+
+        Args:
+            exc_frequency (float): Frequency in Hertz.
+        """
+        pass
+
+    def get_exc_phase(self):
+        """Retrieves the excitation phase."""
+        pass
+
+    def set_exc_phase(self, exc_phase):
+        """Sets the excitation phase.
+
+        Args:
+            exc_phase (float): Phase in degrees (-180 to 180).
+        """
+        pass
+
+    def get_lockin_bandwidth(self):
+        """Retrieves the lock-in amplifier bandwidth."""
+        pass
+
+    def set_lockin_bandwidth(self, lockin_bandwidth):
+        """Sets the lock-in amplifier bandwidth.
+
+        Args:
+            lockin_bandwidth (float): Bandwidth in Hertz.
+        """
+        pass
+
+    def get_lockin_order(self):
+        """Retrieves the lock-in amplifier order."""
+        pass
+
+    def set_lockin_order(self, lockin_order):
+        """Sets the lock-in amplifier order.
+
+        Args:
+            lockin_order (int): Order of the lock-in amplifier (1, 2, 3, or 4).
+        """
+        pass
+
+    def get_pll_p_gain(self):
+        """Retrieves the PLL proportional gain."""
+        pass
+
+    def set_pll_p_gain(self, p_gain):
+        """Sets the PLL proportional gain.
+
+        Args:
+            p_gain (float): Proportional gain.
+        """
+        pass
+
+    def get_pll_i_gain(self):
+        """Retrieves the PLL integral gain."""
+        pass
+
+    def set_pll_i_gain(self, i_gain):
+        """Sets the PLL integral gain.
+
+        Args:
+            i_gain (float): Integral gain.
+        """
+        pass
+
+    def get_pll_d_gain(self):
+        """Retrieves the PLL derivative gain."""
+        pass
+
+    def set_pll_d_gain(self, d_gain):
+        """Sets the PLL derivative gain.
+
+        Args:
+            d_gain (float): Derivative gain.
+        """
+        pass
+
+    def get_pll_lock(self):
+        """Checks if the PLL is locked."""
+        pass
+
+    def set_pll_lock(self, lock):
+        """Locks or unlocks the PLL.
+
+        Args:
+            lock (bool): True to lock, False to unlock.
+        """
+        pass
 
     def do_sweep(self, freq_init, freq_end, num_points):
-        matrix_sweep = []
-        # Retrieve these values from the target 
-        
-        return matrix_sweep
+        """
+        Performs a frequency sweep based on the given parameters.
+
+        Args:
+            freq_init (float): Initial frequency in Hertz.
+            freq_end (float): Final frequency in Hertz.
+            num_points (int): Number of points in the sweep.
+
+        Returns:
+            list: Sweep data as a list of measured values.
+        """
+        pass
 
     def __repr__(self):
-        return (
-            f"FMMode("
-            f"exc_type={self.__exc_type}, "
-            f"exc_amplitude={self.__exc_amplitude}, "
-            f"exc_offset={self.e__xc_offset}, "
-            f"exc_init_frequency={self.__exc_init_frequency}, "
-            f"exc_phase={self.__exc_phase}, "
-            f"lockin_bandwidth={self.__lockin_bandwidth}, "
-            f"lockin_order={self.__lockin_order}, "
-            f"pll_p_gain={self.__pll_p_gain}, "
-            f"pll_i_gain={self.__pll_i_gain}, "
-            f"pll_d_gain={self.__pll_d_gain}, "
-            f"pll_lock_pll={self.__pll_lock_pll})"
-        )
+        """Represents the FMMode object as a string."""
+        return "FMMode()"
 
 
 class ContactMode(AFMMode):
@@ -990,60 +956,55 @@ class ContactMode(AFMMode):
     This class provides methods to initialize, get, and set parameters specific to the Contact Mode, 
     including the ability to manage the relative setpoint and update the deflection value.
 
-    Attributes:
-        __relative_setpoint (bool): Indicates whether the setpoint is relative to the current deflection value.
-
     Methods:
-        init_mode_with_params: Initialize the instance with specific values for all attributes and return the instance.
         get_mode_parameters: Fetches the current Contact Mode parameters from the system.
         set_mode_parameters: Sets the Contact Mode parameters on the target system.
         update_deflection_value: Updates the deflection value to be used for relative setpoint calculation.
-        relative_setpoint: Gets or sets the relative setpoint mode.
+        get_relative_setpoint: Retrieves the relative setpoint mode.
+        set_relative_setpoint: Sets the relative setpoint mode.
     """
-    
+
     def __init__(self):
-        super().__init__(AFMModes.CONTACT)
-        self.get_mode_parameters()
-    
+        pass
+
     @classmethod
     def init_mode_with_params(cls, relative_setpoint):
         """Initialize the instance with specific values for all attributes and return the instance."""
-        instance = cls()       
+        instance = cls()
         instance.set_mode_parameters(relative_setpoint)
-        return instance  
-    
-    def get_mode_parameters(self):
-        """Get the actual mode parameters"""
-        # self.__relative_setpoint = False # Read that from target system
+        return instance
 
-        # Retrieve these values from the target 
-        
+    def get_mode_parameters(self):
+        """Fetches the current Contact Mode parameters from the system."""
         pass
-    
+
     def set_mode_parameters(self, relative_setpoint):
-        """Set the contact mode parameters on the target system"""
-        self.__relative_setpoint = relative_setpoint 
-        
-        # Update these values on the target system if necessary   
-     
+        """Sets the Contact Mode parameters on the target system.
+
+        Args:
+            relative_setpoint (bool): True if the setpoint is relative to the current deflection value, False otherwise.
+        """
+        pass
+
     def update_deflection_value(self):
-        """Update the deflection value to be used on the relative setpoint calculation"""
-        # Update the deflection value on the target system
-        pass           
-     
-    @property
-    def relative_setpoint(self):
-        """The 'relative_setpoint' property getter"""
-        return self.__relative_setpoint
-    
-    @relative_setpoint.setter
-    def relative_setpoint(self, value):
-        """The 'relative_setpoint' property setter"""
-        self.__relative_setpoint = value
-        # Set relative setpoint mode on the target system
+        """Updates the deflection value to be used for relative setpoint calculation."""
+        pass
+
+    def get_relative_setpoint(self):
+        """Retrieves the relative setpoint mode."""
+        pass
+
+    def set_relative_setpoint(self, value):
+        """Sets the relative setpoint mode.
+
+        Args:
+            value (bool): True to enable relative setpoint, False to disable.
+        """
+        pass
 
     def __repr__(self):
-        return f"ContactMode(relative_setpoint={self.__relative_setpoint})"
+        """Represents the ContactMode object as a string."""
+        return "ContactMode()"
 
 
 class OffResonanceMode(AFMMode):
@@ -1054,320 +1015,283 @@ class OffResonanceMode(AFMMode):
     ensuring proper validation and encapsulation of the excitation type, amplitude, frequency, phase, and offset 
     used in this mode.
 
-    Attributes:
-        __exc_type (ExcType): Type of excitation used, either 'piezo' or 'photothermal'.
-        __exc_amplitude (float): Amplitude of the excitation signal in volts.
-        __exc_frequency (float): Frequency of the excitation signal in Hertz.
-        __exc_phase (float): Phase of the excitation signal in degrees, ranging from -180 to 180.
-        __exc_offset (float): Offset of the excitation signal in volts.
-    
     Methods:
-        init_mode_with_params: Initializes the instance with specific values for all attributes.
         get_mode_parameters: Fetches the current Off Resonance Tapping mode parameters from the system.
         set_mode_parameters: Sets the Off Resonance Tapping mode parameters on the target system.
-
-    """    
+        get_exc_type: Retrieves the excitation type used.
+        set_exc_type: Sets the excitation type used.
+        get_exc_amplitude: Retrieves the excitation amplitude.
+        set_exc_amplitude: Sets the excitation amplitude.
+        get_exc_frequency: Retrieves the excitation frequency.
+        set_exc_frequency: Sets the excitation frequency.
+        get_exc_phase: Retrieves the excitation phase.
+        set_exc_phase: Sets the excitation phase.
+        get_exc_offset: Retrieves the excitation offset.
+        set_exc_offset: Sets the excitation offset.
+        subtract_background: Subtracts the background from the vertical deflection signal of the cantilevers.
+    """
 
     def __init__(self):
-        super().__init__(AFMModes.ORT)
-        self.get_mode_parameters()
-        
+        pass
+
     @classmethod
     def init_mode_with_params(cls, exc_type, exc_amplitude, exc_frequency, exc_phase, exc_offset):
         """Initialize the instance with specific values for all attributes and return the instance."""
-        instance = cls()       
+        instance = cls()
         instance.set_mode_parameters(exc_type, exc_amplitude, exc_frequency, exc_phase, exc_offset)
-        return instance  
-    
+        return instance
+
     def get_mode_parameters(self):
-        """Get the actual mode parameters"""
-        # self.__exc_type =  ExcType.PZ # Read that from target system [piezo, photothermal]
-        # self.__exc_amplitude = 0  # Read that from target system [V]
-        # self.__exc_frequency = 0  # Read that from target system [Hz]
-        # self.__exc_phase = 0  # Read that from target system [deg]
-        # self.__exc_offset = 0  # Read that from target system [V]
-        
-        # Retrieve these values from the target 
+        """Fetches the current Off Resonance Tapping mode parameters from the system."""
+        pass
+
+    def set_mode_parameters(self, exc_type, exc_amplitude, exc_frequency, exc_phase, exc_offset):
+        """Sets the Off Resonance Tapping mode parameters on the target system.
+
+        Args:
+            exc_type (ExcType): Type of excitation used (e.g., 'piezo', 'photothermal').
+            exc_amplitude (float): Amplitude of the excitation signal in volts.
+            exc_frequency (float): Frequency of the excitation signal in Hertz.
+            exc_phase (float): Phase of the excitation signal in degrees (-180 to 180).
+            exc_offset (float): Offset of the excitation signal in volts.
+        """
+        pass
+
+    def get_exc_type(self):
+        """Retrieves the excitation type used."""
+        pass
+
+    def set_exc_type(self, exc_type):
+        """Sets the excitation type used.
+
+        Args:
+            exc_type (ExcType): Type of excitation (e.g., 'piezo', 'photothermal').
+        """
+        pass
+
+    def get_exc_amplitude(self):
+        """Retrieves the excitation amplitude."""
+        pass
+
+    def set_exc_amplitude(self, exc_amplitude):
+        """Sets the excitation amplitude.
+
+        Args:
+            exc_amplitude (float): Amplitude of the excitation signal in volts.
+        """
+        pass
+
+    def get_exc_frequency(self):
+        """Retrieves the excitation frequency."""
+        pass
+
+    def set_exc_frequency(self, exc_frequency):
+        """Sets the excitation frequency.
+
+        Args:
+            exc_frequency (float): Frequency of the excitation signal in Hertz.
+        """
+        pass
+
+    def get_exc_phase(self):
+        """Retrieves the excitation phase."""
+        pass
+
+    def set_exc_phase(self, exc_phase):
+        """Sets the excitation phase.
+
+        Args:
+            exc_phase (float): Phase of the excitation signal in degrees (-180 to 180).
+        """
+        pass
+
+    def get_exc_offset(self):
+        """Retrieves the excitation offset."""
+        pass
+
+    def set_exc_offset(self, exc_offset):
+        """Sets the excitation offset.
+
+        Args:
+            exc_offset (float): Offset of the excitation signal in volts.
+        """
+        pass
+
+    def subtract_background(self, num_averages):
+        """
+        Subtracts the background from the vertical deflection signal of the cantilevers and returns a list of background values.
+
+        Args:
+            num_averages (int): Number of averages to calculate the background signal.
+
+        Returns:
+            list: Background values subtracted from the vertical deflection signal.
+        """
         
         pass
-    
-    def set_mode_parameters(self, exc_type, exc_amplitude, exc_frequency, exc_phase, exc_offset):
-        """Set the Off Resonance Tapping mode parameters on the target system"""
-        self.__exc_type = exc_type 
-        self.__exc_amplitude = exc_amplitude
-        self.__exc_frequency = exc_frequency
-        self.__exc_phase = exc_phase
-        self.__exc_offset = exc_offset
-        # Update these values on the target system if necessary    
-        
-    @property
-    def exc_type(self):
-        """The 'exc_type' property getter"""
-        return self.__exc_type
-    
-    @exc_type.setter
-    def exc_type(self, value):
-        """The 'exc_type' property setter"""
-        if not isinstance(value, ExcType):
-            raise ValueError("exc_type must be an instance of ExcType.")
-        self.__exc_type = value
-        # Set the mode parameter on the target system
-        
-    @property
-    def exc_amplitude(self):
-        """The 'exc_amplitude' property getter"""
-        return self.__exc_amplitude
-    
-    @exc_amplitude.setter
-    def exc_amplitude(self, value):
-        """The 'exc_amplitude' property setter"""
-        if 0 <= value:
-            self.__exc_amplitude = value
-            # Set the mode parameter on the target system   
-        else:
-            raise ValueError("Excitation amplitude must be equal to or greater than 0.")     
-
-    @property
-    def exc_frequency(self):
-        """The 'exc_frequency' property getter"""
-        return self.__exc_frequency
-    
-    @exc_frequency.setter
-    def exc_frequency(self, value):
-        """The 'exc_frequency' property setter"""
-        if 0 < value:
-            self.__exc_frequency = value
-            # Set the mode parameter on the target system   
-        else:
-            raise ValueError("Excitation frequency must be greater than 0.")   
-            
-    @property
-    def exc_phase(self):
-        """The 'exc_phase' property getter"""
-        return self.__exc_phase
-    
-    @exc_phase.setter
-    def exc_phase(self, value):
-        """The 'exc_phase' property setter"""
-        if -180 <= value <= 180:
-            self.__exc_phase= value
-            # Set the mode parameter on the target system   
-        else:
-            raise ValueError("Excitation phase must be between -180 and 180 degrees.")     
-
-    @property
-    def exc_offset(self):
-        """The 'exc_offset' property getter"""
-        return self.__exc_offset
-    
-    @exc_offset.setter
-    def exc_offset(self, value):
-        """The 'exc_offset' property setter"""
-        self.__exc_offset = value
-        # Set the mode parameter on the target system   
 
     def __repr__(self):
-        return (
-            f"OffResonanceMode("
-            f"exc_type={self.__exc_type}, "
-            f"exc_amplitude={self.__exc_amplitude}, "
-            f"exc_frequency={self.__exc_frequency}, "
-            f"exc_phase={self.__exc_phase}, "
-            f"exc_offset={self.__exc_offset})"
-        )
+        """Represents the OffResonanceMode object as a string."""
+        return "OffResonanceMode()"
 
 
-class ZControlPID:  
+class ZControlPID:
     """
     A class to control the PID parameters for a Z-axis control system.
-    
+
     This class provides methods to initialize, get, and set PID control parameters, 
     ensuring proper validation and encapsulation of the PID gains, setpoint, and feedback 
     units used in the control process.
-    
-    Attributes:
-        __p_gain (float): Proportional gain of the PID controller.
-        __i_gain (float): Integral gain of the PID controller.
-        __d_gain (float): Derivative gain of the PID controller.
-        __setpoint (float): Desired setpoint for the PID controller.
-        __units (str): Units of the feedback signal, e.g., Contact Mode [V, m, N], AM [V, m, %], FM [V, Hz], Off resonance [V, m, N]
-        __feedback (bool): Indicates whether the feedback loop is active.
-        __afm_mode (AFMMode): Indicates the used AFM mode on the systems
-    
+
     Methods:
-        init_zcontrolpid_with_params: Initializes the instance with specific values for all attributes.
         get_zcontrolpid_parameters: Fetches the actual Z control PID parameters from the system.
         set_zcontrolpid_parameters: Sets PID parameters on the target system.
-        get_zposition: Retrieve the actual z scanner position.
-        set_zposition: Move the tip to the desired z position.
+        get_p_gain: Retrieves the proportional gain of the PID controller.
+        set_p_gain: Sets the proportional gain of the PID controller.
+        get_i_gain: Retrieves the integral gain of the PID controller.
+        set_i_gain: Sets the integral gain of the PID controller.
+        get_d_gain: Retrieves the derivative gain of the PID controller.
+        set_d_gain: Sets the derivative gain of the PID controller.
+        get_setpoint: Retrieves the setpoint of the PID controller.
+        set_setpoint: Sets the setpoint of the PID controller.
+        get_units: Retrieves the feedback units.
+        set_units: Sets the feedback units.
+        get_feedback: Retrieves the feedback status.
+        set_feedback: Sets the feedback status.
+        get_afm_mode: Retrieves the AFM mode.
+        set_afm_mode: Sets the AFM mode.
+        get_zposition: Retrieve the actual Z scanner position.
+        set_zposition: Move the tip to the desired Z position.
     """
-    
+
     def __init__(self):
-        self.get_zcontrolpid_parameters()
-        
+        pass
+
     @classmethod
     def init_zcontrolpid_with_params(cls, p_gain, i_gain, d_gain, setpoint, units, feedback, afm_mode):
-        """Initialize the instance with specific values for all attributes"""
-        instance = cls()       
+        """Initialize the instance with specific values for all attributes."""
+        instance = cls()
         instance.set_zcontrolpid_parameters(p_gain, i_gain, d_gain, setpoint, units, feedback, afm_mode)
-        return instance  
-        
+        return instance
+
     def get_zcontrolpid_parameters(self):
-        """Get the actual Z control PID status of the system"""
-        # self.__p_gain = 0  # Read that from target system
-        # self.__i_gain = 0  # Read that from target system
-        # self.__d_gain = 0  # Read that from target system
-        # self.__setpoint = 0  # Read that from target system
-        # self.__units = 'V'  # Read that from target system
-        # self.__feedback = False # Read that from target system
-        # self.__afm_mode = None # Read that from target system
-        
-        # Retrieve these values from the target 
-        
+        """Fetches the actual Z control PID parameters from the system."""
         pass
-    
+
     def set_zcontrolpid_parameters(self, p_gain, i_gain, d_gain, setpoint, units, feedback, afm_mode):
-        """Set Z control PID parameters on the target system"""
-        self.__p_gain = p_gain
-        self.__i_gain = i_gain
-        self.__d_gain = d_gain
-        self.__setpoint = setpoint
-        self.__units = units
-        self.__feedback = feedback
-        self.__afm_mode = afm_mode
-        # Update these values on the target system if necessary            
-        
-    @property
-    def p_gain(self):
-        """The 'p_gain' property getter"""
-        return self.__p_gain
-    
-    @p_gain.setter
-    def p_gain(self, value):
-        """The 'p_gain' property setter"""
-        if 0 <= value:
-            self.__p_gain = value
-            # Set PID control parameter on the target system   
-        else:
-            raise ValueError("P must be equal to or greater than 0.")        
-            
-    @property
-    def i_gain(self):
-        """The 'i_gain' property getter"""
-        return self.__i_gain
-    
-    @i_gain.setter
-    def i_gain(self, value):
-        """The 'i_gain' property setter"""
-        if 0 <= value:
-            self.__i_gain = value
-            # Set PID control parameter on the target system   
-        else:
-            raise ValueError("I must be equal to or greater than 0.")  
+        """Sets PID parameters on the target system.
 
-    @property
-    def d_gain(self):
-        """The 'd_gain' property getter"""
-        return self.__d_gain
-    
-    @d_gain.setter
-    def d_gain(self, value):
-        """The 'd_gain' property setter"""
-        if 0 <= value:
-            self.__d_gain = value
-            # Set PID control parameter on the target system   
-        else:
-            raise ValueError("D must be equal to or greater than 0.")                  
-                
-    @property
-    def setpoint(self):
-        """The 'setpoint' property getter"""
-        return self.__setpoint
-    
-    @setpoint.setter
-    def setpoint(self, value):
-        """The 'setpoint' property setter"""
-        self.__setpoint = value
-        # Set PID control parameter on the target system   
-
-    @property
-    def units(self):
-        """The 'units' property getter"""
-        return self.__units
-    
-    @units.setter
-    def units(self, value):
-        """The 'units' property setter"""
-        
-        if isinstance(self.__afm_mode, AMMode):
-            if value == 'V'  or 'm' or '%':
-                self.__units = value
-            else:
-                raise ValueError("Selected unit cannot be used in this mode.") 
-        elif isinstance(self.__afm_mode, FMMode):
-            if value == 'V'  or 'Hz':
-                self.__units = value
-            else:
-                raise ValueError("Selected unit cannot be used in this mode.") 
-        elif isinstance(self.__afm_mode, ContactMode) or isinstance(self.__afm_mode, OffResonanceMode):
-            if value == 'V'  or 'm' or 'N':
-                self.__units = value
-            else:
-                raise ValueError("Selected unit cannot be used in this mode.") 
-        else:
-            raise ValueError("Selected mode is not on the list.")     
-
-        # Set PID control parameter on the target system   
-
-    @property
-    def feedback(self):
-        """The 'feedback' property getter"""
-        return self.__feedback
-    
-    @feedback.setter
-    def feedback(self, value):
-        """The 'feedback' property setter"""
-        self.__feedback = value
-        # Set PID control parameter on the target system                  
-                
-    @property
-    def afm_mode(self):
-        """The 'afm_mode' property getter"""
-        return self.__afm_mode
-    
-    @afm_mode.setter
-    def afm_mode(self, value):
-        """The 'afm_mode' property setter"""
-        self.__afm_mode = value
-        # Set PID control parameter on the target system                  
-    
-    def get_zposition(self):
-        """Retrieve the actual Z scanner position"""
-        # Implement scan control parameters on the target system
+        Args:
+            p_gain (float): Proportional gain of the PID controller.
+            i_gain (float): Integral gain of the PID controller.
+            d_gain (float): Derivative gain of the PID controller.
+            setpoint (float): Desired setpoint for the PID controller.
+            units (str): Units of the feedback signal (e.g., V, m, N).
+            feedback (bool): Feedback status of the PID controller.
+            afm_mode (AFMMode): Indicates the used AFM mode on the system.
+        """
         pass
-    
-    def set_zposition(self, x, y, forced=False):
-        """Move the tip to the desired Z position"""
-        if self.__feedback:  # If feedback is on
-            if forced:  # If feedback is on, force stop and move to the desired Z position
-                self.feedback = False  # This calls the feedback setter
-                # Implement additional logic to move to the Z position
-                pass
-        else:
-            # Implement logic to move to the Z position when feedback is off
-            pass
-      
+
+    def get_p_gain(self):
+        """Retrieves the proportional gain of the PID controller."""
+        pass
+
+    def set_p_gain(self, p_gain):
+        """Sets the proportional gain of the PID controller.
+
+        Args:
+            p_gain (float): Proportional gain.
+        """
+        pass
+
+    def get_i_gain(self):
+        """Retrieves the integral gain of the PID controller."""
+        pass
+
+    def set_i_gain(self, i_gain):
+        """Sets the integral gain of the PID controller.
+
+        Args:
+            i_gain (float): Integral gain.
+        """
+        pass
+
+    def get_d_gain(self):
+        """Retrieves the derivative gain of the PID controller."""
+        pass
+
+    def set_d_gain(self, d_gain):
+        """Sets the derivative gain of the PID controller.
+
+        Args:
+            d_gain (float): Derivative gain.
+        """
+        pass
+
+    def get_setpoint(self):
+        """Retrieves the setpoint of the PID controller."""
+        pass
+
+    def set_setpoint(self, setpoint):
+        """Sets the setpoint of the PID controller.
+
+        Args:
+            setpoint (float): Desired setpoint.
+        """
+        pass
+
+    def get_units(self):
+        """Retrieves the feedback units."""
+        pass
+
+    def set_units(self, units):
+        """Sets the feedback units.
+
+        Args:
+            units (str): Units of the feedback signal (e.g., V, m, N).
+        """
+        pass
+
+    def get_feedback(self):
+        """Retrieves the feedback status."""
+        pass
+
+    def set_feedback(self, feedback):
+        """Sets the feedback status.
+
+        Args:
+            feedback (bool): Feedback status.
+        """
+        pass
+
+    def get_afm_mode(self):
+        """Retrieves the AFM mode."""
+        pass
+
+    def set_afm_mode(self, afm_mode):
+        """Sets the AFM mode.
+
+        Args:
+            afm_mode (AFMMode): The AFM mode to be set.
+        """
+        pass
+
+    def get_zposition(self):
+        """Retrieves the actual Z scanner position."""
+        pass
+
+    def set_zposition(self, z_position, forced=False):
+        """Moves the tip to the desired Z position.
+
+        Args:
+            z_position (float): Desired Z position.
+            forced (bool): Whether to force the position update if feedback is active.
+        """
+        pass
+
     def __repr__(self):
-        return (
-            f"ZControlPID("
-            f"p_gain={self.__p_gain}, "
-            f"i_gain={self.__i_gain}, "
-            f"d_gain={self.__d_gain}, "
-            f"setpoint={self.__setpoint}, "
-            f"units={self.__units}, "
-            f"feedback={self.__feedback})"
-            f"afm_mode={self.__afm_mode})"
-        )
+        """Represents the ZControlPID object as a string."""
+        return "ZControlPID()"
 
 
 class AcquiredImage:
@@ -1630,124 +1554,110 @@ class Lasers:
     including the readout power, excitation power, and excitation offset. It also controls
     the laser states (on/off) and allows dynamic adjustment of these values.
 
-    Attributes:
-        readout_mW: Power of the readout laser in milliwatts.
-        excitation_mW: Power of the excitation laser in milliwatts.
-        excitation_offset: Offset value for the excitation laser.
-        readout_ON: Boolean indicating whether the readout laser is on.
-        excitation_ON: Boolean indicating whether the excitation laser is on.
-
     Methods:
-        init_laser_with_params: Initializes an instance with specific laser parameters.
         get_laser_parameters: Retrieves the current laser parameters from the system.
         set_laser_parameters: Sets laser parameters such as power and state.
+        get_readout_mW: Retrieves the power of the readout laser in milliwatts.
+        set_readout_mW: Sets the power of the readout laser in milliwatts.
+        get_excitation_mW: Retrieves the power of the excitation laser in milliwatts.
+        set_excitation_mW: Sets the power of the excitation laser in milliwatts.
+        get_excitation_offset: Retrieves the offset of the excitation laser.
+        set_excitation_offset: Sets the offset of the excitation laser.
+        get_readout_ON: Retrieves the state of the readout laser (on/off).
+        set_readout_ON: Sets the state of the readout laser (on/off).
+        get_excitation_ON: Retrieves the state of the excitation laser (on/off).
+        set_excitation_ON: Sets the state of the excitation laser (on/off).
     """
-    
+
     def __init__(self):
-        self.get_laser_parameters()
-        
-    @classmethod
-    def init_laser_with_params(cls, readout_power, excitation_power, excitation_offset, readout_ON, excitation_ON):
-        """Initialize the instance with specific values for laser power, offset, and states."""
-        instance = cls()       
-        instance.set_laser_parameters(readout_power, excitation_power, excitation_offset, readout_ON, excitation_ON)
-        return instance  
-        
-    def get_laser_parameters(self):
-        """Retrieve the current laser power, offset, and state values from the system."""
-        # The following should be replaced with actual calls to retrieve values from the system:
-        # self.__readout_mW = 0  # Example value from the system in mW
-        # self.__excitation_mW = 0  # Example value from the system in mW
-        # self.__excitation_offset = 0  # Example value from the system
-        # self.__readout_ON = False  # Example value from the system
-        # self.__excitation_ON = False  # Example value from the system
-        
-        # Actual system retrieval code goes here
         pass
-    
+
+    @classmethod
+    def init_laser_with_params(cls, readout_mW, excitation_mW, excitation_offset, readout_ON, excitation_ON):
+        """Initialize the instance with specific values for laser power, offset, and states."""
+        instance = cls()
+        instance.set_laser_parameters(readout_mW, excitation_mW, excitation_offset, readout_ON, excitation_ON)
+        return instance
+
+    def get_laser_parameters(self):
+        """Retrieves the current laser parameters from the system."""
+        pass
+
     def set_laser_parameters(self, readout_mW, excitation_mW, excitation_offset, readout_ON, excitation_ON):
-        """Set the laser parameters such as power, offset, and state on the system."""
-        self.__readout_mW = readout_mW
-        self.__excitation_mW = excitation_mW
-        self.__excitation_offset = excitation_offset
-        self.__readout_ON = readout_ON
-        self.__excitation_ON = excitation_ON
+        """Sets laser parameters such as power, offset, and state on the system.
 
-        # Code to update the system with these values goes here
-    
-    @property
-    def readout_mW(self):
-        """Get the current readout laser power in milliwatts."""
-        return self.__readout_mW 
-    
-    @readout_mW.setter
-    def readout_mW(self, value):
-        """Set the readout laser power, ensuring the value is non-negative."""
-        if 0 <= value:
-            self.__readout_mW  = value
-            # Code to update the laser control on the system goes here
-        else:
-            raise ValueError("Readout power must be equal to or greater than 0.")   
-            
-    @property
-    def excitation_mW(self):
-        """Get the current excitation laser power in milliwatts."""
-        return self.__excitation_mW 
-    
-    @excitation_mW.setter
-    def excitation_mW(self, value):
-        """Set the excitation laser power, ensuring the value is non-negative."""
-        if 0 <= value:
-            self.__excitation_mW  = value
-            # Code to update the laser control on the system goes here
-        else:
-            raise ValueError("Excitation power must be equal to or greater than 0.")   
-            
-    @property
-    def excitation_offset(self):
-        """Get the current excitation laser offset."""
-        return self.__excitation_offset
-    
-    @excitation_offset.setter
-    def excitation_offset(self, value):
-        """Set the excitation laser offset, ensuring the value is non-negative."""
-        if 0 <= value:
-            self.__excitation_offset  = value
-            # Code to update the laser control on the system goes here
-        else:
-            raise ValueError("Excitation offset must be equal to or greater than 0.")   
-            
-    @property
-    def readout_ON(self):
-        """Get the current state of the readout laser (on or off)."""
-        return self.__readout_ON
-    
-    @readout_ON.setter
-    def readout_ON(self, value):
-        """Set the readout laser state (on or off)."""
-        self.__readout_ON  = value
-        # Code to update the laser control on the system goes here
+        Args:
+            readout_mW (float): Power of the readout laser in milliwatts.
+            excitation_mW (float): Power of the excitation laser in milliwatts.
+            excitation_offset (float): Offset value for the excitation laser.
+            readout_ON (bool): State of the readout laser (True for ON, False for OFF).
+            excitation_ON (bool): State of the excitation laser (True for ON, False for OFF).
+        """
+        pass
 
-    @property
-    def excitation_ON(self):
-        """Get the current state of the excitation laser (on or off)."""
-        return self.__excitation_ON
-    
-    @excitation_ON.setter
-    def excitation_ON(self, value):
-        """Set the excitation laser state (on or off)."""
-        self.__excitation_ON  = value
-        # Code to update the laser control on the system goes here
-        
+    def get_readout_mW(self):
+        """Retrieves the power of the readout laser in milliwatts."""
+        pass
+
+    def set_readout_mW(self, readout_mW):
+        """Sets the power of the readout laser in milliwatts.
+
+        Args:
+            readout_mW (float): Power in milliwatts.
+        """
+        pass
+
+    def get_excitation_mW(self):
+        """Retrieves the power of the excitation laser in milliwatts."""
+        pass
+
+    def set_excitation_mW(self, excitation_mW):
+        """Sets the power of the excitation laser in milliwatts.
+
+        Args:
+            excitation_mW (float): Power in milliwatts.
+        """
+        pass
+
+    def get_excitation_offset(self):
+        """Retrieves the offset of the excitation laser."""
+        pass
+
+    def set_excitation_offset(self, excitation_offset):
+        """Sets the offset of the excitation laser.
+
+        Args:
+            excitation_offset (float): Offset value.
+        """
+        pass
+
+    def get_readout_ON(self):
+        """Retrieves the state of the readout laser (on/off)."""
+        pass
+
+    def set_readout_ON(self, readout_ON):
+        """Sets the state of the readout laser (on/off).
+
+        Args:
+            readout_ON (bool): True for ON, False for OFF.
+        """
+        pass
+
+    def get_excitation_ON(self):
+        """Retrieves the state of the excitation laser (on/off)."""
+        pass
+
+    def set_excitation_ON(self, excitation_ON):
+        """Sets the state of the excitation laser (on/off).
+
+        Args:
+            excitation_ON (bool): True for ON, False for OFF.
+        """
+        pass
+
     def __repr__(self):
-        return (
-            f"{self.__class__.__name__}("
-            f"readout_mW={self.__readout_mW}, "
-            f"excitation_mW={self.__excitation_mW}, "
-            f"excitation_offset={self.__excitation_offset}, "
-            f"readout_ON={self.__readout_ON}, "
-            f"excitation_ON={self.__excitation_ON})"
-        )
+        """Represents the Lasers object as a string."""
+        return "Lasers()"
 
 
 class AFMController:
