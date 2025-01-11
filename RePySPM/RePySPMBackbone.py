@@ -87,11 +87,11 @@ class Signals:
 
     def get_phase(self):
         """Retrieves the phase signal from the system."""
-        return self.__phase
+        pass
 
     def get_exc_amplitude(self):
         """Retrieves the excitation amplitude signal from the system."""
-        return self.__exc_amplitude
+        pass
 
     def get_exc_phase(self):
         """Retrieves the excitation phase signal from the system."""
