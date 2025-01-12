@@ -1664,61 +1664,64 @@ class Lasers:
 
 
 class AFMController:
-    def __init__(self, connection_params):
-        self.connection_params = connection_params
+    def __init__(self, Python_LV_Bridge_path):
+        self.Python_LV_Bridge_path = Python_LV_Bridge_path
+        
+        self.Application =  win32com.client.Dispatch("LabVIEW.Application")
+        self.connect()
+        
         self.scan_parameters = None
         self.z_control_pid = None
         self.acquired_images = []
         self.afm_mode = None
 
-    def write_control(Python_LV_Bridge, VI_name, control_name, value):
+    def write_control(self, VI_name, control_name, value):
        message = ''
        while message != '': # wait until previous message is read
-           Python_LV_Bridge._FlagAsMethod("GetControlValue") 
-           message = Python_LV_Bridge.GetControlValue("RemoteMessage")
+           self.VirtualInstrumentPythonLVBridge._FlagAsMethod("GetControlValue") 
+           message = self.VirtualInstrumentPythonLVBridge.GetControlValue("RemoteMessage")
            time.sleep(0.05)
        
-       Python_LV_Bridge._FlagAsMethod("SetControlValue")
+       self.VirtualInstrumentPythonLVBridge._FlagAsMethod("SetControlValue")
        command = "Write:" + VI_name + "::" + control_name + ":" + str(value)
-       Python_LV_Bridge.SetControlValue("RemoteMessage", command)
+       self.VirtualInstrumentPythonLVBridge.SetControlValue("RemoteMessage", command)
        
        return 0
     
-    def read_control(Python_LV_Bridge, VI_name, control_name):
-       Python_LV_Bridge._FlagAsMethod("SetControlValue")
+    def read_control(self, VI_name, control_name):
+       self.VirtualInstrumentPythonLVBridge._FlagAsMethod("SetControlValue")
        command = "Read:" + VI_name + "::" + control_name
-       Python_LV_Bridge.SetControlValue("RemoteMessage", command) 
-       Python_LV_Bridge._FlagAsMethod("GetControlValue")
+       self.VirtualInstrumentPythonLVBridge.SetControlValue("RemoteMessage", command) 
+       self.VirtualInstrumentPythonLVBridge._FlagAsMethod("GetControlValue")
     
        time.sleep(0.2) #  So there is time to process the previous command
     
-       return Python_LV_Bridge.GetControlValue(control_name)
+       return self.VirtualInstrumentPythonLVBridge.GetControlValue(control_name)
     
-    Application =  win32com.client.Dispatch("LabVIEW.Application")
-    
-    VirtualInstrumentPythonLVBridge = Application.getvireference(r"C:\lbni_users\software\releaseV2.3.1a\FrontPanel\beta\PythonLVBridge.vi")  # Path to LabVIEW VI
-    # VirtualInstrumentPythonLVBridge.OpenFrontPanel(True,1)
-    VirtualInstrumentPythonLVBridge.FPWinOpen = True
-    
-    # VirtualInstrumentPythonLVBridge.Run(False) # Async
-    
-    write_control(VirtualInstrumentPythonLVBridge, "ZController", "Feedback On", True)
-    write_control(VirtualInstrumentPythonLVBridge, "ZController", "Feedback On", True)
-    print(read_control(VirtualInstrumentPythonLVBridge, "ZController", "Feedback On"))
-    
-    VirtualInstrumentPythonLVBridge._FlagAsMethod("Quit")
-    VirtualInstrumentPythonLVBridge.Quit()
-    
-    Application._FlagAsMethod("Quit")
-    Application.Quit()
+    # write_control(VirtualInstrumentPythonLVBridge, "ZController", "Feedback On", True)
+    # write_control(VirtualInstrumentPythonLVBridge, "ZController", "Feedback On", True)
+    # print(read_control(VirtualInstrumentPythonLVBridge, "ZController", "Feedback On"))
     
 
     def connect(self):
         # Implement connection logic here
+        
+        
+        # self.VirtualInstrumentPythonLVBridge = self.Application.getvireference(r"C:\lbni_users\software\releaseV2.3.1a\FrontPanel\beta\PythonLVBridge.vi")  # Path to LabVIEW VI
+        self.VirtualInstrumentPythonLVBridge = self.Application.getvireference(self.Python_LV_Bridge_path)  # Path to LabVIEW VI
+        # self.VirtualInstrumentPythonLVBridge.OpenFrontPanel(True,1)
+        self.VirtualInstrumentPythonLVBridge.FPWinOpen = True
+        
+        # self.VirtualInstrumentPythonLVBridge.Run(False) # Async
         pass
 
     def disconnect(self):
         # Implement disconnection logic here
+        self.VirtualInstrumentPythonLVBridge._FlagAsMethod("Quit")
+        self.VirtualInstrumentPythonLVBridge.Quit()
+        
+        self.Application._FlagAsMethod("Quit")
+        self.Application.Quit()
         pass
 
     def set_scan_parameters(self, scan_size, scan_speed, resolution):
