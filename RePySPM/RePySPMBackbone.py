@@ -1302,7 +1302,8 @@ class AcquiredImage:
     It allows users to access specific channels by name and retrieve all channel data.
 
     Methods:
-        get_channels_names_units: Retrieves the names and units of all channels in the image.
+        get_channels_units: Retrieves the units of all channels in the image.
+        get_channels_names: Retrieves the names of all channels in the image.
         get_all_channels_data: Retrieves the data for all image channels.
         get_channel: Retrieves the data of a specific image channel by name.
     """
@@ -1310,8 +1311,12 @@ class AcquiredImage:
     def __init__(self):
         pass
     
-    def get_channels_names_units(self):
-        """Retrieve the names and units of all image channels."""
+    def get_channels_units(self):
+        """Retrieve the units of all image channels."""
+        pass
+    
+    def get_channels_names(self):
+        """Retrieve the names of all image channels."""
         pass
     
     def get_all_channels_data(self):
@@ -1662,11 +1667,15 @@ class Lasers:
 
 class AFMController:
     def __init__(self, connection_params):
-        self.connection_params = connection_params
-        self.scan_parameters = None
-        self.z_control_pid = None
-        self.acquired_images = []
-        self.afm_mode = None
+        
+        self.Signals = Signals()
+        self.Signals = ScanParameters()
+        self.ScanControl = ScanControl()
+        self.ZControlPID = ZControlPID(self)
+        self.motors = Motors()
+        self.Lasers = Lasers()
+        self.AcquiredImage = AcquiredImage()
+        self.ContactMode = ContactMode()
 
     def connect(self):
         # Implement connection logic here
@@ -1675,26 +1684,3 @@ class AFMController:
     def disconnect(self):
         # Implement disconnection logic here
         pass
-
-    def set_scan_parameters(self, scan_size, scan_speed, resolution):
-        self.scan_parameters = ScanParameters(scan_size, scan_speed, resolution)
-
-    def set_z_control_pid(self, p_gain, i_gain, d_gain):
-        self.z_control_pid = ZControlPID(p_gain, i_gain, d_gain)
-
-    def set_afm_mode(self, mode):
-        self.afm_mode = mode
-
-    def start_scan(self):
-        # Implement scan logic here
-        # On completion, create an AcquiredImage and add to acquired_images
-        pass
-
-    def get_latest_image(self):
-        if self.acquired_images:
-            return self.acquired_images[-1]
-        return None
-
-    def __repr__(self):
-        return (f"AFMController(connection_params={self.connection_params}, scan_parameters={self.scan_parameters}, "
-                f"z_control_pid={self.z_control_pid}, afm_mode={self.afm_mode}, acquired_images={len(self.acquired_images)})")

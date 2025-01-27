@@ -1,4 +1,6 @@
 import win32com.client  # Python ActiveX Client
+import tkinter as tk
+from tkinter import messagebox
 import time
 
 from enum import Enum
@@ -1167,8 +1169,10 @@ class ZControlPID:
         set_zposition: Move the tip to the desired Z position.
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, LBNI_controller):
+        self.LBNI_controller = LBNI_controller
+        
+        return
 
     @classmethod
     def init_zcontrolpid_with_params(cls, p_gain, i_gain, d_gain, setpoint, units, feedback, afm_mode):
@@ -1257,7 +1261,11 @@ class ZControlPID:
 
     def get_feedback(self):
         """Retrieves the feedback status."""
-        pass
+        
+        command = "Read:ZController::Feedback On"
+        control_name = "Feedback On"
+        
+        return self.LBNI_controller.read_control(command, control_name)
 
     def set_feedback(self, feedback):
         """Sets the feedback status.
@@ -1265,7 +1273,15 @@ class ZControlPID:
         Args:
             feedback (bool): Feedback status.
         """
-        pass
+        
+        if feedback is True:
+            command = "Write:ZController::Feedback On:True"
+        else:
+            command = "Write:ZController::Feedback On:False"
+        
+        self.LBNI_controller.write_control(command)
+        
+        return 0
 
     def get_afm_mode(self):
         """Retrieves the AFM mode."""
@@ -1664,85 +1680,101 @@ class Lasers:
 
 
 class AFMController:
-    def __init__(self, Python_LV_Bridge_path):
+    def __init__(self, Python_LV_Bridge_path, Run_Python_LV_Bridge_path):
         self.Python_LV_Bridge_path = Python_LV_Bridge_path
+        self.Run_Python_LV_Bridge_path = Run_Python_LV_Bridge_path
+        print(f"Will connect to path: {self.Python_LV_Bridge_path}")
         
-        self.Application =  win32com.client.Dispatch("LabVIEW.Application")
+        self.labview =  win32com.client.Dispatch("LabVIEW.Application")
+        self.Python_LV_Bridge_reference = None
+        self.Run_Python_LV_Bridge_reference = None
         self.connect()
+        self.run_Python_LV_Bridge()
         
-        self.scan_parameters = None
-        self.z_control_pid = None
-        self.acquired_images = []
-        self.afm_mode = None
+        self.Signals = Signals()
+        self.Signals = ScanParameters()
+        self.ScanControl = ScanControl()
+        self.ZControlPID = ZControlPID(self)
+        self.motors = Motors()
+        self.Lasers = Lasers()
+        self.AcquiredImage = AcquiredImage()
+        self.ContactMode = ContactMode()
+        print("Init done")
 
-    def write_control(self, VI_name, control_name, value):
-       message = ''
+    def write_control(self, command):
+       message = 'message'
        while message != '': # wait until previous message is read
-           self.VirtualInstrumentPythonLVBridge._FlagAsMethod("GetControlValue") 
-           message = self.VirtualInstrumentPythonLVBridge.GetControlValue("RemoteMessage")
+           self.Python_LV_Bridge_reference._FlagAsMethod("GetControlValue") 
+           message = self.Python_LV_Bridge_reference.GetControlValue("RemoteMessage")
            time.sleep(0.05)
        
-       self.VirtualInstrumentPythonLVBridge._FlagAsMethod("SetControlValue")
-       command = "Write:" + VI_name + "::" + control_name + ":" + str(value)
-       self.VirtualInstrumentPythonLVBridge.SetControlValue("RemoteMessage", command)
+       self.Python_LV_Bridge_reference._FlagAsMethod("SetControlValue")
+       self.Python_LV_Bridge_reference.SetControlValue("RemoteMessage", command)
        
        return 0
     
-    def read_control(self, VI_name, control_name):
-       self.VirtualInstrumentPythonLVBridge._FlagAsMethod("SetControlValue")
-       command = "Read:" + VI_name + "::" + control_name
-       self.VirtualInstrumentPythonLVBridge.SetControlValue("RemoteMessage", command) 
-       self.VirtualInstrumentPythonLVBridge._FlagAsMethod("GetControlValue")
-    
-       time.sleep(0.2) #  So there is time to process the previous command
-    
-       return self.VirtualInstrumentPythonLVBridge.GetControlValue(control_name)
-    
-    # write_control(VirtualInstrumentPythonLVBridge, "ZController", "Feedback On", True)
-    # write_control(VirtualInstrumentPythonLVBridge, "ZController", "Feedback On", True)
-    # print(read_control(VirtualInstrumentPythonLVBridge, "ZController", "Feedback On"))
-    
+    def read_control(self, command, control_name):
+        message = 'message'
+        while message != '': # wait until previous message is read
+            self.Python_LV_Bridge_reference._FlagAsMethod("GetControlValue") 
+            message = self.Python_LV_Bridge_reference.GetControlValue("RemoteMessage")
+            time.sleep(0.05)
+            
+        self.Python_LV_Bridge_reference._FlagAsMethod("SetControlValue")
+        self.Python_LV_Bridge_reference.SetControlValue("RemoteMessage", command) 
+        self.Python_LV_Bridge_reference._FlagAsMethod("GetControlValue")
+        
+        message = 'message'
+        while message != '': # wait until previous message is read
+            self.Python_LV_Bridge_reference._FlagAsMethod("GetControlValue") 
+            message = self.Python_LV_Bridge_reference.GetControlValue("RemoteMessage")
+            time.sleep(0.05)
+        
+        return self.Python_LV_Bridge_reference.GetControlValue(control_name)
 
     def connect(self):
-        # Implement connection logic here
+        """Initialize the LabVIEW application and VI reference."""
+        try:
+            # Connect to LabVIEW
+            labview = win32com.client.Dispatch("LabVIEW.Application")
+    
+            # Open the VI reference
+            self.Python_LV_Bridge_reference = labview.GetVIReference(self.Python_LV_Bridge_path)
+            self.Python_LV_Bridge_reference.FPWinOpen = False  # Ensure the front panel is not shown
+            
+            self.Run_Python_LV_Bridge_reference = labview.GetVIReference(self.Run_Python_LV_Bridge_path)
+            self.Run_Python_LV_Bridge_reference.FPWinOpen = False  # Ensure the front panel is not shown
+            
+            print(f"VI '{self.Python_LV_Bridge_path}' initialized.")
         
-        
-        # self.VirtualInstrumentPythonLVBridge = self.Application.getvireference(r"C:\lbni_users\software\releaseV2.3.1a\FrontPanel\beta\PythonLVBridge.vi")  # Path to LabVIEW VI
-        self.VirtualInstrumentPythonLVBridge = self.Application.getvireference(self.Python_LV_Bridge_path)  # Path to LabVIEW VI
-        # self.VirtualInstrumentPythonLVBridge.OpenFrontPanel(True,1)
-        self.VirtualInstrumentPythonLVBridge.FPWinOpen = True
-        
-        # self.VirtualInstrumentPythonLVBridge.Run(False) # Async
-        pass
+        except Exception as e:
+            print(f"Error initializing VI: {e}")
+    
+    def run_Python_LV_Bridge(self):
+        """Run the VI asynchronously in a separate thread."""
+        try:
+            if self.Python_LV_Bridge_reference is None:
+                print("VI reference is not initialized.")
+                return
+    
+            # Run the VI asynchronously
+            self.Run_Python_LV_Bridge_reference.Run(False)
+            print("VI is running asynchronously.")
+    
+        except Exception as e:
+            print(f"Error running VI in thread: {e}")
 
-    def disconnect(self):
-        # Implement disconnection logic here
-        self.VirtualInstrumentPythonLVBridge._FlagAsMethod("Quit")
-        self.VirtualInstrumentPythonLVBridge.Quit()
-        
-        self.Application._FlagAsMethod("Quit")
-        self.Application.Quit()
-        pass
 
-    def set_scan_parameters(self, scan_size, scan_speed, resolution):
-        self.scan_parameters = ScanParameters(scan_size, scan_speed, resolution)
-
-    def set_z_control_pid(self, p_gain, i_gain, d_gain):
-        self.z_control_pid = ZControlPID(p_gain, i_gain, d_gain)
-
-    def set_afm_mode(self, mode):
-        self.afm_mode = mode
-
-    def start_scan(self):
-        # Implement scan logic here
-        # On completion, create an AcquiredImage and add to acquired_images
-        pass
-
-    def get_latest_image(self):
-        if self.acquired_images:
-            return self.acquired_images[-1]
-        return None
-
-    def __repr__(self):
-        return (f"AFMController(connection_params={self.connection_params}, scan_parameters={self.scan_parameters}, "
-                f"z_control_pid={self.z_control_pid}, afm_mode={self.afm_mode}, acquired_images={len(self.acquired_images)})")
+def main():
+    # Path to the VI
+    Python_LV_Bridge_path = r"D:\Users\Marcos\OpenSPM\OpenSPM-branch\OpenSPM-source\pythonAPI\PythonLVExternalBridge.vi"
+    Run_Python_LV_Bridge_path = r"D:\Users\Marcos\OpenSPM\OpenSPM-branch\OpenSPM-source\pythonAPI\AsynRunPythonLVExternalBridge.vi"
+    
+    LBNI_controller = AFMController(Python_LV_Bridge_path, Run_Python_LV_Bridge_path)
+    
+    LBNI_controller.ZControlPID.set_feedback(True)
+    
+    LBNI_controller.write_control("Timeout::20")
+    
+if __name__ == "__main__":
+    main()
