@@ -26,22 +26,23 @@ class AFMController:
         self.connect()
         self.run_Python_LV_Bridge()
         
-        self.signals = Signals()
-        self.scan_parameters = ScanParameters()
-        self.scan_control = ScanControl()
-        self.z_control = ZControlPID()
-        self.motors = Motors()
-        self.lasers = Lasers()
-        self.image = AcquiredImage()
+        self.signals = Signals(self)
+        self.scan_parameters = ScanParameters(self)
+        self.scan_control = ScanControl(self)
+        self.z_control = ZControlPID(self)
+        self.motors = Motors(self)
+        self.lasers = Lasers(self)
+        self.image = AcquiredImage(self)
         
         # Create instances of the AFM modes
-        self.contact_mode = ContactMode()
-        self.am_mode = AMMode()
-        self.fm_mode = FMMode()
-        self.ort_mode = OffResonanceMode()
+        self.contact_mode = ContactMode(self)
+        self.am_mode = AMMode(self)
+        self.fm_mode = FMMode(self)
+        self.ort_mode = OffResonanceMode(self)
 
         # AFMMode now acts as a mode manager containing the specific modes
         self.afmmode = AFMMode(
+            self,
             contact=self.contact_mode,
             am=self.am_mode,
             fm=self.fm_mode,

@@ -41,6 +41,9 @@ class ScanControl:
         set_file_name_ramp: Sets the file name for ramp data storage.
     """
 
+    def __init__(self, controller):
+        self.controller = controller  # Store reference to AFMController
+        
     def get_scan_control_parameters(self):
         """Retrieves the current scanning parameters from the system."""
         pass

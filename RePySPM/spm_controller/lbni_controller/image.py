@@ -12,8 +12,8 @@ class AcquiredImage:
         get_channel: Retrieves the data of a specific image channel by name.
     """
     
-    def __init__(self):
-        pass
+    def __init__(self, controller):
+        self.controller = controller  # Store reference to AFMController
     
     def get_channels_units(self):
         """Retrieve the units of all image channels."""

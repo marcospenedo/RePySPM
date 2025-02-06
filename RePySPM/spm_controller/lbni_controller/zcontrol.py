@@ -26,6 +26,9 @@ class ZControlPID:
         get_zposition: Retrieve the actual Z scanner position.
         set_zposition: Move the tip to the desired Z position.
     """
+    
+    def __init__(self, controller):
+        self.controller = controller  # Store reference to AFMController
 
     def get_zcontrolpid_parameters(self):
         """Fetches the actual Z control PID parameters from the system."""

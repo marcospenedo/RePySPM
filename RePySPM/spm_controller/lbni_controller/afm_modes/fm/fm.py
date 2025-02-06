@@ -37,8 +37,8 @@ class FMMode():
         do_sweep: Performs a frequency sweep based on the given parameters.
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, controller):
+        self.controller = controller  # Store reference to AFMController
 
     def get_mode_parameters(self):
         """Fetches the current FM Mode parameters from the system."""

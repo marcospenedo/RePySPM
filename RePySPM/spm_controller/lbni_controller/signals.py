@@ -23,6 +23,9 @@ class Signals:
         get_exc_phase: Retrieves the excitation phase signal.
     """
 
+    def __init__(self, controller):
+        self.controller = controller  # Store reference to AFMController
+        
     def get_vertical_deflection(self):
         """Retrieves the vertical deflection signal from the system."""
         pass

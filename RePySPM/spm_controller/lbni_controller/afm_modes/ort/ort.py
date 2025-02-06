@@ -26,8 +26,8 @@ class OffResonanceMode():
         subtract_background: Subtracts the background from the vertical deflection signal of the cantilevers.
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, controller):
+        self.controller = controller  # Store reference to AFMController
 
     def get_mode_parameters(self):
         """Fetches the current Off Resonance Tapping mode parameters from the system."""

@@ -15,8 +15,8 @@ class ContactMode():
         set_relative_setpoint: Sets the relative setpoint mode.
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, controller):
+        self.controller = controller  # Store reference to AFMController
 
     def get_mode_parameters(self):
         """Fetches the current Contact Mode parameters from the system."""

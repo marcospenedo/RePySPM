@@ -20,7 +20,10 @@ class Lasers:
         get_excitation_ON: Retrieves the state of the excitation laser (on/off).
         set_excitation_ON: Sets the state of the excitation laser (on/off).
     """
-
+    
+    def __init__(self, controller):
+        self.controller = controller  # Store reference to AFMController
+        
     def get_laser_parameters(self):
         """Retrieves the current laser parameters from the system."""
         pass

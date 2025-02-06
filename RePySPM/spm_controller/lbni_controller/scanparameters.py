@@ -36,6 +36,9 @@ class ScanParameters:
         set_close_loopZ: Sets the status of close-loop control for the Z-axis.
     """
 
+    def __init__(self, controller):
+        self.controller = controller  # Store reference to AFMController
+
     def set_scan_parameters(
         self, width, height, rotation, offset_x, offset_y, scan_speed, pixels_x, pixels_y, tilt_x, tilt_y, close_loopXY, close_loopZ
     ):

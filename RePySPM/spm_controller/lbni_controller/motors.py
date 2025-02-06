@@ -52,6 +52,9 @@ class Motors:
         autoalign_photodiode: Automatically align the photodiode for optimal signal.
     """
     
+    def __init__(self, controller):
+        self.controller = controller  # Store reference to AFMController
+    
     def moveX_stage_steps(self, Nsteps):
         """Move the stage by a specified number of steps in the X direction."""
         pass

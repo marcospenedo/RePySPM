@@ -28,7 +28,9 @@ class AFMMode:
                   displaying the mode name.
     """
 
-    def __init__(self, contact, am, fm, ort):
+    def __init__(self, controller, contact, am, fm, ort):
+        self.controller = controller  # Store reference to AFMController
+        
         self.contact = contact
         self.am = am
         self.fm = fm
