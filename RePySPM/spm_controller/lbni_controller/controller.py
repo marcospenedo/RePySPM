@@ -111,7 +111,7 @@ class AFMController:
     
             # Run the VI asynchronously
             self.Run_Python_LV_Bridge_reference.Run(False)
-            print("VI is running asynchronously.")
+            print(f"VI '{self.Run_Python_LV_Bridge_path}' is running asynchronously.")
     
         except Exception as e:
             print(f"Error running VI in thread: {e}")
@@ -119,6 +119,7 @@ class AFMController:
     def disconnect(self):
         """Disconnects from SPM hardware."""
         print("Disconnecting from SPM system...")
+        time.sleep(1) # Wait one second to process all messages on the queu
         
         try:
             # Open the VI reference   
@@ -128,7 +129,7 @@ class AFMController:
 
             # Run the VI asynchronously
             self.Stop_Python_LV_Bridge_reference.Run(False)
-            print("VI is running asynchronously.")
+            print(f"VI '{self.Stop_Python_LV_Bridge_path}' is running asynchronously.")
         
         except Exception as e:
             print(f"Error initializing VI: {e}")

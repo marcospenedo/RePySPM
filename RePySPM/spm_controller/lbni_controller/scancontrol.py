@@ -73,7 +73,7 @@ class ScanControl:
         """Stops scanning."""
         
         command = "Write:Scan::Actions:Stop:True"
-            
+  
         self.controller.write_control(command)
         
         return 0
