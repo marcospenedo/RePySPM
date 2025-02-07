@@ -14,10 +14,12 @@ from .image import AcquiredImage
 from .afm_modes import AFMMode, AFMModes, AMMode, FMMode, ContactMode, OffResonanceMode
 
 class AFMController:        
-    def __init__(self, Python_LV_Bridge_path, Run_Python_LV_Bridge_path):
+    def __init__(self, Python_LV_Bridge_path, Run_Python_LV_Bridge_path, Stop_Python_LV_Bridge_path):
         """Main controller class for an SPM instrument."""
         self.Python_LV_Bridge_path = Python_LV_Bridge_path
         self.Run_Python_LV_Bridge_path = Run_Python_LV_Bridge_path
+        self.Stop_Python_LV_Bridge_path = Stop_Python_LV_Bridge_path
+        
         print(f"Will connect to path: {self.Python_LV_Bridge_path}")
         
         self.labview =  win32com.client.Dispatch("LabVIEW.Application")
@@ -85,16 +87,17 @@ class AFMController:
         print("Connecting to SPM system...")
         try:
             # Connect to LabVIEW
-            labview = win32com.client.Dispatch("LabVIEW.Application")
+            self.labview = win32com.client.Dispatch("LabVIEW.Application")
     
             # Open the VI reference
-            self.Python_LV_Bridge_reference = labview.GetVIReference(self.Python_LV_Bridge_path)
+            self.Python_LV_Bridge_reference = self.labview.GetVIReference(self.Python_LV_Bridge_path)
             self.Python_LV_Bridge_reference.FPWinOpen = False  # Ensure the front panel is not shown
             
-            self.Run_Python_LV_Bridge_reference = labview.GetVIReference(self.Run_Python_LV_Bridge_path)
+            self.Run_Python_LV_Bridge_reference = self.labview.GetVIReference(self.Run_Python_LV_Bridge_path)
             self.Run_Python_LV_Bridge_reference.FPWinOpen = False  # Ensure the front panel is not shown
             
             print(f"VI '{self.Python_LV_Bridge_path}' initialized.")
+            print(f"VI '{self.Run_Python_LV_Bridge_path}' initialized.")
         
         except Exception as e:
             print(f"Error initializing VI: {e}")
@@ -113,8 +116,20 @@ class AFMController:
         except Exception as e:
             print(f"Error running VI in thread: {e}")
 
-
     def disconnect(self):
         """Disconnects from SPM hardware."""
         print("Disconnecting from SPM system...")
+        
+        try:
+            # Open the VI reference   
+            self.Stop_Python_LV_Bridge_reference = self.labview.GetVIReference(self.Stop_Python_LV_Bridge_path)
+            self.Stop_Python_LV_Bridge_reference.FPWinOpen = False  # Ensure the front panel is not shown
+            print(f"VI '{self.Stop_Python_LV_Bridge_path}' initialized.")
+
+            # Run the VI asynchronously
+            self.Stop_Python_LV_Bridge_reference.Run(False)
+            print("VI is running asynchronously.")
+        
+        except Exception as e:
+            print(f"Error initializing VI: {e}")
 

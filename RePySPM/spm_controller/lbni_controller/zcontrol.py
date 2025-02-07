@@ -32,7 +32,7 @@ class ZControlPID:
 
     def get_zcontrolpid_parameters(self):
         """Fetches the actual Z control PID parameters from the system."""
-        pass
+        return [self.get_p_gain(), self.get_i_gain(), self.get_d_gain(), self.get_setpoint(), self.get_units(), self.get_feedback(), self.get_afm_mode()]
 
     def set_zcontrolpid_parameters(self, p_gain, i_gain, d_gain, setpoint, units, feedback, afm_mode):
         """Sets PID parameters on the target system.
@@ -46,11 +46,24 @@ class ZControlPID:
             feedback (bool): Feedback status of the PID controller.
             afm_mode (AFMMode): Indicates the used AFM mode on the system.
         """
-        pass
+        
+        self.set_afm_mode(afm_mode)
+        self.set_p_gain(p_gain)
+        self.set_i_gain(i_gain)
+        self.set_d_gain(d_gain)
+        self.set_units(units)
+        self.set_setpoint(setpoint)
+        self.set_feedback(feedback)
+        
+        return 0
 
     def get_p_gain(self):
         """Retrieves the proportional gain of the PID controller."""
-        pass
+        
+        control = "PID"
+        command = "Read:ZController::" + control
+        
+        return self.controller.read_control(command, control)[1]
 
     def set_p_gain(self, p_gain):
         """Sets the proportional gain of the PID controller.
@@ -58,11 +71,20 @@ class ZControlPID:
         Args:
             p_gain (float): Proportional gain.
         """
-        pass
+        
+        command = "Write:ZController::PID:P Gain:" + str(p_gain)
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_i_gain(self):
         """Retrieves the integral gain of the PID controller."""
-        pass
+        
+        control = "PID"
+        command = "Read:ZController::" + control
+        
+        return self.controller.read_control(command, control)[2]
 
     def set_i_gain(self, i_gain):
         """Sets the integral gain of the PID controller.
@@ -70,11 +92,17 @@ class ZControlPID:
         Args:
             i_gain (float): Integral gain.
         """
-        pass
+                
+        command = "Write:ZController::PID:I Gain:" + str(i_gain)
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_d_gain(self):
         """Retrieves the derivative gain of the PID controller."""
-        pass
+        
+        return -1
 
     def set_d_gain(self, d_gain):
         """Sets the derivative gain of the PID controller.
@@ -82,11 +110,16 @@ class ZControlPID:
         Args:
             d_gain (float): Derivative gain.
         """
-        pass
+        
+        return -1
 
     def get_setpoint(self):
         """Retrieves the setpoint of the PID controller."""
-        pass
+        
+        control = "PID"
+        command = "Read:ZController::" + control
+        
+        return self.controller.read_control(command, control)[0]
 
     def set_setpoint(self, setpoint):
         """Sets the setpoint of the PID controller.
@@ -94,11 +127,20 @@ class ZControlPID:
         Args:
             setpoint (float): Desired setpoint.
         """
-        pass
+                
+        command = "Write:ZController::PID:Setpoint:" + str(setpoint)
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_units(self):
         """Retrieves the feedback units."""
-        pass
+                
+        control = "Units"
+        command = "Read:ZController::" + control
+        
+        return self.controller.read_control(command, control)
 
     def set_units(self, units):
         """Sets the feedback units.
@@ -106,11 +148,20 @@ class ZControlPID:
         Args:
             units (str): Units of the feedback signal (e.g., V, m, N).
         """
-        pass
+                
+        command = "Write:ZController::Units:" + units
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_feedback(self):
         """Retrieves the feedback status."""
-        pass
+        
+        control = "Feedback On"
+        command = "Read:ZController::" + control
+        
+        return self.controller.read_control(command, control)
 
     def set_feedback(self, feedback):
         """Sets the feedback status.
@@ -118,11 +169,23 @@ class ZControlPID:
         Args:
             feedback (bool): Feedback status.
         """
-        pass
+        
+        if feedback:
+            command = "Write:ZController::Feedback On:True"
+        else:   
+            command = "Write:ZController::Feedback On:False"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_afm_mode(self):
         """Retrieves the AFM mode."""
-        pass
+                
+        control = "Mode"
+        command = "Read:ZController::" + control
+        
+        return self.controller.read_control(command, control)
 
     def set_afm_mode(self, afm_mode):
         """Sets the AFM mode.
@@ -130,11 +193,20 @@ class ZControlPID:
         Args:
             afm_mode (AFMMode): The AFM mode to be set.
         """
-        pass
+                
+        command = "Write:ZController::Mode:" + afm_mode
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_zposition(self):
         """Retrieves the actual Z scanner position."""
-        pass
+                
+        control = "Z (m)"
+        command = "Read:ZController::" + control
+        
+        return self.controller.read_control(command, control)
 
     def set_zposition(self, z_position, forced=False):
         """Moves the tip to the desired Z position.
@@ -143,7 +215,15 @@ class ZControlPID:
             z_position (float): Desired Z position.
             forced (bool): Whether to force the position update if feedback is active.
         """
-        pass
+        command = "Write:ZController::Z (m):" + str(z_position)
+        if forced:
+            self.set_feedback(False)
+            self.controller.write_control(command)
+        else:
+            if not self.get_feedback():
+                self.controller.write_control(command)
+        
+        return 0
 
     def __repr__(self):
         """Represents the ZControlPID object as a string."""

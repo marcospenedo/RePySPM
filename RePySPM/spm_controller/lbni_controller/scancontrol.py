@@ -58,7 +58,12 @@ class ScanControl:
 
     def scan_down(self):
         """Starts scanning in the downward direction."""
-        pass
+        
+        command = "Write:Scan::Actions:Frame down:True"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def scan_bouncing(self):
         """Starts bouncing scan."""
@@ -66,7 +71,12 @@ class ScanControl:
 
     def scan_stop(self):
         """Stops scanning."""
-        pass
+        
+        command = "Write:Scan::Actions:Stop:True"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def scan_pause(self):
         """Pauses scanning."""
