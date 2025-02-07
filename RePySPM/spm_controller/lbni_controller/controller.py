@@ -110,7 +110,9 @@ class AFMController:
                 return
     
             # Run the VI asynchronously
+            self.Run_Python_LV_Bridge_reference._FlagAsMethod("Run")
             self.Run_Python_LV_Bridge_reference.Run(False)
+            
             print(f"VI '{self.Run_Python_LV_Bridge_path}' is running asynchronously.")
     
         except Exception as e:
@@ -128,6 +130,7 @@ class AFMController:
             print(f"VI '{self.Stop_Python_LV_Bridge_path}' initialized.")
 
             # Run the VI asynchronously
+            self.Stop_Python_LV_Bridge_reference._FlagAsMethod("Run")
             self.Stop_Python_LV_Bridge_reference.Run(False)
             print(f"VI '{self.Stop_Python_LV_Bridge_path}' is running asynchronously.")
         
