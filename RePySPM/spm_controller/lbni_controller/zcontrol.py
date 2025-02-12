@@ -1,3 +1,5 @@
+from .commands import OHCcommands
+
 class ZControlPID:
     """
     A class to control the PID parameters for a Z-axis control system.
@@ -61,7 +63,7 @@ class ZControlPID:
         """Retrieves the proportional gain of the PID controller."""
         
         control = "PID"
-        command = "Read:ZController::" + control
+        command = f"{OHCcommands.r_zcon}{control}"
         
         return self.controller.read_control(command, control)[1]
 
@@ -72,7 +74,7 @@ class ZControlPID:
             p_gain (float): Proportional gain.
         """
         
-        command = "Write:ZController::PID:P Gain:" + str(p_gain)
+        command = f"{OHCcommands.w_zcon}PID:P Gain:{p_gain}"
             
         self.controller.write_control(command)
         
@@ -82,7 +84,7 @@ class ZControlPID:
         """Retrieves the integral gain of the PID controller."""
         
         control = "PID"
-        command = "Read:ZController::" + control
+        command = f"{OHCcommands.r_zcon}{control}"
         
         return self.controller.read_control(command, control)[2]
 
@@ -93,7 +95,7 @@ class ZControlPID:
             i_gain (float): Integral gain.
         """
                 
-        command = "Write:ZController::PID:I Gain:" + str(i_gain)
+        command = f"{OHCcommands.w_zcon}PID:I Gain:{i_gain}"
             
         self.controller.write_control(command)
         
@@ -117,7 +119,7 @@ class ZControlPID:
         """Retrieves the setpoint of the PID controller."""
         
         control = "PID"
-        command = "Read:ZController::" + control
+        command = f"{OHCcommands.r_zcon}{control}"
         
         return self.controller.read_control(command, control)[0]
 
@@ -128,7 +130,7 @@ class ZControlPID:
             setpoint (float): Desired setpoint.
         """
                 
-        command = "Write:ZController::PID:Setpoint:" + str(setpoint)
+        command = f"{OHCcommands.w_zcon}PID:Setpoint:{setpoint}"
             
         self.controller.write_control(command)
         
@@ -138,7 +140,7 @@ class ZControlPID:
         """Retrieves the feedback units."""
                 
         control = "Units"
-        command = "Read:ZController::" + control
+        command = f"{OHCcommands.r_zcon}{control}"
         
         return self.controller.read_control(command, control)
 
@@ -149,7 +151,7 @@ class ZControlPID:
             units (str): Units of the feedback signal (e.g., V, m, N).
         """
                 
-        command = "Write:ZController::Units:" + units
+        command = f"{OHCcommands.w_zcon}Units:{units}"
             
         self.controller.write_control(command)
         
@@ -159,7 +161,7 @@ class ZControlPID:
         """Retrieves the feedback status."""
         
         control = "Feedback On"
-        command = "Read:ZController::" + control
+        command = f"{OHCcommands.r_zcon}{control}"
         
         return self.controller.read_control(command, control)
 
@@ -170,10 +172,7 @@ class ZControlPID:
             feedback (bool): Feedback status.
         """
         
-        if feedback:
-            command = "Write:ZController::Feedback On:True"
-        else:   
-            command = "Write:ZController::Feedback On:False"
+        command = f"{OHCcommands.w_zcon}Feedback On:{feedback}"
             
         self.controller.write_control(command)
         
@@ -183,7 +182,7 @@ class ZControlPID:
         """Retrieves the AFM mode."""
                 
         control = "Mode"
-        command = "Read:ZController::" + control
+        command = f"{OHCcommands.r_zcon}{control}"
         
         return self.controller.read_control(command, control)
 
@@ -194,7 +193,7 @@ class ZControlPID:
             afm_mode (AFMMode): The AFM mode to be set.
         """
                 
-        command = "Write:ZController::Mode:" + afm_mode
+        command = f"{OHCcommands.w_zcon}{afm_mode}"
             
         self.controller.write_control(command)
         
@@ -204,7 +203,7 @@ class ZControlPID:
         """Retrieves the actual Z scanner position."""
                 
         control = "Z (m)"
-        command = "Read:ZController::" + control
+        command = f"{OHCcommands.r_zcon}{control}"
         
         return self.controller.read_control(command, control)
 
@@ -215,7 +214,8 @@ class ZControlPID:
             z_position (float): Desired Z position.
             forced (bool): Whether to force the position update if feedback is active.
         """
-        command = "Write:ZController::Z (m):" + str(z_position)
+        command = f"{OHCcommands.w_zcon}Z (m):{z_position}"
+        
         if forced:
             self.set_feedback(False)
             self.controller.write_control(command)

@@ -9,6 +9,7 @@ from .zcontrol import ZControlPID
 from .motors import Motors
 from .lasers import Lasers
 from .image import AcquiredImage
+from .utils import Utils
 
 # Import AFM modes from the updated structure
 from .afm_modes import AFMMode, AFMModes, AMMode, FMMode, ContactMode, OffResonanceMode
@@ -35,6 +36,7 @@ class AFMController:
         self.motors = Motors(self)
         self.lasers = Lasers(self)
         self.image = AcquiredImage(self)
+        self.utils = Utils(self)
         
         # Create instances of the AFM modes
         self.contact_mode = ContactMode(self)

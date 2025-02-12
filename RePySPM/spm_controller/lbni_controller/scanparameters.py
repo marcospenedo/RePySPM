@@ -1,3 +1,5 @@
+from .commands import OHCcommands
+
 class ScanParameters:
     """
     A class to handle scan parameters for a scanning system.
@@ -43,75 +45,156 @@ class ScanParameters:
         self, width, height, rotation, offset_x, offset_y, scan_speed, pixels_x, pixels_y, tilt_x, tilt_y, close_loopXY, close_loopZ
     ):
         """Sets all scan parameters on the system."""
-        pass
+        self.set_width(width)
+        self.set_height(height)
+        self.set_rotation(rotation)
+        self.set_offset_x(offset_x)
+        self.set_offset_y(offset_y)
+        self.set_scan_speed(scan_speed)
+        self.set_pixels_x(pixels_x)
+        self.set_pixels_y(pixels_y)
+        
+        return 0
 
     def get_scan_parameters(self):
         """Retrieves all current scan parameters from the system."""
-        pass
+        
+        return [self.set_width(), self.set_height(), self.set_rotation(), self.set_offset_x(), self.set_offset_y(), self.set_scan_speed(), self.set_pixels_x(), self.set_pixels_y(), 0, 0, False, False]
 
     def get_width(self):
         """Retrieves the current width of the scan area."""
-        pass
+        
+        control = "Scan Parameters"
+        command = f"{OHCcommands.r_sca}{control}"
+        
+        return self.controller.read_control(command, control)[0]
 
     def set_width(self, value):
         """Sets the width of the scan area."""
-        pass
-
+        
+        command = f"{OHCcommands.w_sca}Scan Parameters:Width:{value}"
+            
+        self.controller.write_control(command)
+        
+        return 0
+    
     def get_height(self):
         """Retrieves the current height of the scan area."""
-        pass
+        
+        control = "Scan Parameters"
+        command = f"{OHCcommands.r_sca}{control}"
+        
+        return self.controller.read_control(command, control)[1]
 
     def set_height(self, value):
         """Sets the height of the scan area."""
-        pass
+        
+        command = f"{OHCcommands.w_sca}Scan Parameters:Height:{value}"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_rotation(self):
         """Retrieves the current rotation of the scan area."""
-        pass
+        
+        control = "Scan Parameters"
+        command = f"{OHCcommands.r_sca}{control}"
+        
+        return self.controller.read_control(command, control)[4]
 
     def set_rotation(self, value):
         """Sets the rotation of the scan area."""
-        pass
+        
+        command = f"{OHCcommands.w_sca}Scan Parameters:Angle:{value}"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_offset_x(self):
         """Retrieves the current X offset of the scan area."""
-        pass
+        
+        control = "Scan Parameters"
+        command = f"{OHCcommands.r_sca}{control}"
+        
+        return self.controller.read_control(command, control)[2]
 
     def set_offset_x(self, value):
         """Sets the X offset of the scan area."""
-        pass
+        
+        command = f"{OHCcommands.w_sca}Scan Parameters:X Offset:{value}"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_offset_y(self):
         """Retrieves the current Y offset of the scan area."""
-        pass
+        
+        control = "Scan Parameters"
+        command = f"{OHCcommands.r_sca}{control}"
+        
+        return self.controller.read_control(command, control)[3]
 
     def set_offset_y(self, value):
         """Sets the Y offset of the scan area."""
-        pass
-
+        
+        command = f"{OHCcommands.w_sca}Scan Parameters:Y Offset:{value}"
+            
+        self.controller.write_control(command)
+        
+        return 0
     def get_scan_speed(self):
         """Retrieves the current scan speed."""
-        pass
+        
+        control = "Scan Parameters"
+        command = f"{OHCcommands.r_sca}{control}"
+        
+        return self.controller.read_control(command, control)[7]
 
     def set_scan_speed(self, value):
         """Sets the scan speed."""
-        pass
+        
+        command = f"{OHCcommands.w_sca}Scan Parameters:Scan Rate:{value}"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_pixels_x(self):
         """Retrieves the number of pixels in the X-axis."""
-        pass
+        
+        control = "Scan Parameters"
+        command = f"{OHCcommands.r_sca}{control}"
+        
+        return self.controller.read_control(command, control)[5]
 
     def set_pixels_x(self, value):
         """Sets the number of pixels in the X-axis."""
-        pass
+        
+        command = f"{OHCcommands.w_sca}Scan Parameters:Pixels:{value}"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_pixels_y(self):
         """Retrieves the number of pixels in the Y-axis."""
-        pass
+        
+        control = "Scan Parameters"
+        command = f"{OHCcommands.r_sca}{control}"
+        
+        return self.controller.read_control(command, control)[6]
 
     def set_pixels_y(self, value):
         """Sets the number of pixels in the Y-axis."""
-        pass
+        
+        command = f"{OHCcommands.w_sca}Scan Parameters:Lines:{value}"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_tilt_x(self):
         """Retrieves the tilt in the X-axis."""

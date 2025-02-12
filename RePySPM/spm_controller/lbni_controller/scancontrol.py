@@ -1,3 +1,5 @@
+from .commands import OHCcommands
+
 class ScanControl:
     """
     A class to control scanning operations for a given system.
@@ -54,12 +56,17 @@ class ScanControl:
 
     def scan_up(self):
         """Starts scanning in the upward direction."""
-        pass
+        
+        command = f"{OHCcommands.w_sca}Actions:Frame up:True"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def scan_down(self):
         """Starts scanning in the downward direction."""
         
-        command = "Write:Scan::Actions:Frame down:True"
+        command = f"{OHCcommands.w_sca}Actions:Frame down:True"
             
         self.controller.write_control(command)
         
@@ -67,12 +74,17 @@ class ScanControl:
 
     def scan_bouncing(self):
         """Starts bouncing scan."""
-        pass
+        
+        command = f"{OHCcommands.w_sca}Actions:Bounce:True"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def scan_stop(self):
         """Stops scanning."""
         
-        command = "Write:Scan::Actions:Stop:True"
+        command = f"{OHCcommands.w_sca}Actions:Stop:True"
   
         self.controller.write_control(command)
         
@@ -80,11 +92,21 @@ class ScanControl:
 
     def scan_pause(self):
         """Pauses scanning."""
-        pass
+        
+        command = f"{OHCcommands.w_sca}Actions:Pause:True"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def scan_resume(self):
         """Resumes scanning."""
-        pass
+        
+        command = f"{OHCcommands.w_sca}Actions:Pause:False"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def scan_continuous(self, value):
         """Enables or disables continuous scan.
@@ -92,7 +114,12 @@ class ScanControl:
         Args:
             value (bool): True to enable continuous scan, False to disable.
         """
-        pass
+        
+        command = f"{OHCcommands.w_sca}Actions:Continuous:{value}"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_scan_direction(self):
         """Retrieves the current scan direction."""
@@ -104,27 +131,53 @@ class ScanControl:
         Args:
             value (bool): True to enable auto-save, False to disable.
         """
-        pass
+        
+        command = f"{OHCcommands.w_sca}Auto Save:{value}"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def scan_save_now(self):
         """Saves current scan data immediately."""
-        pass
+        
+        command = f"{OHCcommands.w_sca}Save now:True"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def is_scanning(self):
         """Checks if scanning is active."""
-        pass
+        
+        control = "isScanEnable?"
+        command = f"{OHCcommands.r_sco}{control}"
+        
+        return self.controller.read_control(command, control)
 
     def is_paused(self):
         """Checks if scanning is paused."""
-        pass
+        
+        control = "Actions"
+        command = f"{OHCcommands.r_sca}{control}"
+        
+        return self.controller.read_control(command, control)[4]
     
     def isContinuousScan(self):
         """Checks if continuous scanning is enabled."""
-        pass
+        
+        control = "Actions"
+        command = f"{OHCcommands.r_sca}{control}"
+        
+        return self.controller.read_control(command, control)[3]
 
     def isAutoSave(self):
         """Checks if auto-save is enabled."""
-        pass
+        
+        control = "Auto Save"
+        command = f"{OHCcommands.r_sca}{control}"
+        
+        return self.controller.read_control(command, control)
 
     def get_pixel_pos(self):
         """Retrieves the current scanning XY pixel numbers."""
@@ -146,7 +199,11 @@ class ScanControl:
 
     def get_path(self):
         """Retrieves the path associated with the scan."""
-        pass
+        
+        control = "Path"
+        command = f"{OHCcommands.r_sca}{control}"
+        
+        return self.controller.read_control(command, control)
 
     def set_path(self, path):
         """Sets the path associated with the scan.
@@ -154,11 +211,20 @@ class ScanControl:
         Args:
             path (str): Path for the scan.
         """
-        pass
+        
+        command = f"{OHCcommands.w_sca}Path:{path}"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_file_name(self):
         """Retrieves the file name for the scan."""
-        pass
+        
+        control = "File name"
+        command = f"{OHCcommands.r_sca}{control}"
+        
+        return self.controller.read_control(command, control)
 
     def set_file_name(self, file_name):
         """Sets the file name for the scan.
@@ -166,7 +232,11 @@ class ScanControl:
         Args:
             file_name (str): Name of the file.
         """
-        pass
+        command = f"{OHCcommands.w_sca}File name:{file_name}"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def do_ramp_absolute(self, init, end, N, speed_f, speed_b, wait_s):
         """
