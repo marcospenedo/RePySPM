@@ -7,6 +7,8 @@ from .motors import Motors
 from .lasers import Lasers
 from .image import AcquiredImage
 
+import aespm as ae
+
 # Import AFM modes from the updated structure
 from .afm_modes import AFMMode, AFMModes, AMMode, FMMode, ContactMode, OffResonanceMode
 
@@ -35,8 +37,9 @@ class AFMController:
             ort=self.ort_mode
         )
 
-    def connect(self):
+    def connect(self, folder=None):
         """Establishes connection to SPM hardware."""
+        self.exp = ae.Experiment(folder=folder)
         print("Connecting to SPM system...")
 
     def disconnect(self):

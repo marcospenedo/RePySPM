@@ -1,3 +1,5 @@
+import aespm as ae
+
 class ScanParameters:
     """
     A class to handle scan parameters for a scanning system.

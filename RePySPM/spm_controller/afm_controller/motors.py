@@ -1,3 +1,5 @@
+import aespm as ae
+
 class Motors:
     """
     A class to control the motors of the stage, lasers, and photodiode in a scanning arm system.
@@ -62,7 +64,8 @@ class Motors:
 
     def moveX_stage_distance(self, distance):
         """Move the stage by a specific distance in the X direction."""
-        pass
+        # pass
+        ae.move_stage(distance=[distance, 0])
 
     def moveY_stage_steps(self, Nsteps):
         """Move the stage by a specified number of steps in the Y direction."""
@@ -74,7 +77,8 @@ class Motors:
 
     def moveY_stage_distance(self, distance):
         """Move the stage by a specific distance in the Y direction."""
-        pass
+        # pass
+        ae.move_stage(distance=[0, distance])
 
     def moveZ_stage_steps(self, Nsteps):
         """Move the stage by a specified number of steps in the Z direction."""

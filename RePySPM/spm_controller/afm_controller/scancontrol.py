@@ -1,3 +1,5 @@
+import aespm as ae
+
 class ScanControl:
     """
     A class to control scanning operations for a given system.
@@ -43,7 +45,17 @@ class ScanControl:
 
     def get_scan_control_parameters(self):
         """Retrieves the current scanning parameters from the system."""
-        pass
+        # pass
+        # Here the scanning parameters are defined as 'v_ac', 'setpoint', 'I Gain', 'scan size', 'scan rate'
+        # Please notice that the scan control parameters should change according to the scan mode.
+        keys = ['ScanSize', 'ScanRate', 'ScanPoints', 'ScanAngle', 'AmplitudeSetpointVolts', 'DriveAmplitude', 'DriveFrequency', 
+                'DeflectionSetpointVolts', 'ImagingMode', 'ScanDown', 'ZIgain',]
+        params = {}
+        values = ae.read_spm(key=keys)
+        for i, ix in enumerate(keys):
+            params[ix] = values[i]
+        self.param = params
+        return params
 
     def set_scan_control_parameters(self, isScanningUp, isScanningDown, isBouncing, isContinuousScan, isAutoSave, path, file_name):
         """Sets the scanning parameters on the system."""
@@ -51,11 +63,13 @@ class ScanControl:
 
     def scan_up(self):
         """Starts scanning in the upward direction."""
-        pass
+        # pass
+        ae.spm_control('ScanUp', wait=1)
 
     def scan_down(self):
         """Starts scanning in the downward direction."""
-        pass
+        # pass
+        ae.spm_control('ScanDown', wait=1)
 
     def scan_bouncing(self):
         """Starts bouncing scan."""
@@ -63,7 +77,8 @@ class ScanControl:
 
     def scan_stop(self):
         """Stops scanning."""
-        pass
+        # pass
+        ae.spm_control('Stop')
 
     def scan_pause(self):
         """Pauses scanning."""
@@ -83,7 +98,8 @@ class ScanControl:
 
     def get_scan_direction(self):
         """Retrieves the current scan direction."""
-        pass
+        # pass
+        return ae.read_spm(key=['ScanDown'])
 
     def scan_auto_save(self, value):
         """Enables or disables auto-save.
@@ -153,7 +169,8 @@ class ScanControl:
         Args:
             file_name (str): Name of the file.
         """
-        pass
+        # pass
+        ae.spm_control('ChangeName', file_name)
 
     def do_ramp_absolute(self, init, end, N, speed_f, speed_b, wait_s):
         """
