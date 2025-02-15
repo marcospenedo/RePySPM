@@ -39,22 +39,65 @@ class ScanParameters:
     """
 
     def set_scan_parameters(
-        self, width, height, rotation, offset_x, offset_y, scan_speed, pixels_x, pixels_y, tilt_x, tilt_y, close_loopXY, close_loopZ
+        self, width=None, height=None, rotation=None, offset_x=None, offset_y=None, scan_speed=None, 
+        pixels_x=None, pixels_y=None, tilt_x=None, tilt_y=None, close_loopXY=None, close_loopZ=None
     ):
         """Sets all scan parameters on the system."""
-        pass
+        # pass
+        # We'd better use a single dict 'p' as the input here.
+        p_input = {
+            'width': width,
+            'height': height,
+            'rotation': rotation,
+            'offset_x': offset_x,
+            'offset_y': offset_y,
+            'scan_speed': scan_speed,
+            'pixels_x': pixels_x,
+            'pixels_y': pixels_y,
+            'tilt_x': None,
+            'tilt_y': None,
+            'close_loopXY': None,
+            'close_loopZ': None,
+        }
+        p_control = {
+            'width': 'ScanSize',
+            'height': 'ScanSize',
+            'rotation': 'ScanAngle',
+            'offset_x': 'XOffset',
+            'offset_y': 'YOffset',
+            'scan_speed': 'ScanRate',
+            'pixels_x': 'Points',
+            'pixels_y': 'Points',
+            'tilt_x': 'tilt_x',
+            'tilt_y': 'tilt_y',
+            'close_loopXY': 'close_loopXY',
+            'close_loopZ': 'close_loopZ',
+        }
+        for key, item in p_input:
+            if item is not None:
+                ae.spm_control(p_control[key], item)
 
     def get_scan_parameters(self):
         """Retrieves all current scan parameters from the system."""
-        pass
+        # pass
+        keys = ['ScanSize', 'ScanRate', 'ScanPoints', 'ScanAngle', 'AmplitudeSetpointVolts', 'DriveAmplitude', 'DriveFrequency', 
+                'DeflectionSetpointVolts', 'ImagingMode', 'ScanDown', 'ZIgain',]
+        params = {}
+        values = ae.read_spm(key=keys)
+        for i, ix in enumerate(keys):
+            params[ix] = values[i]
+        self.param = params
+        return params
 
     def get_width(self):
         """Retrieves the current width of the scan area."""
-        pass
+        # pass
+        return ae.read_spm(key=['ScanSize'])
 
     def set_width(self, value):
         """Sets the width of the scan area."""
-        pass
+        # pass
+        ae.spm_control('ScanSize', value)
 
     def get_height(self):
         """Retrieves the current height of the scan area."""
@@ -66,35 +109,43 @@ class ScanParameters:
 
     def get_rotation(self):
         """Retrieves the current rotation of the scan area."""
-        pass
+        # pass
+        return ae.read_spm(key=['ScanAngle'])
 
     def set_rotation(self, value):
         """Sets the rotation of the scan area."""
-        pass
+        # pass
+        ae.spm_control('ScanAngle', value)
 
     def get_offset_x(self):
         """Retrieves the current X offset of the scan area."""
-        pass
+        # pass
+        return ae.read_spm(key=['XOffset'])
 
     def set_offset_x(self, value):
         """Sets the X offset of the scan area."""
-        pass
+        # pass
+        ae.spm_control('XOffset', value)
 
     def get_offset_y(self):
         """Retrieves the current Y offset of the scan area."""
-        pass
+        # pass
+        return ae.read_spm(key=['YOffset'])
 
     def set_offset_y(self, value):
         """Sets the Y offset of the scan area."""
-        pass
+        # pass
+        ae.spm_control('YOffset', value)
 
     def get_scan_speed(self):
         """Retrieves the current scan speed."""
-        pass
+        # pass
+        return ae.read_spm(key=['ScanRate'])
 
     def set_scan_speed(self, value):
         """Sets the scan speed."""
-        pass
+        # pass
+        ae.spm_control('ScanRate', value)
 
     def get_pixels_x(self):
         """Retrieves the number of pixels in the X-axis."""
