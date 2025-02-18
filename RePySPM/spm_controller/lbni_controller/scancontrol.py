@@ -37,6 +37,7 @@ class ScanControl:
         do_ramp_absolute_trig: Performs a Z ramp with an absolute starting point and a trigger-based endpoint.
         do_ramp_relative_length: Performs a Z ramp relative to the actual position with a specified length.
         do_ramp_relative_trig: Performs a Z ramp relative to the actual position with a trigger-based endpoint.
+        is_ramping: Checks if the ramping is active.
         get_path_ramp: Retrieves the path for ramp data storage.
         set_path_ramp: Sets the path for ramp data storage.
         get_file_name_ramp: Retrieves the file name for ramp data storage.
@@ -195,7 +196,15 @@ class ScanControl:
             y (float): Desired Y position in meters.
             forced (bool): If True, scanning stops to move the tip.
         """
-        pass
+        if forced:
+            self.controller.scan_control.scan_stop()
+            
+            # Set 0 scan site to place it with offset to the desired position
+            self.controller.scan_parameters.set_width(1*10-12) 
+            self.controller.scan_parameters.set_height(1*10-12) 
+            
+            self.controller.scan_parameters.set_offset_x(x)
+            self.controller.scan_parameters.set_offset_y(y)
 
     def get_path(self):
         """Retrieves the path associated with the scan."""
@@ -294,7 +303,34 @@ class ScanControl:
             speed_b (float): Backward speed in meters per second.
             wait_s (float): Waiting time at the turnaround point in seconds.
         """
-        pass
+        
+        command = f"{OHCcommands.w_ram}Trigger Source:Relative Height"
+            
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Parameters:Start:{init}"
+            
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Parameters:Distance:{length}"
+            
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Parameters:Points:{N}"
+            
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Parameters:Fwd:{speed_f}"
+            
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Parameters:Bwd:{speed_b}"
+            
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Parameters:Pause:{wait_s}"
+            
+        self.controller.write_control(command)
 
     def do_ramp_relative_trig(self, init, trig_val, trig_signal, trig_sig, N, speed_f, speed_b, wait_s):
         """
@@ -311,6 +347,14 @@ class ScanControl:
             wait_s (float): Waiting time at the turnaround point in seconds.
         """
         pass
+    
+    def is_ramping(self):
+        """Checks if the ramping is active."""
+        
+        control = "Ramping?"
+        command = f"{OHCcommands.w_ram}{control}"
+        
+        return self.controller.read_control(command, control)      
 
     def get_path_ramp(self):
         """Retrieves the path for ramp data storage."""

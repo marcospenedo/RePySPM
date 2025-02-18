@@ -7,6 +7,10 @@ class Motors:
     The movement can be defined by steps, time, or distance.
     
     Methods:
+        start_approach: Start the approach to the surface.
+        stop_approach: Stops the approach procedure.
+        is_approaching: Check if the system is still approaching.
+        
         moveX_stage_steps: Move the stage by a specified number of steps in the X direction.
         moveX_stage_time: Move the stage for a specified duration in the X direction.
         moveX_stage_distance: Move the stage by a specific distance in the X direction.
@@ -51,6 +55,18 @@ class Motors:
         center_photodiode: Center the photodiode.
         autoalign_photodiode: Automatically align the photodiode for optimal signal.
     """
+    
+    def start_approach(self):
+        """Start the approach to the surface."""
+        pass
+    
+    def stop_approach(self):
+        """Stops the approach procedure."""
+        pass
+    
+    def is_approaching(self):
+        """Check if the system is still approaching."""
+        pass
     
     def moveX_stage_steps(self, Nsteps):
         """Move the stage by a specified number of steps in the X direction."""

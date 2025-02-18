@@ -21,6 +21,7 @@ class ZControlPID:
         set_units: Sets the feedback units.
         get_feedback: Retrieves the feedback status.
         set_feedback: Sets the feedback status.
+        retract: Withdraw from the surface.
         get_afm_mode: Retrieves the AFM mode.
         set_afm_mode: Sets the AFM mode.
         get_zposition: Retrieve the actual Z scanner position.
@@ -116,7 +117,12 @@ class ZControlPID:
             feedback (bool): Feedback status.
         """
         pass
-
+    
+    def retract(self):
+        """Withdraw from the surface."""
+        
+        pass
+    
     def get_afm_mode(self):
         """Retrieves the AFM mode."""
         pass

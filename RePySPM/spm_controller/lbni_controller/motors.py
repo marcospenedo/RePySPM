@@ -1,3 +1,5 @@
+from .commands import OHCcommands
+
 class Motors:
     """
     A class to control the motors of the stage, lasers, and photodiode in a scanning arm system.
@@ -7,6 +9,10 @@ class Motors:
     The movement can be defined by steps, time, or distance.
     
     Methods:
+        start_approach: Start the approach to the surface.
+        stop_approach: Stops the approach procedure.
+        is_approaching: Check if the system is still approaching.
+        
         moveX_stage_steps: Move the stage by a specified number of steps in the X direction.
         moveX_stage_time: Move the stage for a specified duration in the X direction.
         moveX_stage_distance: Move the stage by a specific distance in the X direction.
@@ -51,9 +57,35 @@ class Motors:
         center_photodiode: Center the photodiode.
         autoalign_photodiode: Automatically align the photodiode for optimal signal.
     """
-    
+  
     def __init__(self, controller):
-        self.controller = controller  # Store reference to AFMController
+        self.controller = controller  # Store reference to AFMController    
+  
+    def start_approach(self):
+        """Start the approach to the surface."""
+        
+        command = f"{OHCcommands.w_zcon}AutoApproach:Start:True"
+        self.controller.write_control(command)
+        
+        return 0
+        
+    
+    def stop_approach(self):
+        """Stops the approach procedure."""
+                
+        command = f"{OHCcommands.w_zcon}AutoApproach:Stop:True"
+        self.controller.write_control(command)
+        
+        return 0
+        
+    
+    def is_approaching(self):
+        """Check if the system is still approaching."""
+        
+        control = "Approaching?"
+        command = f"{OHCcommands.w_zcon}{control}"
+    
+        return self.controller.read_control(command, control)    
     
     def moveX_stage_steps(self, Nsteps):
         """Move the stage by a specified number of steps in the X direction."""

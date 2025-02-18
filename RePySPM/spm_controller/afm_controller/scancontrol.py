@@ -35,6 +35,7 @@ class ScanControl:
         do_ramp_absolute_trig: Performs a Z ramp with an absolute starting point and a trigger-based endpoint.
         do_ramp_relative_length: Performs a Z ramp relative to the actual position with a specified length.
         do_ramp_relative_trig: Performs a Z ramp relative to the actual position with a trigger-based endpoint.
+        is_ramping: Checks if the ramping is active.
         get_path_ramp: Retrieves the path for ramp data storage.
         set_path_ramp: Sets the path for ramp data storage.
         get_file_name_ramp: Retrieves the file name for ramp data storage.
@@ -229,6 +230,10 @@ class ScanControl:
         """
         pass
 
+    def is_ramping(self):
+        """Checks if the ramping is active."""
+        pass
+    
     def get_path_ramp(self):
         """Retrieves the path for ramp data storage."""
         pass

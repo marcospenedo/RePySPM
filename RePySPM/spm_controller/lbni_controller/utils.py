@@ -52,6 +52,8 @@ class Utils:
             Sets or retrieves whether the scanning is unidirectional or bidirectional.
         set/get_skip_lines():
             Sets or retrieves whether lines are skipped in the scan.
+        set/get_feedback_after_ramp():
+            Sets the feedback on/off after a ramp.
     """
     
     def __init__(self, controller):
@@ -486,5 +488,23 @@ class Utils:
         
         return self.controller.read_control(command, control)       
     
+    def set_feedback_after_ramp(self, value: bool):
+        
+        if not isinstance(value, bool):
+            raise ValueError(f"Invalid value: {value}. Must be a boolean (True or False).")
+               
+        command = f"{OHCcommands.w_ram}Reenable Feedback:{value}"
+            
+        self.controller.write_control(command)
+        
+        return 0
+
+    def get_feedback_after_ramp(self):
+        
+        control = "Reenable Feedback"
+        command = f"{OHCcommands.w_ram}{control}"
+        
+        return self.controller.read_control(command, control)      
+        
     def __repr__(self):
         pass

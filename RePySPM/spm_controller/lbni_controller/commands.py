@@ -9,6 +9,8 @@ class OHCcommands:
     r_sco = "Read:Scope::"
     w_wav = "Write:ScanWaveforms::"
     r_wav = "Read:ScanWaveforms::"
+    w_ram = "Write:Ramp::"
+    r_ram = "Read:Ramp::"
     w_sic = "Write:SICM::"
     r_sic = "Read:SICM::"
 

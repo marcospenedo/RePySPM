@@ -23,6 +23,7 @@ class ZControlPID:
         set_units: Sets the feedback units.
         get_feedback: Retrieves the feedback status.
         set_feedback: Sets the feedback status.
+        retract: Withdraw from the surface.
         get_afm_mode: Retrieves the AFM mode.
         set_afm_mode: Sets the AFM mode.
         get_zposition: Retrieve the actual Z scanner position.
@@ -173,6 +174,15 @@ class ZControlPID:
         """
         
         command = f"{OHCcommands.w_zcon}Feedback On:{feedback}"
+            
+        self.controller.write_control(command)
+        
+        return 0
+    
+    def retract(self):
+        """Withdraw from the surface."""
+        
+        command = f"{OHCcommands.w_zcon}Withdraw:True"
             
         self.controller.write_control(command)
         
