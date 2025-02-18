@@ -1,3 +1,5 @@
+from ..commands import OHCcommands
+
 from enum import Enum
 
 class AFMModes(Enum):
@@ -37,18 +39,37 @@ class AFMMode:
         self.ort = ort
         
         # Default mode set to Contact Mode
-        self.current_mode = AFMModes.CONTACT
+        self.set_mode(AFMModes.CONTACT)
 
     def set_mode(self, mode):
         """Set the current mode to one of the available AFM modes."""
         if not isinstance(mode, AFMModes):
             raise ValueError("mode_name must be an instance of AFMModes.")
-        self.current_mode = mode
-            
+        
+        # Define the mapping of AFMModes to command values
+        mode_mapping = {
+            AFMModes.CONTACT: "Contact Mode",
+            AFMModes.AM: "AM Mode",
+            AFMModes.FM: None,  # Not implemented
+            AFMModes.ORT: "OR Tapping"
+        }
+    
+        value = mode_mapping.get(mode)
+    
+        # Only send the command if the mode is implemented
+        if value is not None:
+            command = f"{OHCcommands.w_zcon}Mode:{value}"
+            self.controller.write_control(command)
+    
+        return 0
 
     def get_mode(self):
         """Retrieve the current mode object."""
-        return self.current_mode
+        
+        control = "Mode"
+        command = f"{OHCcommands.w_zcon}{control}"
+        
+        return self.controller.read_control(command, control)
 
     def __repr__(self):
-        return f"AFMMode(current_mode={self.current_mode})"
+        pass

@@ -10,6 +10,7 @@ from .motors import Motors
 from .lasers import Lasers
 from .image import AcquiredImage
 from .utils import Utils
+from .sicm import Sicm
 
 # Import AFM modes from the updated structure
 from .afm_modes import AFMMode, AFMModes, AMMode, FMMode, ContactMode, OffResonanceMode
