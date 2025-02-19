@@ -183,7 +183,8 @@ class ZControlPID:
         """Withdraw from the surface."""
         
         command = f"{OHCcommands.w_zcon}Withdraw:True"
-            
+        self.controller.write_control(command)
+        command = f"{OHCcommands.w_zcon}Withdraw:False"
         self.controller.write_control(command)
         
         return 0

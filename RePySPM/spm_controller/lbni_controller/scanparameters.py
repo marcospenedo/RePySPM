@@ -122,7 +122,7 @@ class ScanParameters:
 
     def set_offset_x(self, value):
         """Sets the X offset of the scan area."""
-        
+
         command = f"{OHCcommands.w_sca}Scan Parameters:X Offset:{value}"
             
         self.controller.write_control(command)

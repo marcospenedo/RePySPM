@@ -79,10 +79,7 @@ def main():
     Stop_Python_LV_Bridge_path = r"D:\Users\Marcos\OpenSPM\OpenSPM-source\pythonAPI\AsynStopPythonLVExternalBridge.vi"
     
     afm = AFMController(Python_LV_Bridge_path, Run_Python_LV_Bridge_path, Stop_Python_LV_Bridge_path)
-    
-    # Step 2: Connect to the AFM system
-    afm.connect()
-    
+
     # Step 4: Set scan parameters
     # Please skip this step if you prefer setting the initial parameters manually 
     print("\n--- Setting Scan Parameters ---")

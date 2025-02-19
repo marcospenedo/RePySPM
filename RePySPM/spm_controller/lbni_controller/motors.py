@@ -66,6 +66,9 @@ class Motors:
         
         command = f"{OHCcommands.w_zcon}AutoApproach:Start:True"
         self.controller.write_control(command)
+
+        command = f"{OHCcommands.w_zcon}AutoApproach:Start:False"
+        self.controller.write_control(command)
         
         return 0
         
@@ -75,6 +78,9 @@ class Motors:
                 
         command = f"{OHCcommands.w_zcon}AutoApproach:Stop:True"
         self.controller.write_control(command)
+
+        command = f"{OHCcommands.w_zcon}AutoApproach:Stop:False"
+        self.controller.write_control(command)
         
         return 0
         
@@ -83,7 +89,7 @@ class Motors:
         """Check if the system is still approaching."""
         
         control = "Approaching?"
-        command = f"{OHCcommands.w_zcon}{control}"
+        command = f"{OHCcommands.r_zcon}{control}"
     
         return self.controller.read_control(command, control)    
     

@@ -16,9 +16,6 @@ def main():
     Stop_Python_LV_Bridge_path = r"D:\Users\Marcos\OpenSPM\OpenSPM-source\pythonAPI\AsynStopPythonLVExternalBridge.vi"
     
     LBNI_controller = AFMController(Python_LV_Bridge_path, Run_Python_LV_Bridge_path, Stop_Python_LV_Bridge_path)
-    
-    # Step 2: Connect to the AFM system
-    LBNI_controller.connect()
 
     LBNI_controller.z_control.set_zcontrolpid_parameters(0.00002, 0.000003, 0, 0.112, 'V', True, 'AM Mode')
     
