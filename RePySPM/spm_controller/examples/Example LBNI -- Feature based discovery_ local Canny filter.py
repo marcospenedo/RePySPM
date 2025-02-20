@@ -73,12 +73,10 @@ def convert_coord(obj, img, coord, angle=None):
     return pos_sorted
 
 def main():
-    # Path to the VI
-    Python_LV_Bridge_path = r"D:\Users\Marcos\OpenSPM\OpenSPM-source\pythonAPI\PythonLVExternalBridge.vi"
-    Run_Python_LV_Bridge_path = r"D:\Users\Marcos\OpenSPM\OpenSPM-source\pythonAPI\AsynRunPythonLVExternalBridge.vi"
-    Stop_Python_LV_Bridge_path = r"D:\Users\Marcos\OpenSPM\OpenSPM-source\pythonAPI\AsynStopPythonLVExternalBridge.vi"
+    # Path to the project
+    project_path = r"D:\Users\Marcos\OpenSPM\OpenSPM-source"
     
-    afm = AFMController(Python_LV_Bridge_path, Run_Python_LV_Bridge_path, Stop_Python_LV_Bridge_path)
+    afm = AFMController(project_path)
 
     # Step 4: Set scan parameters
     # Please skip this step if you prefer setting the initial parameters manually 
@@ -102,22 +100,23 @@ def main():
     # Start a new scan and wait until it's done
     
     print("\n--- Starting Scan ---")
+    # Start the topography scan and wait until it's done
+    afm.z_control.set_feedback(True)
+    print("Feedback ON")
     afm.scan_control.scan_up()
     print("Scanning upwards...")
     
     # You can either wait for a fixed time, or check if the scan is done every 10 sec
+        
+    elapsed_time = 0
+    while afm.scan_control.is_scanning():
+        time.sleep(1)  # Check every second
+        elapsed_time += 1
     
-    # # Method 1:
-    # time.sleep(240) # 4 min
-    
-    # Method 2:
-    max_wait = 5 * 60 # let's wait no longer than 5 min
-    N = 0
-    
-    while afm.scan_control.is_scanning() and N <= int(max_wait / 10):
-        time.sleep(10)
-        N += 1
-    
+        if elapsed_time >= 10:
+            print("Scanning...")
+            elapsed_time = 0  # Reset the counter
+
     # Read the topography data from the controller or the saved image file
     
     img = afm.image.get_channel("Height",0)
@@ -164,10 +163,16 @@ def main():
         # Start the F-D curve measurement
         afm.utils.set_feedback_after_ramp(True)
         afm.scan_control.do_ramp_relative_length(-0.5e-6, 1e-6, 2000, 0.5e-6, 0.5e-6, 0.1)
+        # Wait for ramp starts
+        time.sleep(5)
     
         # Wait until the spec is done
         while afm.scan_control.is_ramping():
             time.sleep(0.2)
+            
+    # Step N: Disconnect from the AFM system
+    afm.disconnect()
+    print("\n--- AFM disconnected ---")
         
 if __name__ == "__main__":
     main()

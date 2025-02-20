@@ -331,6 +331,16 @@ class ScanControl:
         command = f"{OHCcommands.w_ram}Parameters:Pause:{wait_s}"
             
         self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Actions:Play:True"
+            
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Actions:Play:False"
+            
+        self.controller.write_control(command)
+        
+        return 0
 
     def do_ramp_relative_trig(self, init, trig_val, trig_signal, trig_sig, N, speed_f, speed_b, wait_s):
         """
@@ -352,7 +362,9 @@ class ScanControl:
         """Checks if the ramping is active."""
         
         control = "Ramping?"
-        command = f"{OHCcommands.w_ram}{control}"
+        command = f"{OHCcommands.r_ram}{control}"
+        
+        control = "Ramping?_"
         
         return self.controller.read_control(command, control)      
 

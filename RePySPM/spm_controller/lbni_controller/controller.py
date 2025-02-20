@@ -1,6 +1,7 @@
 # Importing directly from the package (__init__.py manages module paths)
 import win32com.client  # Python ActiveX Client
 import time
+import os
 
 from .signals import Signals
 from .scanparameters import ScanParameters
@@ -16,11 +17,12 @@ from .sicm import Sicm
 from .afm_modes import AFMMode, AFMModes, AMMode, FMMode, ContactMode, OffResonanceMode
 
 class AFMController:        
-    def __init__(self, Python_LV_Bridge_path, Run_Python_LV_Bridge_path, Stop_Python_LV_Bridge_path):
+    def __init__(self, root_path):
         """Main controller class for an SPM instrument."""
-        self.Python_LV_Bridge_path = Python_LV_Bridge_path
-        self.Run_Python_LV_Bridge_path = Run_Python_LV_Bridge_path
-        self.Stop_Python_LV_Bridge_path = Stop_Python_LV_Bridge_path
+        api_path = os.path.join(root_path, "pythonAPI")  # Automatically add "pythonAPI\"
+        self.Python_LV_Bridge_path = os.path.join(api_path, "PythonLVExternalBridge.vi")
+        self.Run_Python_LV_Bridge_path = os.path.join(api_path, "AsynRunPythonLVExternalBridge.vi")
+        self.Stop_Python_LV_Bridge_path = os.path.join(api_path, "AsynStopPythonLVExternalBridge.vi")
         
         print(f"Will connect to path: {self.Python_LV_Bridge_path}")
         

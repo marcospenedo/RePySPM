@@ -13,6 +13,10 @@ class AcquiredImage:
         get_channels_names: Retrieves the names of all channels in the image.
         get_all_channels_data: Retrieves the data for all image channels.
         get_channel: Retrieves the data of a specific image channel by name.
+        get_channels_units_ramp: Retrieves the units of all channels in the ramp.
+        get_channels_names_ramp: Retrieves the names of all channels in the ramp.
+        get_all_channels_data_ramp: Retrieves the data for all ramp channels.
+        get_channel_ramp: Retrieves the data of a specific ramp channel by name.
     """
     
     def __init__(self, controller):
@@ -24,11 +28,20 @@ class AcquiredImage:
     
     def get_channels_names(self):
         """Retrieve the names of all image channels."""
-        pass
+        
+        # Retrieve channel names
+        control = "ChannelsNames"
+        command = f"{OHCcommands.r_sco}{control}"
+        
+        return self.controller.read_control(command, control)
     
     def get_all_channels_data(self):
         """Retrieve the data from all image channels."""
-        pass
+        
+        control = "ImageChannels"
+        command = f"{OHCcommands.r_sco}{control}"
+        
+        return np.array(self.controller.read_control(command, control))  # Shape: (2, num_channels, pixels_x, pixels_y)
     
     def get_channel(self, name: str, direction: int):
         """
@@ -53,16 +66,12 @@ class AcquiredImage:
             raise ValueError(f"Invalid direction: {direction}. Must be an integer (0 for forward, 1 for backward).")
     
         # Retrieve all available channels (convert list to NumPy array)
-        control = "ImageChannels"
-        command = f"{OHCcommands.r_sco}{control}"
-        all_channels = np.array(self.controller.read_control(command, control))  # Shape: (2, num_channels, pixels_x, pixels_y)
+        all_channels = self.get_all_channels_data()
     
-        # Retrieve channel names
-        control = "ChannelsNames"
-        command = f"{OHCcommands.r_sco}{control}"
-        channel_names = self.controller.read_control(command, control)  # Shape: (num_channels,)
+        # Retrieve all available channels names
+        channel_names = self.get_channels_names()
     
-        if not isinstance(channel_names, list):
+        if not isinstance(channel_names, tuple):
             raise ValueError(f"Expected a list of channel names, but got {type(channel_names)}.")
     
         if name not in channel_names:
@@ -74,6 +83,23 @@ class AcquiredImage:
         # Extract and return the data for the corresponding channel
         return all_channels[direction, channel_index, :, :]
 
+    def get_channels_units_ramp(self):
+        """Retrieve the units of all ramp channels."""
+        pass
+    
+    def get_channels_names_ramp(self):
+        """Retrieve the names of all ramp channels."""
+        pass
+    
+    def get_all_channels_data_ramp(self):
+        control = "GraphData"
+        command = f"{OHCcommands.r_ram}{control}"
+        
+        return np.array(self.controller.read_control(command, control))  # Shape: (2xnum_channels, 2, num points)
+    
+    def get_channel_ramp(self, name):
+        """Retrieve the data from the ramp channel with the given name."""
+        pass
     
     def __repr__(self):
         return (

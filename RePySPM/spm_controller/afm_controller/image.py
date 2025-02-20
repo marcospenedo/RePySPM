@@ -10,6 +10,10 @@ class AcquiredImage:
         get_channels_names: Retrieves the names of all channels in the image.
         get_all_channels_data: Retrieves the data for all image channels.
         get_channel: Retrieves the data of a specific image channel by name.
+        get_channels_units_ramp: Retrieves the units of all channels in the ramp.
+        get_channels_names_ramp: Retrieves the names of all channels in the ramp.
+        get_all_channels_data_ramp: Retrieves the data for all ramp channels.
+        get_channel_ramp: Retrieves the data of a specific ramp channel by name.
     """
     
     def __init__(self):
@@ -29,6 +33,22 @@ class AcquiredImage:
     
     def get_channel(self, name):
         """Retrieve the data from the image channel with the given name."""
+        pass
+    
+    def get_channels_units_ramp(self):
+        """Retrieve the units of all ramp channels."""
+        pass
+    
+    def get_channels_names_ramp(self):
+        """Retrieve the names of all ramp channels."""
+        pass
+    
+    def get_all_channels_data_ramp(self):
+        """Retrieve the data from all ramp channels."""
+        pass
+    
+    def get_channel_ramp(self, name):
+        """Retrieve the data from the ramp channel with the given name."""
         pass
     
     def __repr__(self):
