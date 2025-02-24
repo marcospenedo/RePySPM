@@ -67,19 +67,19 @@ class Utils:
     
     # Dictionary: controller_type -> bitfile filename
     CONTROLLER_BITFILES = {
-        "lbni_afm_v2":            "lbniAFMController_usbRio80MHz_controllerFPGA_lbniAFM_v2.lvbitx",
+        "lbni_afm_v2":            "lbniAFMController_usbRio80MHz_controllerFPGA.lvbitx",
         "lbni_sicm_v2":           "lbniAFMController_usbRio80MHz_controllerFPGA_lbniSICM_v2.lvbitx",
-        "lbni_fred_v2":           "lbniAFMController_usbRio80MHz_controllerFPGA_fred.lvbitx",
-        "lbni_afsem_v2":          "lbniAFMController_usbRio80MHz_controllerFPGA_AFSEM_QD.lvbitx",
-        "driveAFM_afm_oem_v2":    "lbniAFMController_usbRio80MHz_controllerFPGA_driveAFM_OEM.lvbitx",
+        "lbni_fred_v2":           "lbniAFMController_usbRio80MHz_controllerFPGA_Fred.lvbitx",
+        "lbni_afsem_v2":          "lbniAFMController_usbRio80MHz_controllerFPGA_AFSEM.lvbitx",
+        "driveAFM_afm_oem_v2":    "lbniAFMController_usbRio80MHz_controllerFPGA_DriveAFM_OEM.lvbitx",
         "qd_afsem_v2":            "lbniAFMController_usbRio80MHz_controllerFPGA_AFSEM_QD.lvbitx",
-        "lbni_afm_oem_v2":        "lbniAFMController_usbRio80MHz_controllerFPGA_lbniAFM_oem.lvbitx",
-        "lbni_afm_oem_NOT2C_v2":  "lbniAFMController_usbRio80MHz_controllerFPGA_lbniAFM_oem_NOT2C.lvbitx",
+        "lbni_afm_oem_v2":        "lbniAFMController_usbRIO_controllerFPGA_OEMv2.lvbitx",
+        "lbni_afm_oem_NOT2C_v2":  "lbniAFMController_usbRIO_controllerFPGA_OEMv2_NOT2C.lvbitx",
         "lbni_afm_v1_testboard":  "lbniAFMController_usbRIO_controllerFPGA_testboard.lvbitx",
-        "lbni_afm_v1_OEM":        "lbniAFMController_usbRio80MHz_controllerFPGA_lbniAFM_v1_OEM.lvbitx",
-        "lbni_snom_v1":           "lbniAFMController_usbRio80MHz_controllerFPGA_lbniSNOM.lvbitx",
-        "lbni_stm_v1":            "lbniAFMController_usbRio80MHz_controllerFPGA_lbniSTM_v1.lvbitx",
-        "lbni_sicm_v1":           "lbniAFMController_usbRio80MHz_controllerFPGA_lbniSICM_v1.lvbitx",
+        "lbni_afm_v1_OEM":        "lbniAFMController_usbRIO_controllerFPGA_OEM.lvbitx",
+        "lbni_snom_v1":           "lbniAFMController_usbRIO_controllerFPGA_SNOM.lvbitx",
+        "lbni_stm_v1":            "lbniAFMController_usbRIO_controllerFPGA_STM.lvbitx",
+        "lbni_sicm_v1":           "lbniAFMController_usbRIO_controllerFPGA_SICM.lvbitx",
     }
     
     def get_controller_type_from_init(self, init_xml_path):
