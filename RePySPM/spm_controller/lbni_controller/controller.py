@@ -14,7 +14,11 @@ from .utils import Utils
 from .sicm import Sicm
 
 # Import AFM modes from the updated structure
-from .afm_modes import AFMMode, AFMModes, AMMode, FMMode, ContactMode, OffResonanceMode
+from .afm_modes.afmmode import AFMMode, AFMModes, ExcType
+from .afm_modes.am import AMMode
+from .afm_modes.fm import FMMode
+from .afm_modes.ort import OffResonanceMode
+from .afm_modes.contact import ContactMode
 
 class AFMController:        
     def __init__(self, root_path):
@@ -39,7 +43,7 @@ class AFMController:
         self.motors = Motors(self)
         self.lasers = Lasers(self)
         self.image = AcquiredImage(self)
-        self.utils = Utils(self)
+        self.utils = Utils(self, root_path)
         
         # Create instances of the AFM modes
         self.contact_mode = ContactMode(self)

@@ -14,6 +14,8 @@ class AcquiredImage:
         get_channels_names_ramp: Retrieves the names of all channels in the ramp.
         get_all_channels_data_ramp: Retrieves the data for all ramp channels.
         get_channel_ramp: Retrieves the data of a specific ramp channel by name.
+        get_last_line: Retrieves the data for all last channels line.
+        get_all_last_lines: Retrieves the data of the last line of a specific channel.
     """
     
     def __init__(self):
@@ -49,6 +51,14 @@ class AcquiredImage:
     
     def get_channel_ramp(self, name):
         """Retrieve the data from the ramp channel with the given name."""
+        pass
+
+    def get_last_line(self, name):
+        """Retrieves the data of the last line of a specific channel."""
+        pass
+    
+    def get_all_last_lines(self):
+        """Retrieves the data for all last channels line."""
         pass
     
     def __repr__(self):

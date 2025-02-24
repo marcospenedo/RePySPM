@@ -39,7 +39,7 @@ class AFMMode:
         self.ort = ort
         
         # Default mode set to Contact Mode
-        self.set_mode(AFMModes.CONTACT)
+        # self.set_mode(AFMModes.CONTACT)
 
     def set_mode(self, mode):
         """Set the current mode to one of the available AFM modes."""
@@ -60,6 +60,11 @@ class AFMMode:
         if value is not None:
             command = f"{OHCcommands.w_zcon}Mode:{value}"
             self.controller.write_control(command)
+            
+        # Call excitation_on() for AM, FM, ORT modes
+        exc_ON = mode in {AFMModes.AM, AFMModes.FM, AFMModes.ORT}
+            
+        self.controller.utils.set_excitation(exc_ON)
     
         return 0
 
@@ -67,7 +72,7 @@ class AFMMode:
         """Retrieve the current mode object."""
         
         control = "Mode"
-        command = f"{OHCcommands.w_zcon}{control}"
+        command = f"{OHCcommands.r_zcon}{control}"
         
         return self.controller.read_control(command, control)
 

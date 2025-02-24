@@ -1,5 +1,7 @@
 from ..afmmode import ExcType, AFMModes
 
+from ...commands import OHCcommands
+
 class AMMode():
     """
     A class to control the Amplitude Modulation (AM) Mode for an Atomic Force Microscope (AFM) system.
@@ -67,51 +69,94 @@ class AMMode():
 
     def get_exc_amplitude(self):
         """Retrieves the excitation amplitude."""
-        pass
+        
+        control = "Amplitude (V)"
+        command = f"{OHCcommands.r_exc}{control}"
+        
+        return self.controller.read_control(command, control)
 
-    def set_exc_amplitude(self, exc_amplitude):
+    def set_exc_amplitude(self, value: float):
         """Sets the excitation amplitude.
 
         Args:
-            exc_amplitude (float): Amplitude in volts.
+            value (float): Amplitude in volts.
         """
-        pass
+        if not isinstance(value, (int, float)) or not (0 <= value <= 10):
+            raise ValueError(f"Invalid number of excitation amplitude: {value}. Must be a non-negative float.")
+        
+        command = f"{OHCcommands.w_exc}Amplitude (V):{value}"
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_exc_offset(self):
         """Retrieves the excitation offset."""
-        pass
+        
+        control = "Offset (V)"
+        command = f"{OHCcommands.r_exc}{control}"
+        
+        return self.controller.read_control(command, control)
 
-    def set_exc_offset(self, exc_offset):
+    def set_exc_offset(self, value: float):
         """Sets the excitation offset.
-
+    
         Args:
-            exc_offset (float): Offset in volts.
+            value (float): Offset in volts (-10 to 10).
         """
-        pass
+        
+        if not isinstance(value, (int, float)) or not (-10 <= value <= 10):
+            raise ValueError(f"Invalid excitation offset: {value}. Must be a float between -10 and 10 volts.")
+        
+        command = f"{OHCcommands.w_exc}Offset (V):{value}"
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_exc_frequency(self):
         """Retrieves the excitation frequency."""
-        pass
+        
+        control = "Frequency (Hz)"
+        command = f"{OHCcommands.r_exc}{control}"
+        
+        return self.controller.read_control(command, control)
 
-    def set_exc_frequency(self, exc_frequency):
+    def set_exc_frequency(self, value: float):
         """Sets the excitation frequency.
 
         Args:
             exc_frequency (float): Frequency in Hertz.
         """
-        pass
+        
+        if not isinstance(value, (int, float)) or value <= 0:
+            raise ValueError(f"Invalid number of excitation amplitude: {value}. Must be a positive float.")
+        
+        command = f"{OHCcommands.w_exc}Offset (V):{value}"
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_exc_phase(self):
         """Retrieves the excitation phase."""
-        pass
+        
+        control = "Phase Shift (°)"
+        command = f"{OHCcommands.r_exc}{control}"
+        
+        return self.controller.read_control(command, control)
 
-    def set_exc_phase(self, exc_phase):
+    def set_exc_phase(self, value: float):
         """Sets the excitation phase.
-
+    
         Args:
-            exc_phase (float): Phase in degrees (-180 to 180).
+            value (float): Phase in degrees (-180 to 180).
         """
-        pass
+        
+        if not isinstance(value, (int, float)) or not (-180 <= value <= 180):
+            raise ValueError(f"Invalid excitation phase: {value}. Must be a float between -180 and 180 degrees.")
+        
+        command = f"{OHCcommands.w_exc}Phase Shift (°):{value}"
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_output(self) -> bool:
         """Retrieves the state of the output (on/off)."""
@@ -129,27 +174,49 @@ class AMMode():
 
     def get_lockin_bandwidth(self):
         """Retrieves the lock-in amplifier bandwidth."""
-        pass
+        
+        control = "Bandwidth"
+        command = f"{OHCcommands.r_exc}{control}"
+        
+        return self.controller.read_control(command, control)
 
-    def set_lockin_bandwidth(self, lockin_bandwidth):
+    def set_lockin_bandwidth(self, value: float):
         """Sets the lock-in amplifier bandwidth.
-
+    
         Args:
-            lockin_bandwidth (float): Bandwidth in Hertz.
+            value (float): Bandwidth in Hertz (must be a positive float greater than 0).
         """
-        pass
+        
+        if not isinstance(value, (int, float)) or value <= 0:
+            raise ValueError(f"Invalid bandwidth: {value}. Must be a positive float greater than 0.")
+        
+        command = f"{OHCcommands.w_exc}Bandwidth:{value}"
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_lockin_order(self):
         """Retrieves the lock-in amplifier order."""
-        pass
+        
+        control = "Order"
+        command = f"{OHCcommands.r_exc}{control}"
+        
+        return self.controller.read_control(command, control)
 
-    def set_lockin_order(self, lockin_order):
+    def set_lockin_order(self, value: int):
         """Sets the lock-in amplifier order.
-
+    
         Args:
-            lockin_order (int): Order of the lock-in amplifier (1, 2, 3, or 4).
+            value (int): Order of the lock-in amplifier (must be 1, 2, 3, or 4).
         """
-        pass
+        
+        if value not in {1, 2, 3, 4}:
+            raise ValueError(f"Invalid order: {value}. Must be 1, 2, 3, or 4.")
+        
+        command = f"{OHCcommands.w_exc}Order:{value}"
+        self.controller.write_control(command)
+        
+        return 0
 
     def get_free_amplitude(self):
         """Retrieves the free amplitude of the cantilever."""

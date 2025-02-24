@@ -13,6 +13,8 @@ class OHCcommands:
     r_ram = "Read:Ramp::"
     w_sic = "Write:SICM::"
     r_sic = "Read:SICM::"
+    w_exc = "Write:Excitation::"
+    r_exc = "Read:Excitation::"
 
 
 

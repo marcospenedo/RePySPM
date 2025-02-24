@@ -24,6 +24,7 @@ class ScanControl:
         isContinuousScan: Checks if continuous scanning is enabled.
         isAutoSave: Checks if auto-save is enabled.
         get_pixel_pos: Retrieves the current scanning XY pixel numbers.
+        get_line: Retrieves the current scanning line.
         get_xyposition: Retrieves the current XY scanner position.
         set_xyposition: Moves the tip to the desired XY position.
         get_path: Retrieves the path associated with the scan.
@@ -116,6 +117,10 @@ class ScanControl:
 
     def get_pixel_pos(self):
         """Retrieves the current scanning XY pixel numbers."""
+        pass
+    
+    def get_line(self):
+        """Retrieves the current scanning line."""
         pass
 
     def get_xyposition(self):

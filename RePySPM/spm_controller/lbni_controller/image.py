@@ -17,6 +17,8 @@ class AcquiredImage:
         get_channels_names_ramp: Retrieves the names of all channels in the ramp.
         get_all_channels_data_ramp: Retrieves the data for all ramp channels.
         get_channel_ramp: Retrieves the data of a specific ramp channel by name.
+        get_last_line: Retrieves the data for all last channels line.
+        get_all_last_lines: Retrieves the data of the last line of a specific channels.
     """
     
     def __init__(self, controller):
@@ -59,6 +61,7 @@ class AcquiredImage:
         Returns:
             np.ndarray: The image data corresponding to the requested channel.
         """
+        
         if not isinstance(name, str):
             raise ValueError(f"Invalid channel name: {name}. Must be a string.")
     
@@ -99,6 +102,38 @@ class AcquiredImage:
     
     def get_channel_ramp(self, name):
         """Retrieve the data from the ramp channel with the given name."""
+        pass
+    
+    def get_last_line(self, name):
+        """Retrieves the data of the last line of a specific channel."""
+        
+        if not isinstance(name, str):
+            raise ValueError(f"Invalid channel name: {name}. Must be a string.")
+    
+        # Retrieve all available channels (convert list to NumPy array)
+        all_channels = self.get_all_channels_data()
+    
+        # Retrieve all available channels names
+        channel_names = self.get_channels_names()
+    
+        if not isinstance(channel_names, tuple):
+            raise ValueError(f"Expected a list of channel names, but got {type(channel_names)}.")
+    
+        if name not in channel_names:
+            raise ValueError(f"Channel '{name}' not found. Available channels: {channel_names}")
+    
+        # Find the index of the requested channel
+        channel_index = channel_names.index(name)
+    
+        # Extract and return the data for the corresponding channel line
+        line_number = self.controller.scan_control.get_line()
+        if line_number > 0:
+            return all_channels[:, channel_index, line_number - 1, :]
+        else:
+            return -1
+        
+    def get_all_last_lines(self):
+        """Retrieves the data for all last channels line."""
         pass
     
     def __repr__(self):
