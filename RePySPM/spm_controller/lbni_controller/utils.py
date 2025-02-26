@@ -134,8 +134,6 @@ class Utils:
         self.controller = controller  # Store reference to AFMController
         
         # Path to the bitfile
-        bitfile_name = r"lbniAFMController_usbRIO_controllerFPGA_testboard.lvbitx"
-
         xml_folder = os.path.join(root_path, "config") 
         init_xml_path = os.path.join(xml_folder, "Init.xml")
         
