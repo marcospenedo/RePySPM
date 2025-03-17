@@ -28,6 +28,16 @@ warnings.filterwarnings('ignore')
 
 from jax.lib import xla_bridge
 
+import sys
+import os
+
+# Get the parent directory and add it to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+# import aespm as ae
+# Now you can import AFMController
+from lbni_controller import AFMController
+
 print(xla_bridge.get_backend().platform)
 
 # Interface with Jupiter (local run)
@@ -40,8 +50,10 @@ print(xla_bridge.get_backend().platform)
 
 folder = r"C:\Users\Asylum User\Documents\Asylum Research Data\250206\RedSample1"
 
-exp = ae.Experiment(folder=folder)
+# Path to the project
+project_path = r"D:\Users\Marcos\OpenSPM\OpenSPM-source"
 
+exp = AFMController(project_path) # exp = ae.Experiment(folder=folder)
 
 # # Uncommment this cell the first time the software is being opened
 
@@ -1045,3 +1057,7 @@ print("Optimized setpoint: {:.06f} V".format(setpoint_op))
 exp.execute('DriveAmp', value=v_ac_op, wait=0.5)
 exp.execute('SetpointAmp', value=setpoint_op, wait=0.5)
 
+# Step N: Disconnect from the AFM system
+exp.disconnect()
+print("\n--- AFM disconnected ---")
+    
