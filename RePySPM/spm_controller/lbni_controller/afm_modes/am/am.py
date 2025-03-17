@@ -1,3 +1,6 @@
+import numpy as np
+import time
+
 from ..afmmode import ExcType, AFMModes
 
 from ...commands import OHCcommands
@@ -128,7 +131,7 @@ class AMMode():
         """
         
         if not isinstance(value, (int, float)) or value <= 0:
-            raise ValueError(f"Invalid number of excitation amplitude: {value}. Must be a positive float.")
+            raise ValueError(f"Invalid number of excitation frequency: {value}. Must be a positive float.")
         
         command = f"{OHCcommands.w_exc}Offset (V):{value}"
         self.controller.write_control(command)
@@ -242,7 +245,38 @@ class AMMode():
         Returns:
             list: Sweep data as a list of measured values.
         """
-        pass
+        
+        if not isinstance(freq_init, (int, float)) or freq_init <= 0:
+            raise ValueError(f"Invalid number of initial frequency: {freq_init}. Must be a positive float.")
+        
+        command = f"{OHCcommands.w_exc}Start (Hz):{freq_init}"
+        self.controller.write_control(command)
+        
+        if not isinstance(freq_end, (int, float)) or freq_end <= 0:
+            raise ValueError(f"Invalid number of final frequency: {freq_end}. Must be a positive float.")
+        
+        command = f"{OHCcommands.w_exc}Stop (Hz):{freq_end}"
+        self.controller.write_control(command)
+        
+        if not isinstance(num_points, (int)) or num_points <= 3:
+            raise ValueError(f"Invalid number of points: {num_points}. Must be a positive int larger than 3.")
+        
+        command = f"{OHCcommands.w_exc}Number of points:{num_points}"
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_exc}Sweep:{True}"
+        self.controller.write_control(command)
+        
+        control = "Sweep"
+        command = f"{OHCcommands.r_exc}{control}"
+        while (self.controller.read_control(command, control)):
+            time.sleep(0.5)
+            
+        control = "FreqSweep"
+        command = f"{OHCcommands.r_exc}{control}"
+        
+        return np.array(self.controller.read_control(command, control)) 
+    
 
     def __repr__(self):
         """Represents the AMMode object as a string."""
