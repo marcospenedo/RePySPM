@@ -1,3 +1,5 @@
+from .commands import OHCcommands
+
 class Signals:
     """
     A class to handle the signals from a scanning system.
@@ -28,15 +30,33 @@ class Signals:
         
     def get_vertical_deflection(self):
         """Retrieves the vertical deflection signal from the system."""
-        pass
+                
+        control = "AI0/IN0"
+        command = f"{OHCcommands.r_sco}{control}"
+        
+        control = "Scope"
+        
+        return self.controller.read_control(command, control)
 
     def get_lateral_deflection(self):
         """Retrieves the lateral deflection signal from the system."""
-        pass
+                
+        control = "AI1/IN1A"
+        command = f"{OHCcommands.r_sco}{control}"
+        
+        control = "Scope"
+        
+        return self.controller.read_control(command, control)
 
     def get_photodiode_sum(self):
         """Retrieves the photodiode sum signal from the system."""
-        pass
+                
+        control = "AI2/IN1B"
+        command = f"{OHCcommands.r_sco}{control}"
+        
+        control = "Scope"
+        
+        return self.controller.read_control(command, control)
 
     def get_X(self):
         """Retrieves the X-coordinate signal from the system."""
@@ -68,11 +88,23 @@ class Signals:
 
     def get_amplitude(self):
         """Retrieves the amplitude signal from the system."""
-        pass
+                
+        control = "Amplitude"
+        command = f"{OHCcommands.r_sco}{control}"
+        
+        control = "Scope"
+        
+        return self.controller.read_control(command, control)
 
     def get_phase(self):
         """Retrieves the phase signal from the system."""
-        pass
+                
+        control = "Phase"
+        command = f"{OHCcommands.r_sco}{control}"
+        
+        control = "Scope"
+        
+        return self.controller.read_control(command, control)
 
     def get_exc_amplitude(self):
         """Retrieves the excitation amplitude signal from the system."""

@@ -34,9 +34,79 @@ import os
 # Get the parent directory and add it to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# import aespm as ae
 # Now you can import AFMController
 from lbni_controller import AFMController
+from lbni_controller import AFMModes
+
+import types
+
+class Experiment(object):
+    '''
+    Experiment data structure for SPM auto-optimization simulation.
+    '''
+    def __init__(self):
+        super(Experiment, self).__init__()
+
+        # Initialize parameter dict
+        self.param = {}
+        
+        # Initialize LBNI afm API control
+        
+        # Path to the project
+        project_path = r"D:\Users\Marcos\OpenSPM\OpenSPM-source"
+        
+        self.LBNIafm = AFMController(project_path) 
+
+    def update_param(self, key, value):
+        '''
+        Update the value stored in obj.param
+
+        Input:
+            key     - List: keys to be modifies in obj.param
+            value   - List: values to be entered in obj.param['key']
+
+        Output:
+            N/A
+
+        Usage:
+            obj.update_param(key=['DriveAmplitude', 'Setpoint'], value=[0.1, 0.2])
+        '''
+        if type(key) is not list:
+            key = [key]
+
+        if len(key) == 1:
+            self.param[key[0]] = value
+
+        else:
+            for i, ix in enumerate(key):
+                self.param[ix] = value[i]
+
+    def add_func(self, NewFunc):
+        '''
+        Add a custom function as the method to Experiment object.
+
+        Input:
+            NewFunc - Function: Custom function defined by user. This function has aceess
+                        to all the attributes and methods of obj
+        Output:
+            N/A
+        Usage:
+            def measure(self, operation, key, value):
+                self.update_param(key=key, value=value)
+                self.execute(operation)
+            obj.add_func(measure)
+        '''
+
+        method_name = NewFunc.__name__
+
+        # add new function name to the custom action list
+        # self.action_list[method_name] = method_name
+
+        # Bind the function as a method of the instance
+        bound_method = types.MethodType(NewFunc, self)
+
+        # Set the method to the instance
+        setattr(self, method_name, bound_method)
 
 print(xla_bridge.get_backend().platform)
 
@@ -50,13 +120,12 @@ print(xla_bridge.get_backend().platform)
 
 folder = r"C:\Users\Asylum User\Documents\Asylum Research Data\250206\RedSample1"
 
-# Path to the project
-project_path = r"D:\Users\Marcos\OpenSPM\OpenSPM-source"
-
-exp = AFMController(project_path) # exp = ae.Experiment(folder=folder)
+exp = ae.Experiment(folder=folder)
 
 # # Uncommment this cell the first time the software is being opened
 
+########## Set tapping mode
+exp.LBNIafm.afmmode.set_mode(AFMModes.AM)
 
 # commands = 'AddEventCallback("ImageUpdt",OverwriteZSensorScope)\n\
 # AddEventCallback("ImageUpdt",OverwriteZSensorScope)\n\
@@ -81,44 +150,26 @@ def load_ibw(self, folder="C:\\Users\\Asylum User\\Documents\\AEtesting\\data_ex
     if header is True:
         return ae.tools.load_ibw(fname)
     else:
-        return ae.ibw_read(fname, lines=lines, connection=self.connection)
+        return ae.ibw_read(fname, lines=lines, connection=self.connection) # Get trace and retrace of heigh and phase (4 channels, np array)
 
-exp.add_func(load_ibw)
+exp.add_func(load_ibw) 
+# Used to load the real time scan lines
 
 def read_meter(self):
     ae.write_spm(commands="GetMeter()", connection=self.connection)
     w = ae.ibw_read(r"C:\Users\Asylum User\Documents\buffer\Meter.ibw", lines=True, connection=self.connection)
-    return w
+    return w # 1D array drive amplitude [V], oscillation amplitude [V/nm] wiht same unit of setpoint amplitude
 
 exp.add_func(read_meter)
 
+# def ramp_drive_setpoint(self, drive, setpoint):
+#     commands='SetDriveAmpAndSetpoint({}, {})'.format(drive, setpoint)
+#     ae.write_spm(commands=commands, connection=self.connection)
+    
 def ramp_drive_setpoint(self, drive, setpoint):
-    commands='SetDriveAmpAndSetpoint({}, {})'.format(drive, setpoint)
-    ae.write_spm(commands=commands, connection=self.connection)
+    self.LBNIafm.utils.linear_ramp_setpoint_exc_amplitude(setpoint, drive, 200) ## The ramp last 200 ms, can be changed
     
-exp.add_func(ramp_drive_setpoint)
-
-# Function to check the file number in a given folder
-def check_files(self, wait=50):
-    '''
-    Check the number of files in the folder, with 50 s max waiting time.
-    '''
-    return ae.check_file_number(path=self.folder, retry=int(wait/0.1))
-exp.add_func(check_files)
-
-# AC tune the probe and phase
-def ac_tune(self, buffer_path=r"C:\Users\Asylum User\Documents\buffer\Tune.ibw", deflection=False):
-    if deflection:
-        self.execute(action='ZeroPD', wait=5)
-    exp.execute('SingleTune', wait=5)
-    exp.execute('GetTune', wait=1)
-    data = ae.ibw_read(buffer_path).data
-    index_max = np.argmax(data[1])
-    freq_max = data[0][index_max]
-    exp.execute('DriveFreq', value=freq_max, wait=1)
-    exp.execute('SinglePhase', wait=5)
-    
-exp.add_func(ac_tune)
+exp.add_func(ramp_drive_setpoint) # the one I did 500 ms ramp lenght
 
 def measure_thres(self, drive, setpoint=0.5, thres=85):
     safe_seed_list = [
@@ -133,7 +184,7 @@ def measure_thres(self, drive, setpoint=0.5, thres=85):
     self.update_param('AmpInvOLS', AmpInvOLS)
     fwd, bkd = read_fd(data, factor=self.param['AmpInvOLS'])
     amp_thres = find_thres(fwd[2], fwd[1], thres=thres)
-    return amp_thres
+    return amp_thres # setpoint=0.5 50% of free amplitude, thres is the phase value 5 deg less from resonance
 
 exp.add_func(measure_thres)
 
@@ -183,65 +234,31 @@ def conver_unit(p, limits, reverse=False):
 ## Define the parameter limits
 
 # User defines the largest drive voltage as the starting point
-drive_limit = 100 * 1e-3 
-setpoint_limist = np.array([0.75, 0.5, 0.25])
+drive_limit = 100 * 1e-3 # mV
+setpoint_limist = np.array([0.25]) # percentage of the set point
 
 drives = []
 setpoints = []
 
 # Read out all the system parameters
-exp.execute('Stop')
-exp.execute('DriveAmplitude', drive_limit)
+########## exp.execute('Stop') # stop scannning
+exp.LBNIafm.scan_control.scan_continuous(False)
+exp.LBNIafm.scan_control.scan_stop()
+########## exp.execute('DriveAmplitude', drive_limit) # set the amplitude to this value
+exp.LBNIafm.afmmode.am.set_exc_amplitude(drive_limit)
 
-meter = exp.read_meter()
+########## meter = exp.read_meter()
 
-factor = meter[2] / drive_limit
+########## factor = meter[2] / drive_limit # meter[2] oscillation amplitude [mV]
+factor = exp.LBNIafm.signals.get_amplitude()/1000 # Get valiues in [V] so I divide by 1000
 if factor < 1e-1:
     factor *= 1e3
 
 if factor > 5e2:
     factor *= 1e-3
 
-exp.update_param('factor', factor)
+exp.update_param('factor', factor) # save it on the dictionary
 print(factor)
-
-
-
-# Take the first FD curve
-# Take a FD curve
-
-safe_seed_list = [
-        # ['Stop', None, 1],
-        ['DriveAmplitude', drive_limit, 2],
-        ['FDTrigger', setpoint_limist[0] * drive_limit * exp.param['factor'], 1.5],
-        ['SingleForce', None, 1],
-    ]
-exp.execute_sequence(safe_seed_list)
-exp.check_files(wait=20)
-
-# Read the latest FD curve and compute the threshold setpoint
-
-data = exp.load_ibw(folder=None, header=True)
-
-AmpInvOLS = data.header['AmpInvOLS']
-
-fwd, bkd = read_fd(data, factor=AmpInvOLS)
-
-amp_thres = find_thres(fwd[2], fwd[1], thres=85)
-
-print(amp_thres)
-
-# drive_limits = drive_limit
-
-# n = int(np.log2(drive_limits / 1e-3))
-
-# for i in range(n):
-#     amp_thres = exp.measure_thres(drive_limits, setpoint=0.5, thres=85)
-#     if amp_thres / (drive_limits*exp.param['factor']) > 0.5:
-#         drive_limits /= 2
-#     else:
-#         drive_limits *= 2
-#         break
 
 
 drive_limits = 100e-3
@@ -260,7 +277,8 @@ for i in range(len(drives)):
     except ValueError:
         thresholds[i] = np.nan
     
-exp.execute('Stop')
+########## exp.execute('Stop') # stop scannning
+exp.LBNIafm.scan_control.scan_stop()
 # drives
 
 ## Visualize the threshold setpoint
@@ -296,7 +314,8 @@ plt.show()
 
 # Generate the safe parameters for the BO and MOBO
 
-exp.execute('Stop')
+####### exp.execute('Stop')
+exp.LBNIafm.scan_control.scan_stop()
 
 # file save name
 save_name = 'output/250206_RedSample1_BO'
@@ -340,10 +359,11 @@ exp.update_param('X_tensor', X_norm)
 exp.update_param('restart', False)
 exp.update_param('blueDrive', False)
 exp.update_param('global_min', 0)
-meter = exp.read_meter()
-offset = meter[4] - 90
+########## meter = exp.read_meter()
+offset = exp.LBNIafm.signals.get_phase() - 90 # Get valiues in [deg]
+########## offset = meter[4] - 90 # meter[4] phase degree, a free phase
 
-sca_rate = ae.read_spm(key='ScanRate')
+sca_rate = ae.read_spm(key='ScanRate') # get the rate in Hz
 exp.update_param('offset', offset)
 exp.update_param('num1', num1)
 exp.update_param('num2', num2)
@@ -433,7 +453,7 @@ def reward(self, data):
         ph1, ph2 = data[4], data[5]
         h1, h2 = data[6]*1e9, data[7] *1e9
 #         h1, h2 = data[0]*1e9, data[1] *1e9
-    elif np.shape(data)[0] == 4:
+    elif np.shape(data)[0] == 4: # we use this for tapping mode [m] and [deg]
         ph1, ph2 = data[2], data[3]
         h1, h2 = data[0]*1e9, data[1] *1e9
         
@@ -465,7 +485,7 @@ def reward(self, data):
     
     # Absolute height difference factor: minimize
     # first remove the 2nd order background
-    tp1 = ae.tools.lineSubtract(h1, 2)
+    tp1 = ae.tools.lineSubtract(h1, 2) # remove second order background
     tp2 = ae.tools.lineSubtract(h2, 2)
     
     tp1_shift = tp1 - tp1.min() + 1 # prevent dividing by zero error
@@ -488,28 +508,33 @@ def measure(self, v_ac, setpoint, i_gain=None, restart=False, blueDrive=False,
             repeat=1, reward=True, wait=1):
 
     if restart:
-        self.execute(action='Stop', wait=1, connection=self.connection)
+        ########## self.execute(action='Stop', wait=1, connection=self.connection) # stop function
+        self.exp.LBNIafm.scan_control.scan_stop()
         if blueDrive is True:
-            self.execute(action='BlueDriveAmplitude', value=v_ac * 1e-3, wait=2, connection=self.connection)
+            ########## self.execute(action='BlueDriveAmplitude', value=v_ac * 1e-3, wait=2, connection=self.connection)
+            exp.LBNIafm.afmmode.am.set_exc_amplitude(v_ac)
             setpoint_ac = setpoint * v_ac * self.param['factor'] * 1e-3
         else:
-            self.execute(action='DriveAmplitude', value=v_ac, wait=2, connection=self.connection)
+            ########## self.execute(action='DriveAmplitude', value=v_ac, wait=2, connection=self.connection)
+            exp.LBNIafm.afmmode.am.set_exc_amplitude(v_ac)
             setpoint_ac = setpoint * v_ac * self.param['factor'] 
-        self.execute(action='SetpointAmp', value=setpoint_ac, wait=1.5, connection=self.connection)
+        ########## self.execute(action='SetpointAmp', value=setpoint_ac, wait=1.5, connection=self.connection)
+        exp.LBNIafm.z_control.set_setpoint(setpoint_ac)
         
         if i_gain is not None:
-            self.execute('IGain', value=i_gain, wait=1.5, connection=self.connection)
-        self.execute('DownScan', wait=2 + 2, connection=self.connection)
+            ########## self.execute('IGain', value=i_gain, wait=1.5, connection=self.connection)
+            self.exp.LBNIafm.z_control.set_i_gain(i_gain)
+        ########## self.execute('DownScan', wait=2 + 2, connection=self.connection)
+        self.exp.LBNIafm.scan_control.scan_down()
     
     else:
         self.execute('ramp_drive_setpoint', value=[v_ac, setpoint * v_ac * self.param['factor']], wait=0.5)
         if i_gain is not None:
-            self.execute('IGain', value=i_gain, wait=1.5, connection=self.connection)
+            ########## self.execute('IGain', value=i_gain, wait=1.5, connection=self.connection)
+            self.exp.LBNIafm.z_control.set_i_gain(i_gain)
     
     reward_out = []
     w_out = []
-    
-    time.sleep(3)
     
     if repeat > 1:
         for i in range(repeat):
@@ -586,7 +611,8 @@ def generate_seed(self, num=15, safe=False, repeat=1, rand=False, blueDrive=Fals
             plot_seed(w, i)
 
     out = np.array(out)
-    self.execute('Stop')    
+    ##########  self.execute('Stop')    # stop scan
+    self.exp.LBNIafm.scan_control.scan_stop()
     X_unmeasured = np.delete(X, idx, axis=0)
     X_exp_unmeasured = np.delete(self.param['X_exp'], idx, axis=0)
 
@@ -829,7 +855,8 @@ def run_BO(self, mask=None, fresh=True, num_steps=30, repeat=1,
         self.update_param('indices_measured', np.concatenate((self.param['indices_measured'], [next_idx])))
         self.update_param('indices_unmeasured', np.delete(self.param['indices_unmeasured'], next_idx))
         
-    self.execute('Stop')
+    ##########  self.execute('Stop')    # stop scan
+    self.exp.LBNIafm.scan_control.scan_stop()
     
     if save is not None:
         np.savez('{}.npz'.format(save), X_measured=X_measured, X_unmeasured=X_unmeasured, X_exp_measured=X_exp_measured, X_exp_unmeasured=X_exp_unmeasured,
@@ -920,7 +947,8 @@ exp.add_func(acq_mask)
 
 # Generate the safe parameters for the BO and MOBO
 
-exp.execute('Stop')
+##########  self.execute('Stop')    # stop scan
+exp.LBNIafm.scan_control.scan_stop()
 
 # file save name
 save_name = 'output/250206_RedSample1_BO'
@@ -964,9 +992,11 @@ exp.update_param('X_tensor', X_norm)
 exp.update_param('restart', False)
 exp.update_param('blueDrive', False)
 exp.update_param('global_min', 0)
-meter = exp.read_meter()
-offset = meter[4] - 90
-factor = meter[2] / ae.read_spm(key='DriveAmplitude') 
+########## meter = exp.read_meter() # phase
+########## offset = meter[4] - 90
+offset = exp.LBNIafm.signals.get_phase() - 90 # Get valiues in [deg]
+########## factor = meter[2] / ae.read_spm(key='DriveAmplitude') # meter[2] oscilaltion amplitude [V], Drive amplitude [V]
+factor = exp.LBNIafm.signals.get_amplitude()/exp.LBNIafm.am_mode.get_exc_amplitude() # Get valiues in [V]
 if factor < 1e-1:
     factor *= 1e3
 
@@ -974,7 +1004,7 @@ if factor > 5e2:
     factor *= 1e-3
     
 
-sca_rate = ae.read_spm(key='ScanRate')
+########## sca_rate = ae.read_spm(key='ScanRate') # scan rate in Hz
 exp.update_param('offset', offset)
 exp.update_param('factor', factor)
 exp.update_param('num1', num1)
@@ -1054,10 +1084,13 @@ setpoint_op = v_ac_op * X[index_min][1] * exp.param['factor']
 print("Optimized drive voltage: {:.06f} V".format(v_ac_op))
 print("Optimized setpoint: {:.06f} V".format(setpoint_op))
 
-exp.execute('DriveAmp', value=v_ac_op, wait=0.5)
-exp.execute('SetpointAmp', value=setpoint_op, wait=0.5)
+########## exp.execute('DriveAmp', value=v_ac_op, wait=0.5) # drive amplitude [V]
+exp.LBNIafm.afmmode.am.set_exc_amplitude(v_ac_op)
+########## exp.execute('SetpointAmp', value=setpoint_op, wait=0.5) # set point [V]
+exp.LBNIafm.z_control.set_setpoint(setpoint_op)
 
 # Step N: Disconnect from the AFM system
-exp.disconnect()
+########## exp.disconnect()
+exp.LBNIafm.disconnect()
 print("\n--- AFM disconnected ---")
     
