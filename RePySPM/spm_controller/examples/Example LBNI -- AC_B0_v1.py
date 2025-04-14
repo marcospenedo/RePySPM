@@ -116,11 +116,13 @@ print(xla_bridge.get_backend().platform)
 
 # Read the scan line
 
-# folder = r"C:\Users\Asylum User\Documents\Asylum Research Data\240612\Droplet"
 
-folder = r"C:\Users\Asylum User\Documents\Asylum Research Data\250206\RedSample1"
+# folder = r"C:\Users\Asylum User\Documents\Asylum Research Data\250206\RedSample1"
 
-exp = ae.Experiment(folder=folder)
+# exp = ae.Experiment(folder=folder)
+
+# RL: you don't need the folder argument to initialize your Experiment object
+exp = ae.Experiment()
 
 # # Uncommment this cell the first time the software is being opened
 
@@ -139,6 +141,9 @@ exp.LBNIafm.afmmode.set_mode(AFMModes.AM)
 
 ## Commonly used custom functions
 
+
+# RL: replace this function with the read scan line function that in your exp.LBNIafm module
+# RL: I believe it's one of the functions like "exp.LBNIafm.image.get_all_last_lines()"
 def load_ibw(self, folder="C:\\Users\\Asylum User\\Documents\\AEtesting\\data_exchange", lines=False, header=False):
     '''
     Read the latest ibw file saved in a given folder.
@@ -155,6 +160,7 @@ def load_ibw(self, folder="C:\\Users\\Asylum User\\Documents\\AEtesting\\data_ex
 exp.add_func(load_ibw) 
 # Used to load the real time scan lines
 
+# RL: I will replace the functionality of the following function with individual read parameter functions in your package.
 def read_meter(self):
     ae.write_spm(commands="GetMeter()", connection=self.connection)
     w = ae.ibw_read(r"C:\Users\Asylum User\Documents\buffer\Meter.ibw", lines=True, connection=self.connection)
@@ -166,54 +172,77 @@ exp.add_func(read_meter)
 #     commands='SetDriveAmpAndSetpoint({}, {})'.format(drive, setpoint)
 #     ae.write_spm(commands=commands, connection=self.connection)
     
+# RL: This is good!
 def ramp_drive_setpoint(self, drive, setpoint):
     self.LBNIafm.utils.linear_ramp_setpoint_exc_amplitude(setpoint, drive, 200) ## The ramp last 200 ms, can be changed
     
 exp.add_func(ramp_drive_setpoint) # the one I did 500 ms ramp lenght
 
-def measure_thres(self, drive, setpoint=0.5, thres=85):
-    safe_seed_list = [
-        ['DriveAmplitude', drive, 1],
-        ['FDTrigger', setpoint * drive * self.param['factor'], 1.5],
-        ['SingleForce', None, 1],
-        ]
-    self.execute_sequence(safe_seed_list)
-    self.check_files(wait=20)
-    data = self.load_ibw(folder=None, header=True)
-    AmpInvOLS = data.header['AmpInvOLS']
-    self.update_param('AmpInvOLS', AmpInvOLS)
-    fwd, bkd = read_fd(data, factor=self.param['AmpInvOLS'])
-    amp_thres = find_thres(fwd[2], fwd[1], thres=thres)
-    return amp_thres # setpoint=0.5 50% of free amplitude, thres is the phase value 5 deg less from resonance
+# RL: Ok, the following function needs to be replaced and I have shown an example below.
 
-exp.add_func(measure_thres)
+# def measure_thres(self, drive, setpoint=0.5, thres=85):
+#     safe_seed_list = [
+#         ['DriveAmplitude', drive, 1],
+#         ['FDTrigger', setpoint * drive * self.param['factor'], 1.5],
+#         ['SingleForce', None, 1],
+#         ]
+#     self.execute_sequence(safe_seed_list)
+#     self.check_files(wait=20)
+#     data = self.load_ibw(folder=None, header=True)
+#     AmpInvOLS = data.header['AmpInvOLS']
+#     self.update_param('AmpInvOLS', AmpInvOLS)
+#     fwd, bkd = read_fd(data, factor=self.param['AmpInvOLS'])
+#     amp_thres = find_thres(fwd[2], fwd[1], thres=thres)
+#     return amp_thres # setpoint=0.5 50% of free amplitude, thres is the phase value 5 deg less from resonance
 
-def read_fd(obj, width=100, factor=None):
-    index = np.argmax(obj.data[0])
-    fwd = np.zeros([3, width])
-    bkd = np.zeros([3, width])
-    for i in range(3):
-        fwd[i] = obj.data[i][index-width:index]
-        bkd[i] = obj.data[i][index:index+width]
-    if factor is not None:
-        fwd[1] /= factor
-        bkd[1] /= factor
-    return fwd, bkd        
+# exp.add_func(measure_thres)
 
-def find_all_sign_change_indices(arr):
-    signs = np.sign(arr)  # Get sign of elements (-1, 0, or 1)
-    changes = np.where(signs[:-1] != signs[1:])[0]  # Compare consecutive elements
-    return changes
+# # RL: Well, I din't see a force-distance module in your controller, I think for now you can simply
+# # skip this functionality (you just need to define the range of the controlling parameters manually)
+# def measure_thres(self, drive, setpoint=0.5, thres=85):
+
+#     safe_seed_list = [
+#         ['DriveAmplitude', drive, 1],
+#         ['FDTrigger', setpoint * drive * self.param['factor'], 1.5],
+#         ['SingleForce', None, 1],
+#         ]
+#     self.execute_sequence(safe_seed_list)
+#     self.check_files(wait=20)
+#     data = self.load_ibw(folder=None, header=True)
+#     AmpInvOLS = data.header['AmpInvOLS']
+#     self.update_param('AmpInvOLS', AmpInvOLS)
+#     fwd, bkd = read_fd(data, factor=self.param['AmpInvOLS'])
+#     amp_thres = find_thres(fwd[2], fwd[1], thres=thres)
+#     return amp_thres # setpoint=0.5 50% of free amplitude, thres is the phase value 5 deg less from resonance
+
+# exp.add_func(measure_thres)
+
+# def read_fd(obj, width=100, factor=None):
+#     index = np.argmax(obj.data[0])
+#     fwd = np.zeros([3, width])
+#     bkd = np.zeros([3, width])
+#     for i in range(3):
+#         fwd[i] = obj.data[i][index-width:index]
+#         bkd[i] = obj.data[i][index:index+width]
+#     if factor is not None:
+#         fwd[1] /= factor
+#         bkd[1] /= factor
+#     return fwd, bkd        
+
+# def find_all_sign_change_indices(arr):
+#     signs = np.sign(arr)  # Get sign of elements (-1, 0, or 1)
+#     changes = np.where(signs[:-1] != signs[1:])[0]  # Compare consecutive elements
+#     return changes
     
-def find_thres(ph, amp, thres=80):
-    ph_offset = ph - ph[0] + 90
-    index = find_all_sign_change_indices(ph_offset-thres)
-    if len(index) == 1:
-        return amp[index][0]
-    elif len(index) > 1:
-        return amp[index[0]]
-    else:
-        return np.nan
+# def find_thres(ph, amp, thres=80):
+#     ph_offset = ph - ph[0] + 90
+#     index = find_all_sign_change_indices(ph_offset-thres)
+#     if len(index) == 1:
+#         return amp[index][0]
+#     elif len(index) > 1:
+#         return amp[index[0]]
+#     else:
+#         return np.nan
     
 def conver_unit(p, limits, reverse=False):
     '''
@@ -229,152 +258,155 @@ def conver_unit(p, limits, reverse=False):
             out[i] = (p[i] - p_min) / (p_max - p_min)
     return out
 
-# Safe seeding
+# RL: skip for now until the force-distance module is implemented
+# # Safe seeding
 
-## Define the parameter limits
+# ## Define the parameter limits
 
-# User defines the largest drive voltage as the starting point
-drive_limit = 100 * 1e-3 # mV
-setpoint_limist = np.array([0.25]) # percentage of the set point
+# # User defines the largest drive voltage as the starting point
+# drive_limit = 100 * 1e-3 # mV
+# setpoint_limist = np.array([0.25]) # percentage of the set point
 
-drives = []
-setpoints = []
+# drives = []
+# setpoints = []
 
-# Read out all the system parameters
-########## exp.execute('Stop') # stop scannning
-exp.LBNIafm.scan_control.scan_continuous(False)
-exp.LBNIafm.scan_control.scan_stop()
-########## exp.execute('DriveAmplitude', drive_limit) # set the amplitude to this value
-exp.LBNIafm.afmmode.am.set_exc_amplitude(drive_limit)
+# # Read out all the system parameters
+# ########## exp.execute('Stop') # stop scannning
+# exp.LBNIafm.scan_control.scan_continuous(False)
+# exp.LBNIafm.scan_control.scan_stop()
+# ########## exp.execute('DriveAmplitude', drive_limit) # set the amplitude to this value
+# exp.LBNIafm.afmmode.am.set_exc_amplitude(drive_limit)
 
-########## meter = exp.read_meter()
+# ########## meter = exp.read_meter()
 
-########## factor = meter[2] / drive_limit # meter[2] oscillation amplitude [mV]
-factor = exp.LBNIafm.signals.get_amplitude()/1000 # Get valiues in [V] so I divide by 1000
-if factor < 1e-1:
-    factor *= 1e3
+# ########## factor = meter[2] / drive_limit # meter[2] oscillation amplitude [mV]
+# factor = exp.LBNIafm.signals.get_amplitude()/1000 # Get valiues in [V] so I divide by 1000
+# if factor < 1e-1:
+#     factor *= 1e3
 
-if factor > 5e2:
-    factor *= 1e-3
+# if factor > 5e2:
+#     factor *= 1e-3
 
-exp.update_param('factor', factor) # save it on the dictionary
-print(factor)
+# exp.update_param('factor', factor) # save it on the dictionary
+# print(factor)
 
 
-drive_limits = 100e-3
+# drive_limits = 100e-3
 
-if drive_limits <= 2 * 1e-3:
-    print("There is no attractive mode available!")
+# if drive_limits <= 2 * 1e-3:
+#     print("There is no attractive mode available!")
 
-drives = np.concatenate([np.linspace(1e-3, drive_limits/2.1, 10), np.linspace(drive_limits/2, drive_limits, 5)])[::-1]
-thresholds = np.zeros(15)
+# drives = np.concatenate([np.linspace(1e-3, drive_limits/2.1, 10), np.linspace(drive_limits/2, drive_limits, 5)])[::-1]
+# thresholds = np.zeros(15)
 
-for i in range(len(drives)):
-    print('Working on: {}/{}'.format(i+1, len(drives)), end='\r')
-    try:
-        amp_thres = exp.measure_thres(drives[i], setpoint=0.25, thres=85)
-        thresholds[i] = amp_thres / (drives[i] * exp.param['factor'])
-    except ValueError:
-        thresholds[i] = np.nan
+# for i in range(len(drives)):
+#     print('Working on: {}/{}'.format(i+1, len(drives)), end='\r')
+#     try:
+#         amp_thres = exp.measure_thres(drives[i], setpoint=0.25, thres=85)
+#         thresholds[i] = amp_thres / (drives[i] * exp.param['factor'])
+#     except ValueError:
+#         thresholds[i] = np.nan
     
-########## exp.execute('Stop') # stop scannning
-exp.LBNIafm.scan_control.scan_stop()
-# drives
+# ########## exp.execute('Stop') # stop scannning
+# exp.LBNIafm.scan_control.scan_stop()
+# # drives
 
-## Visualize the threshold setpoint
+# ## Visualize the threshold setpoint
 
-thresholds
+# thresholds
 
-# Interpolate the thresholds as a function of the drives
-from scipy.interpolate import interp1d
+# # Interpolate the thresholds as a function of the drives
+# from scipy.interpolate import interp1d
 
-x = np.array(drives)
-y = np.array(thresholds)
-y = np.nan_to_num(y)
+# x = np.array(drives)
+# y = np.array(thresholds)
+# y = np.nan_to_num(y)
 
 
-# Create interpolation function
-interp_func = interp1d(x, y, kind='cubic')  # Try 'linear' if issues persist
+# # Create interpolation function
+# interp_func = interp1d(x, y, kind='cubic')  # Try 'linear' if issues persist
 
-# Define a denser set of x values
-x_dense = np.linspace(min(x), max(x), 100)
+# # Define a denser set of x values
+# x_dense = np.linspace(min(x), max(x), 100)
 
-# Apply the interpolation function
-y_dense = interp_func(x_dense)
+# # Apply the interpolation function
+# y_dense = interp_func(x_dense)
 
-# Plot the results
-plt.scatter(y * 1e2, x * 1e3, color='red', label="Original Points")
-plt.plot(y_dense * 1e2, x_dense * 1e3, label="Interpolated Curve", linestyle='--')
-plt.ylabel('Drive Voltage (mV)')
-plt.xlabel('Threshold Amplitude (%)')
-plt.legend()
-plt.show()
+# # Plot the results
+# plt.scatter(y * 1e2, x * 1e3, color='red', label="Original Points")
+# plt.plot(y_dense * 1e2, x_dense * 1e3, label="Interpolated Curve", linestyle='--')
+# plt.ylabel('Drive Voltage (mV)')
+# plt.xlabel('Threshold Amplitude (%)')
+# plt.legend()
+# plt.show()
 
-## Generate safe parameter space
+# ## Generate safe parameter space
 
-# Generate the safe parameters for the BO and MOBO
+# # Generate the safe parameters for the BO and MOBO
 
-####### exp.execute('Stop')
-exp.LBNIafm.scan_control.scan_stop()
+# ####### exp.execute('Stop')
+# exp.LBNIafm.scan_control.scan_stop()
 
-# file save name
-save_name = 'output/250206_RedSample1_BO'
+# # file save name
+# save_name = 'output/250206_RedSample1_BO'
 
-num1 = 100
-num2 = 100
+# num1 = 100
+# num2 = 100
 
-# x1 is the drive
-x1 = np.linspace(np.min(drives), np.max(drives), num=num1)
-# x2 is the setpoint
-x2 = np.linspace(0.1, 0.9, num=num2)
-# x3 is the I gain
+# # x1 is the drive
+# x1 = np.linspace(np.min(drives), np.max(drives), num=num1)
+# # x2 is the setpoint
+# x2 = np.linspace(0.1, 0.9, num=num2)
+# # x3 is the I gain
 
-thres_array = interp_func(x1)
+# thres_array = interp_func(x1)
 
-x_exp = []
-x_norm = []
+# x_exp = []
+# x_norm = []
 
-safe_factor = 1.1
+# safe_factor = 1.1
 
-x1_norm = np.linspace(0, 1, num=num1)
-x2_norm = np.linspace(0, 1, num=num2)
+# x1_norm = np.linspace(0, 1, num=num1)
+# x2_norm = np.linspace(0, 1, num=num2)
 
-for i in range(len(x1)):
-    for j in range(len(x2)):
-        # drive = drive_new[i]
-        thres_value = thres_array[i] * safe_factor
-        if x2[j] > thres_value:
-            x_exp.append([x1[i], x2[j]])
-            x_norm.append([x1_norm[i], x2_norm[j]])
+# for i in range(len(x1)):
+#     for j in range(len(x2)):
+#         # drive = drive_new[i]
+#         thres_value = thres_array[i] * safe_factor
+#         if x2[j] > thres_value:
+#             x_exp.append([x1[i], x2[j]])
+#             x_norm.append([x1_norm[i], x2_norm[j]])
        
-x_exp =  np.asarray(x_exp, dtype=np.float32)
-x_norm = np.asarray(x_norm, dtype=np.float32)
-X_norm = torch.from_numpy(x_norm)
+# x_exp =  np.asarray(x_exp, dtype=np.float32)
+# x_norm = np.asarray(x_norm, dtype=np.float32)
+# X_norm = torch.from_numpy(x_norm)
 
-exp.update_param('X_exp', x_exp)
-exp.update_param('X_array', x_norm)
-exp.update_param('X_tensor', X_norm)
+# exp.update_param('X_exp', x_exp)
+# exp.update_param('X_array', x_norm)
+# exp.update_param('X_tensor', X_norm)
 
-# Some useful constants in the experiment
-exp.update_param('restart', False)
-exp.update_param('blueDrive', False)
-exp.update_param('global_min', 0)
-########## meter = exp.read_meter()
-offset = exp.LBNIafm.signals.get_phase() - 90 # Get valiues in [deg]
-########## offset = meter[4] - 90 # meter[4] phase degree, a free phase
+# # Some useful constants in the experiment
+# exp.update_param('restart', False)
+# exp.update_param('blueDrive', False)
+# exp.update_param('global_min', 0)
+# ########## meter = exp.read_meter()
+# offset = exp.LBNIafm.signals.get_phase() - 90 # Get valiues in [deg]
+# ########## offset = meter[4] - 90 # meter[4] phase degree, a free phase
 
-sca_rate = ae.read_spm(key='ScanRate') # get the rate in Hz
-exp.update_param('offset', offset)
-exp.update_param('num1', num1)
-exp.update_param('num2', num2)
-exp.update_param('ScanRate', sca_rate)
+# sca_rate = ae.read_spm(key='ScanRate') # get the rate in Hz
+# exp.update_param('offset', offset)
+# exp.update_param('num1', num1)
+# exp.update_param('num2', num2)
+# exp.update_param('ScanRate', sca_rate)
 
-print(exp.param['factor'], exp.param['offset'], exp.param['ScanRate'])
+# print(exp.param['factor'], exp.param['offset'], exp.param['ScanRate'])
 
-plt.figure(figsize=[4,4])
-plt.scatter(x_exp[:,1], x_exp[:,0])
-plt.ylabel('Drive Voltage (mV)')
-plt.xlabel('Threshold Amplitude (%)')
+# plt.figure(figsize=[4,4])
+# plt.scatter(x_exp[:,1], x_exp[:,0])
+# plt.ylabel('Drive Voltage (mV)')
+# plt.xlabel('Threshold Amplitude (%)')
+
+# RL: I will start modifying from this line
 
 # BO to find best parameters
 
@@ -447,6 +479,9 @@ def mean_no_outlier(x):
     x_sorted = sorted(np.array(x))
     return np.mean(x_sorted[1:-1])
 
+# RL: when you use your "exp.LBNIafm.image.get_all_last_lines()" function, make sure it returns the scan lines 
+# in the following order: [height_trace, height_retrace, phase_trace, phase_trace]
+
 def reward(self, data):
     
     if np.shape(data)[0] == 8:
@@ -504,6 +539,8 @@ def reward(self, data):
     print('Reward={}'.format(-np.log(np.abs(base))))
     return -np.log(np.abs(base))
 
+# RL: This looks good to me! Make sure your call this function separately to verify it's actually working.
+
 def measure(self, v_ac, setpoint, i_gain=None, restart=False, blueDrive=False, 
             repeat=1, reward=True, wait=1):
 
@@ -536,6 +573,8 @@ def measure(self, v_ac, setpoint, i_gain=None, restart=False, blueDrive=False,
     reward_out = []
     w_out = []
     
+    # RL: again, you probably need to remove all the optinal arguments in the call of self.load_ibw() function below
+
     if repeat > 1:
         for i in range(repeat):
             w = self.load_ibw(folder=self.temp_folder, lines=True)
@@ -956,13 +995,17 @@ save_name = 'output/250206_RedSample1_BO'
 num1 = 100
 num2 = 100
 
+# RL: because we skipped safe seeding, here you need to manually set the limits for the drive amplitudes
+# I have changed it to an example limit in the unit of mV
 # x1 is the drive
-x1 = np.linspace(np.min(drives), np.max(drives), num=num1)
+# x1 = np.linspace(np.min(drives), np.max(drives), num=num1)
+x1 = np.linspace(1, 100, num=num1) # unit here is mV. 
+
 # x2 is the setpoint
 x2 = np.linspace(0.1, 0.9, num=num2)
 # x3 is the I gain
 
-thres_array = interp_func(x1)
+# thres_array = interp_func(x1)
 
 x_exp = []
 x_norm = []
@@ -972,13 +1015,15 @@ safe_factor = 1.1
 x1_norm = np.linspace(0, 1, num=num1)
 x2_norm = np.linspace(0, 1, num=num2)
 
+# RL: Here I have removed the safe seeding checking for the parameters
+# so now it's optimizing on a square grid.
 for i in range(len(x1)):
     for j in range(len(x2)):
         # drive = drive_new[i]
-        thres_value = thres_array[i] * safe_factor
-        if x2[j] > thres_value:
-            x_exp.append([x1[i], x2[j]])
-            x_norm.append([x1_norm[i], x2_norm[j]])
+        # thres_value = thres_array[i] * safe_factor
+        # if x2[j] > thres_value:
+        x_exp.append([x1[i], x2[j]])
+        x_norm.append([x1_norm[i], x2_norm[j]])
        
 x_exp =  np.asarray(x_exp, dtype=np.float32)
 x_norm = np.asarray(x_norm, dtype=np.float32)
@@ -992,6 +1037,8 @@ exp.update_param('X_tensor', X_norm)
 exp.update_param('restart', False)
 exp.update_param('blueDrive', False)
 exp.update_param('global_min', 0)
+
+# RL: this looks good to me!
 ########## meter = exp.read_meter() # phase
 ########## offset = meter[4] - 90
 offset = exp.LBNIafm.signals.get_phase() - 90 # Get valiues in [deg]
