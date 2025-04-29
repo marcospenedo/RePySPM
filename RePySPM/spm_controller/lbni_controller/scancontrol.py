@@ -365,7 +365,49 @@ class ScanControl:
             speed_b (float): Backward speed in meters per second.
             wait_s (float): Waiting time at the turnaround point in seconds.
         """
-        pass
+        init_pos = self.controller.z_control.get_zposition() + init
+        
+        command = f"{OHCcommands.w_ram}Trigger Source:Process Variable"
+            
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Trigger sign:{trig_sig}"
+            
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Parameters:Start:{init_pos}"
+            
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Parameters:Distance:{trig_val}"
+            
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Parameters:Points:{N}"
+            
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Parameters:Fwd:{speed_f}"
+            
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Parameters:Bwd:{speed_b}"
+            
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Parameters:Pause:{wait_s}"
+            
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Actions:Play:True"
+            
+        self.controller.write_control(command)
+        
+        command = f"{OHCcommands.w_ram}Actions:Play:False"
+            
+        self.controller.write_control(command)
+        
+        return 0
     
     def is_ramping(self):
         """Checks if the ramping is active."""

@@ -10,7 +10,7 @@ from lbni_controller import AFMController
 
 def main():
     # Path to the project
-    project_path = r"D:\Users\Marcos\OpenSPM\OpenSPM-source"
+    project_path = r"D:\\software\\Marcos\\OpenSPM-source\\"
     
     afm = AFMController(project_path)
     

@@ -623,9 +623,10 @@ class Utils:
     
     def set_setpoint_FPGA(self, set_point_val):
         """Set the setpoint value (in V) on the FPGA using floats."""
+        scaling_factor = 0.1  # float scaling factor
         params = self.fpga_session.registers['fb.p.params'].read()
         # Assume the register accepts a float value for setPoint
-        params['setPoint'] = float(set_point_val)
+        params['setPoint'] = scaling_factor * float(set_point_val)
         self.fpga_session.registers['fb.p.params'].write(params)
         
         return 0
@@ -657,7 +658,7 @@ class Utils:
         
         # Read initial values from the FPGA
         params_zcontrol = self.fpga_session.registers['fb.p.params'].read()
-        init_setpoint = float(params_zcontrol['setPoint'])
+        init_setpoint = float(params_zcontrol['setPoint']) * 10 # Multiplied by 10, the positive range of the FPGA output
         init_exc_amplitude = float(self.fpga_session.registers['lia.exc.dds.amplitude'].read()) * (10.0 / 32768.0)
         
         while True:
@@ -669,7 +670,7 @@ class Utils:
             
             # Calculate the normalized time (0 to 1)
             t = elapsed / duration
-            current_setpoint = init_setpoint + (final_setpoint - init_setpoint) * t
+            current_setpoint = init_setpoint + (final_setpoint - init_setpoint) * t 
             current_exc_amplitude = init_exc_amplitude + (final_exc_amplitude - init_exc_amplitude) * t
             
             # Update FPGA registers
