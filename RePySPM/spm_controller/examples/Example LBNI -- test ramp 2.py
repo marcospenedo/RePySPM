@@ -46,8 +46,8 @@ height_fwd = - data_ramp[0][1]
 height_bwd = - data_ramp[1][1]
 amplitude_fwd = data_ramp[4][1]
 amplitude_bwd = data_ramp[5][1]
-phase_fwd = data_ramp[6][1]
-phase_bwd = data_ramp[7][1]
+phase_fwd = 18*data_ramp[6][1] # -10 to 10 V -> -180 to 180 deg
+phase_bwd = 18*data_ramp[7][1] # -10 to 10 V -> -180 to 180 deg
 
 plt.figure()
 plt.plot(height_fwd, amplitude_fwd, '-b')

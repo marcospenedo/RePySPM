@@ -216,8 +216,8 @@ exp = Experiment()
 # # Uncommment this cell the first time the software is being opened
 
 ########## Set tapping mode
-exp.LBNIafm.z_control.retract()
 exp.LBNIafm.scan_control.scan_stop()
+exp.LBNIafm.z_control.retract()
 exp.LBNIafm.afmmode.set_mode(AFMModes.AM)
 exp.LBNIafm.z_control.set_i_gain(0.000015)
 exp.LBNIafm.scan_control.scan_continuous(True)
@@ -350,8 +350,8 @@ def read_fd(data_ramp, width=2000, factor=None):
     height_bwd = - data_ramp[1][1]
     amplitude_fwd = data_ramp[4][1]
     amplitude_bwd = data_ramp[5][1]
-    phase_fwd = data_ramp[6][1]
-    phase_bwd = data_ramp[7][1]
+    phase_fwd = 18*data_ramp[6][1] # -10 to 10 V -> -180 to 180 deg
+    phase_bwd = 18*data_ramp[7][1] # -10 to 10 V -> -180 to 180 deg
 
     plt.figure()
     plt.plot(height_fwd, amplitude_fwd, '-b')
@@ -1239,6 +1239,14 @@ def plot_mobo(self, title=''):
     for axis in ax.flatten():
         axis.set_xlabel('Setpoint')
         axis.set_ylabel('Drive Amplitude')
+
+    line = self.LBNIafm.image.get_last_line("Height")
+    ax[1, 1].plot(line[0,:]*1e9, '-b', label='Forward scan')
+    ax[1, 1].plot(line[1,:]*1e9, '-r', label='Backward scan')
+    ax[1, 1].set_title("Last scanned line")
+    ax[1, 1].set_xlabel("Pixel index")     
+    ax[1, 1].set_ylabel("Height (nm)")     
+    ax[1, 1].legend()
 
     plt.colorbar(im1, ax=ax[0,0])
     plt.colorbar(im2, ax=ax[0,1])
