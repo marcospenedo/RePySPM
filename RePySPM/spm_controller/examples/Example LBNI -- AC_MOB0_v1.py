@@ -316,20 +316,10 @@ def measure_thres(self, drive, setpoint=0.5, thres=85):
     # data = self.load_ibw(folder=None, header=True)
     # AmpInvOLS = data.header['AmpInvOLS']
     # self.update_param('AmpInvOLS', AmpInvOLS)
+
     fwd, bkd = read_fd(data_ramp)
+    
     amp_thres = find_thres(fwd[2], fwd[1], thres=thres)
-    
-    plt.figure()
-    plt.plot(fwd[0], fwd[1])
-    plt.ylabel('amplitude')
-    plt.xlabel('distance')
-    plt.show()
-    
-    plt.figure()
-    plt.plot(fwd[0], fwd[2])
-    plt.ylabel('phase')
-    plt.xlabel('distance')
-    plt.show()
     
     return amp_thres # setpoint=0.5 50% of free amplitude, thres is the phase value 5 deg less from resonance
 
@@ -356,18 +346,42 @@ exp.add_func(measure_thres)
 # exp.add_func(measure_thres)
 
 def read_fd(data_ramp, width=2000, factor=None):
-    height = data_ramp[0][0]
-    amplitude = data_ramp[2][1]
-    phase = data_ramp[3][1]
-    data = [height, amplitude, phase]
-    index = np.argmin(height)
+    height_fwd = - data_ramp[0][1]
+    height_bwd = - data_ramp[1][1]
+    amplitude_fwd = data_ramp[4][1]
+    amplitude_bwd = data_ramp[5][1]
+    phase_fwd = data_ramp[6][1]
+    phase_bwd = data_ramp[7][1]
+
+    plt.figure()
+    plt.plot(height_fwd, amplitude_fwd, '-b')
+    plt.plot(height_bwd, amplitude_bwd, '-r')
+    plt.ylabel('amplitude')
+    plt.xlabel('distance')
+    plt.show()
+
+    plt.figure()
+    plt.plot(height_fwd, phase_fwd, '-b')
+    plt.plot(height_bwd, phase_bwd, '-r')
+    plt.ylabel('phase')
+    plt.xlabel('distance')
+    plt.show()   
     
-    fwd = np.zeros([3, width])
-    bkd = np.zeros([3, width])
-    for i in range(3):
-        fwd[i] = data[i][index-width:index]
-        bkd[i] = data[i][index:index+width]
-        
+    fwd = [height_fwd, amplitude_fwd, phase_fwd]
+    bkd = [height_bwd, amplitude_bwd, phase_bwd]
+    
+    # height = data_ramp[0][0]
+    # amplitude = data_ramp[2][1]
+    # phase = data_ramp[3][1]
+    # data = [height, amplitude, phase]
+    # index = np.argmin(height)
+    
+    # fwd = np.zeros([3, width])
+    # bkd = np.zeros([3, width])
+    # for i in range(3):
+    #     fwd[i] = data[i][index-width:index]
+    #     bkd[i] = data[i][index:index+width]
+
     return fwd, bkd        
 
 def find_all_sign_change_indices(arr):

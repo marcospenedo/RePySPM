@@ -42,9 +42,26 @@ while afm.scan_control.is_ramping():
 
 data_ramp = afm.image.get_all_channels_data_ramp()
 
-height = data_ramp[0][0]
-amplitude = data_ramp[2][1]
-phase = data_ramp[3][1]
+height_fwd = - data_ramp[0][1]
+height_bwd = - data_ramp[1][1]
+amplitude_fwd = data_ramp[4][1]
+amplitude_bwd = data_ramp[5][1]
+phase_fwd = data_ramp[6][1]
+phase_bwd = data_ramp[7][1]
+
+plt.figure()
+plt.plot(height_fwd, amplitude_fwd, '-b')
+plt.plot(height_bwd, amplitude_bwd, '-r')
+plt.ylabel('amplitude')
+plt.xlabel('distance')
+plt.show()
+
+plt.figure()
+plt.plot(height_fwd, phase_fwd, '-b')
+plt.plot(height_bwd, phase_bwd, '-r')
+plt.ylabel('phase')
+plt.xlabel('distance')
+plt.show()
 
 # Step N: Disconnect from the AFM system
 afm.disconnect()
