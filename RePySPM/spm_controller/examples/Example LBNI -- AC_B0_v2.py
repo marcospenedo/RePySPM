@@ -23,43 +23,6 @@ from botorch.acquisition import ExpectedImprovement, UpperConfidenceBound, LogEx
 from gpytorch.distributions import MultivariateNormal
 import gpytorch
 
-# MOBO imports
-# AC-MOBO related packages
-
-from botorch.models.gp_regression import SingleTaskGP
-from botorch.models.model_list_gp_regression import ModelListGP
-from botorch.models.transforms.outcome import Standardize
-from gpytorch.mlls.sum_marginal_log_likelihood import SumMarginalLogLikelihood
-from botorch.utils.transforms import unnormalize, normalize
-from botorch.utils.sampling import draw_sobol_samples
-
-from botorch.acquisition.monte_carlo import qNoisyExpectedImprovement
-
-from botorch.optim.optimize import optimize_acqf, optimize_acqf_list
-from botorch.acquisition.objective import GenericMCObjective
-from botorch.utils.multi_objective.scalarization import get_chebyshev_scalarization
-from botorch.utils.multi_objective.box_decompositions.non_dominated import (
-    FastNondominatedPartitioning,
-)
-from botorch.acquisition.multi_objective.monte_carlo import (
-    qExpectedHypervolumeImprovement,
-    qNoisyExpectedHypervolumeImprovement,
-)
-from botorch.utils.sampling import sample_simplex
-
-# from botorch.exceptions import BadInitialCandidatesWarning
-from botorch.sampling.normal import SobolQMCNormalSampler
-from botorch.utils.multi_objective.box_decompositions.dominated import (
-    DominatedPartitioning,
-)
-from botorch.utils.multi_objective.pareto import is_non_dominated
-
-tkwargs = {
-    "dtype": torch.float64,
-    # "device": "cpu",
-    "device": torch.device("cuda" if torch.cuda.is_available() else "cpu"),
-}
-
 import warnings
 # warnings.filterwarnings('ignore')
 
@@ -318,19 +281,6 @@ def measure_thres(self, drive, setpoint=0.5, thres=85):
     # self.update_param('AmpInvOLS', AmpInvOLS)
     fwd, bkd = read_fd(data_ramp)
     amp_thres = find_thres(fwd[2], fwd[1], thres=thres)
-    
-    plt.figure()
-    plt.plot(fwd[0], fwd[1])
-    plt.ylabel('amplitude')
-    plt.xlabel('distance')
-    plt.show()
-    
-    plt.figure()
-    plt.plot(fwd[0], fwd[2])
-    plt.ylabel('phase')
-    plt.xlabel('distance')
-    plt.show()
-    
     return amp_thres # setpoint=0.5 50% of free amplitude, thres is the phase value 5 deg less from resonance
 
 exp.add_func(measure_thres)
@@ -355,7 +305,7 @@ exp.add_func(measure_thres)
 
 # exp.add_func(measure_thres)
 
-def read_fd(data_ramp, width=2000, factor=None):
+def read_fd(data_ramp, width=100, factor=None):
     height = data_ramp[0][0]
     amplitude = data_ramp[2][1]
     phase = data_ramp[3][1]
@@ -524,8 +474,8 @@ plt.show()
 #             x_exp.append([x1[i], x2[j]])
 #             x_norm.append([x1_norm[i], x2_norm[j]])
        
-# x_exp =  np.asarray(x_exp, dtype=np.float64)
-# x_norm = np.asarray(x_norm, dtype=np.float64)
+# x_exp =  np.asarray(x_exp, dtype=np.float32)
+# x_norm = np.asarray(x_norm, dtype=np.float32)
 # X_norm = torch.from_numpy(x_norm)
 
 # exp.update_param('X_exp', x_exp)
@@ -682,20 +632,19 @@ def reward(self, data):
     h1_norm, h2_norm = norm_(h1), norm_(h2)
     similarity = (1 - pearson_correlation(h1_norm, h2_norm)) * 10 + np.e
     
-    return np.array([-np.log(height_trace_factor), -np.log(height_factor), -np.log(phase_below_factor)])
     
-    # base =  height_trace_factor * np.log(height_factor) * np.log(phase_below_factor) * np.log(similarity) 
-    # 
-    # print(height_trace_factor, np.log(height_factor), np.log(phase_below_factor), np.log(similarity))
-    # print('Reward={}'.format(-np.log(np.abs(base))))
-    # return -np.log(np.abs(base))
+    base =  height_trace_factor * np.log(height_factor) * np.log(phase_below_factor) * np.log(similarity) 
+    
+    print(height_trace_factor, np.log(height_factor), np.log(phase_below_factor), np.log(similarity))
+    print('Reward={}'.format(-np.log(np.abs(base))))
+    return -np.log(np.abs(base))
 
 # RL: This looks good to me! Make sure your call this function separately to verify it's actually working.
 
 def measure(self, v_ac, setpoint, i_gain=None, restart=False, blueDrive=False, 
             repeat=1, reward=True, wait=1):
 
-    # print(v_ac)
+    print(v_ac)
     if restart:
         ########## self.execute(action='Stop', wait=1, connection=self.connection) # stop function
         self.LBNIafm.scan_control.scan_stop()
@@ -749,8 +698,7 @@ def measure(self, v_ac, setpoint, i_gain=None, restart=False, blueDrive=False,
             time.sleep(2/self.param['ScanRate'])
             
         if reward == True:
-            # return np.array(w_out), mean_no_outlier(reward_out)
-            return np.array(w_out), np.mean(reward_out, axis=0)
+            return np.array(w_out), mean_no_outlier(reward_out)
         else:
             return np.array(w_out)
     
@@ -786,13 +734,12 @@ def generate_seed(self, num=15, safe=False, repeat=1, rand=False, blueDrive=Fals
     X = self.param['X_array']
     
     np.random.seed(35)
-    N = len(X[0])
     idx = np.random.randint(0, len(X), num)
     
     X_measured = X[idx]
     X_exp_measured = self.param['X_exp'][idx]
     
-    y_measured = np.zeros([len(idx), N])
+    y_measured = np.zeros(len(idx))
     
     indices_measured = idx
     indices_unmeasured = np.delete(np.arange(len(X)), idx, 0)
@@ -842,26 +789,15 @@ def generate_seed(self, num=15, safe=False, repeat=1, rand=False, blueDrive=Fals
     else:
         self.update_param('global_min', np.min(out[:,:,0:2,:]) * 1e9 - 10)
 
-    y_measured = np.asarray(y_measured, dtype=np.float64)
+    y_measured = np.asarray(y_measured, dtype=np.float32)
     
     if save is not None:
         np.savez('{}.npz'.format(save), X_measured=X_measured, X_exp_measured=X_exp_measured, y_measured=y_measured, traces=out)
-    # plt.figure(figsize=[4,3])
-    
-    fig, ax = plt.subplots(1,N, figsize=[12,3])
-    for i in range(N):
-        ax[i].scatter(X_exp_measured[:, 1], X_exp_measured[:, 0], c=y_measured[:,i], s=160, marker='s')
-    
-    for axis in ax:
-        axis.set_xlabel('Setpoint')
-        axis.set_ylabel('Drive Amplitude')
-        
+    plt.figure(figsize=[4,3])
+    plt.scatter(X_exp_measured[:, 1], X_exp_measured[:, 0], c=y_measured, s=160, marker='s')
+    plt.xlabel('Setpoint (x Free amp)')
+    plt.ylabel('Drive Voltage (V)')
     plt.tight_layout()
-    
-    # plt.scatter(X_exp_measured[:, 1], X_exp_measured[:, 0], c=y_measured, s=160, marker='s')
-    # plt.xlabel('Setpoint (x Free amp)')
-    # plt.ylabel('Drive Voltage (V)')
-    # plt.tight_layout()
     
     self.update_param('X_measured_array_seed', X_measured)
     
@@ -923,322 +859,260 @@ exp.add_func(generate_seed)
 
 ## BO exploration functions
 
-def step_mobo(self, acquisition='qNEHVI', beta=4, delta=5, MC_SAMPLES = 128, 
-              N_BATCH = 20, BATCH_SIZE=1, NUM_RESTARTS = 10, EPSILON=0.05, RAW_SAMPLES = 512):
-
-    train_x = self.param['X_measured_tensor'].to(self.param['device'])
-    train_obj = self.param['y_measured_tensor'].to(self.param['device'])
+def step(self, acquisition='EI', beta=4):
+    y_measured_tensor = torch.tensor(self.param['y_measured_tensor'], dtype=torch.float32)
+    gp_model = SingleTaskGP(self.param['X_measured_tensor'], torch.unsqueeze(y_measured_tensor, dim=-1))
     
-    if len(train_x[0]) == 2:
-        bounds = torch.stack([torch.ones(2), 1 * torch.ones(2)]).to(self.param['device'])
-        standard_bounds = torch.zeros(2, 2, dtype=torch.float64).to(self.param['device'])
-        standard_bounds[1] = 1
-    elif len(train_x[0]) == 3:
-        bounds = torch.stack([torch.ones(3), 1 * torch.ones(3)]).to(self.param['device'])
-        standard_bounds = torch.zeros(2, 3, dtype=torch.float64).to(self.param['device'])
-        standard_bounds[1] = 1
-    else:
-        print("Only 2 and 3 variables are supported!")
-
-    X = self.param['X_tensor'].to(self.param['device'])
-    
-    # Initialize the model
-    models = []
-    N = train_obj.shape[-1]
-    for i in range(train_obj.shape[-1]):
-        train_y = train_obj[..., i : i + 1]
-        models.append(
-            SingleTaskGP(
-                train_x, train_y, #outcome_transform=Standardize(m=1)
-            )
-        )
-        
-    model = ModelListGP(*models)
-    mll = SumMarginalLogLikelihood(model.likelihood, model)
+    # Fit GP model
+    mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
     
     fit_gpytorch_mll(mll)
     
-    # if sampler is None:
-    sampler = SobolQMCNormalSampler(sample_shape=torch.Size([MC_SAMPLES]))
+    # Predict on unmeasured data
+    gp_model.eval()
+    with torch.no_grad(), gpytorch.settings.fast_pred_var():
+        posterior = gp_model(self.param['X_unmeasured_tensor'])
+        # For visualization or further processing, you can obtain mean and variance
+        y_pred = posterior.mean
+        y_sampled = posterior.variance.sqrt()
+    
+    # Compute acquisition function (Expected Improvement here)
 
-    if acquisition == 'qNEHVI':
-        if EPSILON is not None:
-            # Define an ε-dominance threshold (relative to objective range)
-            # Normalize objectives
-            Y_min, Y_max = train_obj.min(dim=0).values, train_obj.max(dim=0).values
-            Y_norm = (train_obj - Y_min) / (Y_max - Y_min)
+    if acquisition=='UCB':
+        UCB = UpperConfidenceBound(model=gp_model, beta=beta)
+        acq_values = UCB(self.param['X_unmeasured_tensor'].unsqueeze(-2))
+    elif acquisition=='EI':
+        # EI = ExpectedImprovement(model=gp_model, best_f=y_measured.max(), maximize=True)
+        EI = LogExpectedImprovement(model=gp_model, best_f=y_measured_tensor.max(), maximize=True)
+        acq_values = EI(self.param['X_unmeasured_tensor'].unsqueeze(-2))
+    else:
+        return 0
+    
+    self.update_param('acq_tensor', acq_values)
+    self.update_param('y_pred_tensor', y_pred)
+    self.update_param('y_sampled_tensor', y_sampled)
+    
+    self.update_param('acq_array', acq_values.detach().numpy())
+    self.update_param('y_pred_array', y_pred.detach().numpy())
+    self.update_param('y_sampled_array', y_sampled.detach().numpy())
+    
 
-            def is_epsilon_dominated(Y, epsilon=0.01):
-                """ Returns a boolean mask for non-ε-dominated points. """
-                pareto_mask = is_non_dominated(Y)  # Get standard Pareto front
-                pareto_points = Y[pareto_mask]  # Extract non-dominated points
-            
-                filtered_mask = torch.zeros_like(pareto_mask, dtype=torch.bool)  # Start with False
-            
-                for i, p in enumerate(pareto_points):
-                    if all(torch.any(p - q > epsilon) for q in Y):
-                        filtered_mask[i] = True  # Keep only if it is distinct
-            
-                return filtered_mask
-                
-            # Apply ε-dominance on normalized values
-            pareto_mask = is_epsilon_dominated(Y_norm, epsilon=EPSILON)
-            
-            filtered_train_obj = train_obj[pareto_mask]  # Keep only non-ε-dominated points
-            filtered_train_x = train_x[pareto_mask]  # Corresponding input points
-
-            if filtered_train_obj.numel() == 0:  # If empty, use standard Pareto front
-                filtered_train_obj = train_obj  # Fall back to the original data
-
-            if filtered_train_x.numel() == 0:  # If empty, use standard Pareto front
-                filtered_train_x = train_x  # Fall back to the original data
-            
-            # Compute the reference point using the filtered Pareto front
-            filtered_ref_point = torch.max(filtered_train_obj, dim=0).values - delta  # Adjusted reference point
+def plot_bo(self, title=''):
+    
+    X_measured = self.param['X_exp_measured']
+    X_unmeasured = self.param['X_exp_unmeasured']
+    
+    y_measured = self.param['y_measured_array']
+    acq = self.param['acq_masked']
+    y_pred = self.param['y_pred_array']
+    y_sampled = self.param['y_sampled_array']
+    num_seed = self.param['num_seed']
+    
+    clear_output(wait=True)
+    fig, ax = plt.subplots(1, 3, figsize=(10, 3))
+    im1 = ax[0].scatter(X_unmeasured[:, 1], X_unmeasured[:, 0], c=y_pred, s=40, cmap='jet')
+    ax[0].set_title("{}".format(title))
+    
+    im2 = ax[1].scatter(X_unmeasured[:, 1], X_unmeasured[:, 0], c=acq, s=40, cmap='jet')
+    ax[1].set_title("Acquisition")
+    
+    ax[2].scatter(X_unmeasured[:, 1], X_unmeasured[:, 0], c=y_pred, cmap='gray')
+    ax[2].scatter(X_measured[:num_seed,1], X_measured[:num_seed,0], c = 'k')
+    
+    im3 = ax[2].scatter(X_measured[num_seed:, 1], X_measured[num_seed:, 0], marker='o', s=50,
+                        c = np.arange(len(X_measured)-num_seed), cmap = 'rainbow')
+    ax[2].set_title("BO trajectory")
+    
+    for axis in ax:
+        axis.set_xlabel('Setpoint (xFree amp)')
+        axis.set_ylabel('Drive Voltage (V)')
         
-            # Define qNEHVI Acquisition Function with ε-filtered data
-            acq_func = qNoisyExpectedHypervolumeImprovement(
-                model=model,
-                ref_point=filtered_ref_point,  # Use the filtered reference point
-                X_baseline=normalize(filtered_train_x, bounds),  # Only use non-ε-dominated points
-                prune_baseline=True,  # Remove points with zero probability of Pareto optimality
-                sampler=sampler,
-            )
-        else:
-            
-            acq_func = qNoisyExpectedHypervolumeImprovement(
-                model=model,
-                ref_point = torch.max(train_obj, dim=0).values - delta,
-                X_baseline=normalize(train_x, bounds),
-                prune_baseline=True,  # prune baseline points that have estimated zero probability of being Pareto optimal
-                sampler=sampler,
-            )
-    elif acquisition == 'qEHVI':
-        # import torch
+    plt.colorbar(im1, ax=ax[0])
+    plt.colorbar(im2, ax=ax[1])
+    plt.colorbar(im3, ax=ax[2])
+    plt.tight_layout()
+    plt.show()
 
-        if EPSILON is not None:
-            # Define an ε-dominance threshold (relative to objective range)
-            EPSILON = 0.05 * (torch.max(train_obj, dim=0).values - torch.min(train_obj, dim=0).values)
-            
-            # ε-Dominance Filtering Function
-            def is_epsilon_dominated(y, pareto_set, epsilon):
-                """Check if a point y is ε-dominated by any point in the Pareto set."""
-                return any(torch.all(y >= p - epsilon) for p in pareto_set)
+# Active learning
+
+def run_BO(self, mask=None, fresh=True, num_steps=30, repeat=1,
+           show=True, acquisition='EI', beta=4, save=None):
     
-            # Apply ε-dominance filtering on train_obj
-            pareto_mask = torch.ones(len(train_obj), dtype=torch.bool)  # Initialize all as non-dominated
-            for i in range(len(train_obj)):
-                if is_epsilon_dominated(train_obj[i], train_obj, EPSILON):
-                    pareto_mask[i] = False  # Mark as dominated
-            
-            filtered_train_obj = train_obj[pareto_mask]  # Keep only non-ε-dominated points
-            filtered_train_x = train_x[pareto_mask]  # Corresponding input points
-            
-            # Compute the reference point using the filtered Pareto front
-            weights = torch.tensor([1, 1, 1, 1]) # Higher weight for Reward 3 - Phase 
-            filtered_ref_point = torch.max(filtered_train_obj * weights, dim=0).values - delta  # Adjusted reference point
-        
-            weights = torch.tensor([1.0, 1, 1])  # Higher weight for Reward 1 
-            
-            # Define qNEHVI Acquisition Function with ε-filtered data
-            acq_func = qNoisyExpectedHypervolumeImprovement(
-                model=model,
-                ref_point=filtered_ref_point,  # Use the filtered reference point
-                X_baseline=normalize(filtered_train_x, bounds),  # Only use non-ε-dominated points
-                prune_baseline=True,  # Remove points with zero probability of Pareto optimality
-                sampler=sampler,
-            )
-
-        else:
-            with torch.no_grad():
-                pred = model.posterior(normalize(train_x, bounds)).mean
-            
-            # if sampler is None:
-            sampler = SobolQMCNormalSampler(sample_shape=torch.Size([MC_SAMPLES]))
-            
-            partitioning = FastNondominatedPartitioning(
-                ref_point=torch.max(train_obj, dim=0).values - delta,
-                Y=pred,
-                )
-            
-            acq_func = qExpectedHypervolumeImprovement(
-                model=model,
-                ref_point=torch.min(train_obj, dim=0).values - delta,
-                partitioning=partitioning,
-                sampler=sampler,
-            )
-
-    # optimize
-    candidates, _ = optimize_acqf(
-        acq_function=acq_func,
-        bounds=standard_bounds,
-        q=BATCH_SIZE,
-        num_restarts=NUM_RESTARTS,
-        raw_samples=RAW_SAMPLES,  # used for intialization heuristic
-        options={"batch_limit": 5, "maxiter": 200},
-        sequential=True,
-    )
-
-    # predict over the unmeasured elements
-    x_list = [X] * N
-
-    # Evaluate the ModelListGP
-    model.eval()
-    outputs = model(*x_list)
-    pred = [posterior.mean.cpu().detach().numpy() for posterior in outputs]
-    # res_std =  [posterior.std.cpu().detach().numpy() for posterior in outputs]
-
-    self.update_param('outputs', outputs)
-    self.update_param('pred', pred)
-    
-    self.update_param('next', candidates)
-    
-exp.add_func(step_mobo)
-
-def run_mobo(self, fresh=True, num_steps=30, repeat=1,
-           show=True, acquisition='qNEHVI', save=None, **kwargs):
-    
-    def conver_unit(p, limits, reverse=False):
-        '''
-        Project  p from (0, 1) to (p_min, p_max).
-        '''
-        out = np.zeros_like(p)
-        for i in range(len(p)):
-            if reverse is False:
-                p_min, p_max = limits[i]
-                out[i] = p_min + (p_max - p_min) * p[i]
-            else:
-                p_min, p_max = limits[i]
-                out[i] = (p[i] - p_min) / (p_max - p_min)
-        return out
-
     import warnings
-    warnings.filterwarnings('ignore')
+    
+   # warnings.filterwarnings('ignore')
 
+    # waves = np.zeros([num_steps, repeat, 2, self.LBNIafm.scan_parameters.get_pixels_x()])
+    waves = np.zeros([num_steps, repeat, self.param['channels'], self.param['pixels']])
+    
     if fresh:
         self.update_param('X_measured_array', self.param['X_measured_array_seed'])
         self.update_param('X_unmeasured_array', self.param['X_unmeasured_array_seed'])
         self.update_param('y_measured_array', self.param['y_measured_array_seed'])
-
+        
         self.update_param('X_exp_measured', self.param['X_exp_measured_seed'])
         self.update_param('X_exp_unmeasured', self.param['X_exp_unmeasured_seed'])
 
         self.update_param('X_measured_tensor', self.param['X_measured_tensor_seed'])
         self.update_param('X_unmeasured_tensor', self.param['X_unmeasured_tensor_seed'])
         self.update_param('y_measured_tensor', self.param['y_measured_tensor_seed'])
-
+        
         self.update_param('indices_measured', self.param['indices_measured_seed'])
         self.update_param('indices_unmeasured', self.param['indices_unmeasured_seed'])
-
-    predicts = []
-    param_opt = []
-    # waves = np.zeros([num_steps, repeat, 8, 256])
-    waves = np.zeros([num_steps, repeat, self.param['channels'], self.param['pixels']])
     
-    for e in range(num_steps):
-        # train the MOBO models
-        self.step_mobo(acquisition='qNEHVI', **kwargs)
+    y_measured = self.param['y_measured_tensor']
+    X_measured = self.param['X_measured_tensor']
+    X_unmeasured = self.param['X_unmeasured_tensor']
     
-        next_point = self.param['next'][0]
-        next_point_exp = next_point.detach().numpy()
-        next_point_exp = conver_unit(next_point_exp, limits=self.param['limits'])
+    X_exp_measured = self.param['X_exp_measured']
+    X_exp_unmeasured = self.param['X_exp_unmeasured']
         
-        # next_point_exp = unnormalize(next_point, bounds)
-        pred = self.param['pred']#.detach().numpy()
+    for e in range(num_steps):
+      
+        self.step(acquisition=acquisition, beta=beta)
+
+        if mask is None:
+            acq_masked = self.param['acq_array']
+        else:
+            acq = self.param['acq_array']
+            acq_masked = (acq-acq.min()) * mask.flatten()[self.param['indices_unmeasured']]
+            
+        self.update_param('acq_masked', acq_masked)
+        
+        next_idx = acq_masked.argmax()
+        next_point_exp = X_exp_unmeasured[next_idx]
+        next_point = X_unmeasured[next_idx]
         
         if len(next_point_exp) == 2:
             v_ac, setpoint = next_point_exp
             i_gain = None
         else:
             v_ac, setpoint, i_gain = next_point_exp
-            
-        if not e:          
-            traces, next_measure = self.measure(v_ac=v_ac, setpoint=setpoint, i_gain=i_gain, restart=True, wait=1, 
-                              reward=True, repeat=repeat, blueDrive=self.param['blueDrive'])
+        if not e:
+            w, next_measure = self.measure(v_ac=v_ac, setpoint=setpoint, i_gain=i_gain,
+                                           reward=True, repeat=repeat, restart=True, wait=1.5)
         else:
-            traces, next_measure = self.measure(v_ac=v_ac, setpoint=setpoint, i_gain=i_gain, restart=False, wait=1, 
-                              reward=True, repeat=repeat, blueDrive=self.param['blueDrive'])
-        waves[e] = traces
-        y_measured = self.param['y_measured_tensor']
-        X_measured = self.param['X_measured_tensor']
-
-        y_measured = torch.cat((y_measured, torch.from_numpy(np.array([next_measure], dtype=np.float64)).to(self.param['device'])), axis=0)
+            w, next_measure = self.measure(v_ac=v_ac, setpoint=setpoint, i_gain=i_gain,
+                                           reward=True, repeat=repeat, restart=False, wait=1.5)
+        waves[e] = w
+        
+        if show is True:
+            self.plot_bo(title='Prediction at {}'.format(e+1))
+            
+        next_point = torch.tensor(next_point, dtype=torch.float32)
+        next_measure = torch.tensor([next_measure], dtype=torch.float32)
+        
+        y_measured = torch.cat((y_measured, next_measure), axis=0)
+        
         X_measured = torch.cat((X_measured, next_point.unsqueeze(-2)), axis=0)
         
+        X_unmeasured = torch.tensor(np.delete(X_unmeasured, next_idx, axis=0), dtype=torch.float32)
+            
         X_exp_measured =  np.concatenate((self.param['X_exp_measured'], [next_point_exp]), axis=0)
-
-        if show is True:
-            self.plot_mobo(title='Prediction at {}'.format(e+1))
-        
-        param_opt.append(next_point_exp)
-        predicts.append(pred)
+        X_exp_unmeasured = np.delete(X_exp_unmeasured, next_idx, axis=0)
+        self.update_param('X_exp_measured', X_exp_measured)
+        self.update_param('X_exp_unmeasured', X_exp_unmeasured)
         
         self.update_param('X_measured_tensor', X_measured)
+        self.update_param('X_unmeasured_tensor', X_unmeasured)
         self.update_param('y_measured_tensor', y_measured)
-        self.update_param('X_measured_array', X_measured.detach().numpy())
-        self.update_param('y_measured_array', y_measured.detach().numpy())
 
-    self.update_param('param_opt', param_opt)
-    self.update_param('predicts', predicts)
+        self.update_param('X_measured_array', X_measured.detach().numpy())
+        self.update_param('X_unmeasured_array', X_unmeasured.detach().numpy())
+        self.update_param('y_measured_array', y_measured.detach().numpy())
     
-    self.execute('Stop')
+        self.update_param('indices_measured', np.concatenate((self.param['indices_measured'], [next_idx])))
+        self.update_param('indices_unmeasured', np.delete(self.param['indices_unmeasured'], next_idx))
+        
+    ##########  self.execute('Stop')    # stop scan
+    self.LBNIafm.scan_control.scan_stop()
     
     if save is not None:
-        np.savez('{}.npz'.format(save), X_measured=X_measured, X_exp_measured=X_exp_measured, 
-                 y_measured=y_measured, traces=waves)
+        np.savez('{}.npz'.format(save), X_measured=X_measured, X_unmeasured=X_unmeasured, X_exp_measured=X_exp_measured, X_exp_unmeasured=X_exp_unmeasured,
+             y_measured=y_measured, traces=waves)
+
+# Visualize the training result
+def train_BO(self, acquisition='EI', beta=4):
+    
+    X = self.param['X_tensor']
+    X_measured = self.param['X_measured_tensor']
+    y_measured = torch.tensor(self.param['y_measured_tensor'], dtype=torch.float32)
+    
+    gp_model = SingleTaskGP(X_measured, torch.unsqueeze(y_measured, dim=-1))
+    # Fit GP model
+    mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
+    
+    fit_gpytorch_mll(mll)
+    
+    # Predict on unmeasured data
+    gp_model.eval()
+    with torch.no_grad(), gpytorch.settings.fast_pred_var():
+        posterior = gp_model(X)
+        # For visualization or further processing, you can obtain mean and variance
+        y_pred = posterior.mean
+        y_sampled = posterior.variance.sqrt()
         
-exp.add_func(run_mobo)
+    if acquisition=='UCB':
+        UCB = UpperConfidenceBound(model=gp_model, beta=beta)
+        acq_values = UCB(X.unsqueeze(-2))
+    elif acquisition=='EI':
+        EI = ExpectedImprovement(model=gp_model, best_f=y_measured.max(), maximize=True)
+        acq_values = EI(X.unsqueeze(-2))
+    else:
+        return 0
+    
+    self.update_param('acq_tensor', acq_values)
+    self.update_param('y_pred_tensor', y_pred)
+    self.update_param('y_sampled_tensor', y_sampled)
+    
+    self.update_param('acq_array', acq_values.detach().numpy())
+    self.update_param('y_pred_array', y_pred.detach().numpy())
+    self.update_param('y_sampled_array', y_sampled.detach().numpy())
+    
+exp.add_func(step)
+exp.add_func(plot_bo)
+exp.add_func(run_BO)
+exp.add_func(train_BO)
+# exp.add_func(acq_mask)
 
-def plot_mobo(self, title=''):
-
+def acq_mask(self, center, width, amp, thres=None, show=False):
+    '''
+    center: [x0, y0]
+    width: [wx, wy]
+    amp: 0-1
+    '''
+    
     X = self.param['X_array']
+    if X.shape[-1] == 2:
+        
+        t1 = np.arange(self.param['num1'])
+        t2 = np.arange(self.param['num2'])
+        x, y = np.meshgrid(t1, t2)
 
-    y_measured = self.param['y_measured_tensor'].detach().numpy()
-    X_measured_temp = self.param['X_measured_tensor'].detach().numpy()
+        g = amp*np.exp(-((x-center[0])**2/width[0]**2 + (y-center[1])**2/width[1]**2)) + (1-amp)
+        if thres is not None:
+            g[np.where(g > thres)] = thres
+        if show:
+            plt.figure(figsize=[4,4])
+            plt.imshow(g, origin='lower')
+            plt.colorbar()
+            
+    elif X.shape[-1] == 3:
+        t1 = np.arange(self.param['num1'])
+        t2 = np.arange(self.param['num2'])
+        t3 = np.arange(self.param['num3'])
+        
+        x, y, z = np.meshgrid(t1, t2, t3)
 
-    X_measured = np.copy(X_measured_temp)
-#     for i in range(len(X_measured_temp)):
-#         X_measured[i] = conver_unit(X_measured_temp[i], limits=self.param['limits'])
+        g = amp*np.exp(-((x-center[0])**2/width[0]**2 + (y-center[1])**2/width[1]**2 + (z-center[2])**2/width[2]**2)) + (1-amp)
+        if thres is not None:
+            g[np.where(g > thres)] = thres
+        
+    return g
 
-    y_pred = self.param['pred']
-    
-    num_seed = self.param['num_seed']
-
-    clear_output(wait=True)
-    fig, ax = plt.subplots(2, 2, figsize=(8, 6))
-    im1 = ax[0,0].scatter(X[:, 1], X[:, 0], c=y_pred[0], s=40, cmap='jet')
-    ax[0,0].set_title("{}".format(title) + 'trace')
-
-    im2 = ax[0, 1].scatter(X[:, 1], X[:, 0], c=y_pred[1], s=40, cmap='jet')
-    ax[0, 1].set_title("Reward 2: height")
-
-    im3 = ax[1,0].scatter(X[:, 1], X[:, 0], c=y_pred[2], s=40, cmap='jet')
-    ax[1,0].scatter(X_measured[:num_seed,1], X_measured[:num_seed,0], c = 'k')
-
-    ax[1,0].scatter(X_measured[num_seed:, 1], X_measured[num_seed:, 0], marker='o', s=50,
-                        c = np.arange(len(X_measured)-num_seed), cmap = 'rainbow')
-    ax[1,0].set_title("Reward 3: phase")
-    
-#     im4 = ax[1, 1].scatter(X[:, 1], X[:, 0], c=y_pred[3], s=40, cmap='jet')
-#     ax[1, 1].set_title("Reward 4: similarity")
-
-    for axis in ax.flatten():
-        axis.set_xlabel('Setpoint')
-        axis.set_ylabel('Drive Amplitude')
-
-    plt.colorbar(im1, ax=ax[0,0])
-    plt.colorbar(im2, ax=ax[0,1])
-    plt.colorbar(im3, ax=ax[1,0])
-#     plt.colorbar(im4, ax=ax[1,1])
-    plt.tight_layout()
-    plt.show()
-    
-exp.add_func(plot_mobo)
+exp.add_func(acq_mask)
 
 ## Initialization variables
-
-exp.update_param('device', 'cpu')
-exp.update_param('dtype', torch.float64)
 
 # Generate the safe parameters for the BO and MOBO
 
@@ -1246,11 +1120,10 @@ exp.update_param('dtype', torch.float64)
 exp.LBNIafm.scan_control.scan_stop()
 
 # file save name
-save_name = 'output/250506_testing_MOBO'
+save_name = 'output/250424_testing_BO'
 
 num1 = 100
-num2 = 50
-num3 = 50
+num2 = 100
 
 # RL: because we skipped safe seeding, here you need to manually set the limits for the drive amplitudes
 # I have changed it to an example limit in the unit of mV
@@ -1259,13 +1132,12 @@ x1 = np.linspace(np.min(drives), np.max(drives), num=num1)
 # x1 = np.linspace(1, 100, num=num1) # unit here is mV. 
 # x1 = x1 * 1e-3 # now units in V
 
-# x2 is the setpoint relative to free amplitude
+# x2 is the setpoint
 x2 = np.linspace(0.25, 0.9, num=num2)
-# x3 is the I gain, Don't forget to change this limit!
-x3 = np.linspace(1e-6, 200e-6, num=num3)
-exp.update_param('limits', np.array([[np.min(x1), np.max(x1)], [np.min(x2), np.max(x2)], [np.min(x3), np.max(x3)]]))
+# x3 is the I gain
 
 thres_array = interp_func(x1)
+
 x_exp = []
 x_norm = []
 
@@ -1273,19 +1145,19 @@ safe_factor = 1.1
 
 x1_norm = np.linspace(0, 1, num=num1)
 x2_norm = np.linspace(0, 1, num=num2)
-x3_norm = np.linspace(0, 1, num=num3)
 
+# RL: Here I have removed the safe seeding checking for the parameters
+# so now it's optimizing on a square grid.
 for i in range(len(x1)):
     for j in range(len(x2)):
-        for k in range(len(x3)):
-            # drive = drive_new[i]
-            thres_value = thres_array[i] * safe_factor
-            if x2[j] > thres_value:
-                x_exp.append([x1[i], x2[j], x3[k]])
-                x_norm.append([x1_norm[i], x2_norm[j], x3_norm[k]])
+        # drive = drive_new[i]
+        thres_value = thres_array[i] * safe_factor
+        if x2[j] > thres_value:
+            x_exp.append([x1[i], x2[j]])
+            x_norm.append([x1_norm[i], x2_norm[j]])
        
-x_exp =  np.asarray(x_exp, dtype=np.float64)
-x_norm = np.asarray(x_norm, dtype=np.float64)
+x_exp =  np.asarray(x_exp, dtype=np.float32)
+x_norm = np.asarray(x_norm, dtype=np.float32)
 X_norm = torch.from_numpy(x_norm)
 
 exp.update_param('X_exp', x_exp)
@@ -1344,8 +1216,8 @@ with open('{} seeding.pickle'.format(save_name), 'wb') as file:
 # exp.execute('ChangeName', 'Red1_training_')
 # time.sleep(2)
 
-exp.run_mobo(num_steps=30, repeat=5, show=True, fresh=True,
-            save=save_name, EPSILON=0.1)
+exp.run_BO(mask=None, num_steps=30, repeat=5, show=True, fresh=True,
+            acquisition='EI', save=save_name)
 
 with open('{} training.pickle'.format(save_name), 'wb') as file:
     pickle.dump(exp.param, file)
@@ -1404,27 +1276,8 @@ with open('{} training.pickle'.format(save_name), 'wb') as file:
 # ########## exp.execute('SetpointAmp', value=setpoint_op, wait=0.5) # set point [V]
 # exp.LBNIafm.z_control.set_setpoint(setpoint_op)
 
-# Pick up the best parameter
-with open('{} training.pickle'.format(save_name), 'rb') as file:
-    exp.param = pickle.load(file)
-exp.step_mobo()
-
-res = conver_unit(exp.param['next'][0], exp.param['limits'], reverse=False)
-print(res)
-print(res[0] * res[1] * exp.param['factor'])
-
-exp.LBNIafm.scan_control.scan_stop()
-exp.LBNIafm.z_control.retract()
-exp.LBNIafm.afmmode.am.set_exc_amplitude(float(res[0])) # Excitation amplitude
-exp.LBNIafm.z_control.set_setpoint(res[0] * res[1] * exp.param['factor']) # SetPoint
-exp.LBNIafm.z_control.set_i_gain(res[2]) # I gain
-
-exp.LBNIafm.z_control.set_feedback(True)
-time.sleep(1)
-exp.LBNIafm.scan_control.scan_down()
-
-# Disconnect from the AFM system
-######### exp.disconnect()
-exp.LBNIafm.disconnect()
-print("\n--- AFM disconnected ---")
+# # Step N: Disconnect from the AFM system
+# ########## exp.disconnect()
+# exp.LBNIafm.disconnect()
+# print("\n--- AFM disconnected ---")
     
