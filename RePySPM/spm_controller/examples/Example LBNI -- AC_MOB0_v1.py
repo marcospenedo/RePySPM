@@ -320,6 +320,7 @@ def measure_thres(self, drive, setpoint=0.5, thres=85):
     fwd, bkd = read_fd(data_ramp)
     
     amp_thres = find_thres(fwd[2], fwd[1], thres=thres)
+    print("amp_thres ----> ", amp_thres)
     
     return amp_thres # setpoint=0.5 50% of free amplitude, thres is the phase value 5 deg less from resonance
 
