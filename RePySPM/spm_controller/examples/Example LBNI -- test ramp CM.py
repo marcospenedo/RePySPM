@@ -31,7 +31,7 @@ print("Actual position: ", afm.z_control.get_zposition())
 
 # Start the F-D curve measurement
 afm.utils.set_feedback_after_ramp(False)
-afm.scan_control.do_ramp_relative_trig(0, 0.5, None, '<', 2000, 1e-6, 1e-6, 0.1)
+afm.scan_control.do_ramp_relative_trig(0, 0.5, None, '>', 2000, 1e-6, 1e-6, 0.5)
 
 # Wait until the ramp runs
 while not afm.scan_control.is_ramping():
@@ -46,22 +46,13 @@ data_ramp = afm.image.get_all_channels_data_ramp()
 
 height_fwd = - data_ramp[0][1]
 height_bwd = - data_ramp[1][1]
-amplitude_fwd = data_ramp[4][1]
-amplitude_bwd = data_ramp[5][1]
-phase_fwd = 18*data_ramp[6][1] # -10 to 10 V -> -180 to 180 deg
-phase_bwd = 18*data_ramp[7][1] # -10 to 10 V -> -180 to 180 deg
+error_fwd = data_ramp[2][1]
+error_bwd = data_ramp[3][1]
 
 plt.figure()
-plt.plot(height_fwd, amplitude_fwd, '-b')
-plt.plot(height_bwd, amplitude_bwd, '-r')
-plt.ylabel('amplitude')
-plt.xlabel('distance')
-plt.show()
-
-plt.figure()
-plt.plot(height_fwd, phase_fwd, '-b')
-plt.plot(height_bwd, phase_bwd, '-r')
-plt.ylabel('phase')
+plt.plot(height_fwd, error_fwd, '-b')
+plt.plot(height_bwd, error_bwd, '-r')
+plt.ylabel('deflection')
 plt.xlabel('distance')
 plt.show()
 
