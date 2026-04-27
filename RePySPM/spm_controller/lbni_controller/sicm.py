@@ -47,7 +47,7 @@ class Sicm:
             float: The current setpoint value.
         """
         control = "Setpoint"
-        command = f"{OHCcommands.w_sic}{control}"
+        command = f"{OHCcommands.r_sic}{control}"
     
         return self.controller.read_control(command, control)
 
@@ -80,7 +80,7 @@ class Sicm:
             float: The current setpoint stiffness value.
         """
         control = "SetpointStiff"
-        command = f"{OHCcommands.w_sic}{control}"
+        command = f"{OHCcommands.r_sic}{control}"
     
         return self.controller.read_control(command, control)
     
@@ -114,7 +114,7 @@ class Sicm:
             float: The current approach rate.
         """
         control = "Approach rate"
-        command = f"{OHCcommands.w_sic}{control}"
+        command = f"{OHCcommands.r_sic}{control}"
     
         return self.controller.read_control(command, control)
     
@@ -148,7 +148,7 @@ class Sicm:
             float: The current retract height.
         """
         control = "Retract height"
-        command = f"{OHCcommands.w_sic}{control}"
+        command = f"{OHCcommands.r_sic}{control}"
     
         return self.controller.read_control(command, control)
     
@@ -182,7 +182,7 @@ class Sicm:
             float: The current retract period.
         """
         control = "Retract period"
-        command = f"{OHCcommands.w_sic}{control}"
+        command = f"{OHCcommands.r_sic}{control}"
     
         return self.controller.read_control(command, control)
     
@@ -216,7 +216,7 @@ class Sicm:
             float: The current adaptive minimum value.
         """
         control = "Adaptive min"
-        command = f"{OHCcommands.w_sic}{control}"
+        command = f"{OHCcommands.r_sic}{control}"
     
         return self.controller.read_control(command, control)
 
@@ -249,7 +249,7 @@ class Sicm:
             float: The current retract delay.
         """
         control = "Retract delay"
-        command = f"{OHCcommands.w_sic}{control}"
+        command = f"{OHCcommands.r_sic}{control}"
     
         return self.controller.read_control(command, control)
     
@@ -283,7 +283,7 @@ class Sicm:
             float: The current average period.
         """
         control = "Average period"
-        command = f"{OHCcommands.w_sic}{control}"
+        command = f"{OHCcommands.r_sic}{control}"
     
         return self.controller.read_control(command, control)
     
@@ -317,7 +317,7 @@ class Sicm:
             float: The current time constant.
         """
         control = "Time constant"
-        command = f"{OHCcommands.w_sic}{control}"
+        command = f"{OHCcommands.r_sic}{control}"
     
         return self.controller.read_control(command, control)
     
@@ -351,7 +351,7 @@ class Sicm:
             float: The current delta value.
         """
         control = "Delta"
-        command = f"{OHCcommands.w_sic}{control}"
+        command = f"{OHCcommands.r_sic}{control}"
     
         return self.controller.read_control(command, control)
 
@@ -384,7 +384,7 @@ class Sicm:
             bool: True if adaptive mode is enabled, False otherwise.
         """
         control = "Adaptive"
-        command = f"{OHCcommands.w_sic}{control}"
+        command = f"{OHCcommands.r_sic}{control}"
     
         return self.controller.read_control(command, control)
 

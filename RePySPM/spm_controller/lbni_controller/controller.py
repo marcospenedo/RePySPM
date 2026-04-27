@@ -44,6 +44,7 @@ class AFMController:
         self.lasers = Lasers(self)
         self.image = AcquiredImage(self)
         self.utils = Utils(self, root_path)
+        self.sicm = Sicm(self)
         
         # Create instances of the AFM modes
         self.contact_mode = ContactMode(self)
