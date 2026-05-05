@@ -9,7 +9,6 @@ from .image import AcquiredImage
 from .utils import Utils
 from .sicm import Sicm
 
-# Import AFM modes
 from .afm_modes import AFMMode, AFMModes, AMMode, FMMode, ContactMode, OffResonanceMode
 
 __all__ = [

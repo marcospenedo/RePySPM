@@ -4,8 +4,34 @@ class Sicm:
     """
     A class containing functions to control the SICM module of the LBNI OHC.
 
+    This class provides methods to set and get SICM (Scanning Ion Conductance
+    Microscopy) parameters via the OHC controller. Each parameter has a setter
+    that validates the input and sends the command, and a getter that reads the
+    current value from the hardware.
+
     Methods:
-        
+        set_setpoint: Sets the setpoint value (0–100).
+        get_setpoint: Retrieves the current setpoint value.
+        set_setpoint_stiff: Sets the setpoint stiffness value (0–100).
+        get_setpoint_stiff: Retrieves the current setpoint stiffness value.
+        set_approach_rate: Sets the approach rate (>= 0).
+        get_approach_rate: Retrieves the current approach rate.
+        set_retract_height: Sets the retract height (>= 0).
+        get_retract_height: Retrieves the current retract height.
+        set_retract_period: Sets the retract period (>= 0).
+        get_retract_period: Retrieves the current retract period.
+        set_adaptive_min: Sets the adaptive minimum value (0–100).
+        get_adaptive_min: Retrieves the current adaptive minimum value.
+        set_retract_delay: Sets the retract delay (>= 0).
+        get_retract_delay: Retrieves the current retract delay.
+        set_average_period: Sets the average period (>= 0).
+        get_average_period: Retrieves the current average period.
+        set_time_constant: Sets the time constant (>= 0).
+        get_time_constant: Retrieves the current time constant.
+        set_delta: Sets the delta value (>= 0).
+        get_delta: Retrieves the current delta value.
+        set_adaptive: Sets the adaptive mode (True or False).
+        get_adaptive: Retrieves the current adaptive mode status.
     """
     
     def __init__(self, controller):

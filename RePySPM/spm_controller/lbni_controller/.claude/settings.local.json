@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/software/Marcos/RePySPM/RePySPM/spm_controller/examples/**)",
+      "Read(//d/software/Marcos/OpenSPM-source/pythonAPI/**)",
+      "WebFetch(domain:pypi.org)",
+      "WebSearch",
+      "WebFetch(domain:www.nanosurf.com)",
+      "WebFetch(domain:github.com)"
+    ],
+    "additionalDirectories": [
+      "d:\\software\\Marcos\\RePySPM\\RePySPM\\spm_controller\\examples",
+      "d:\\software\\Marcos\\RePySPM\\RePySPM\\spm_controller\\nanosurf_controller"
+    ]
+  }
+}

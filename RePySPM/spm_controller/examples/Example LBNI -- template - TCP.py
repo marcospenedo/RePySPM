@@ -1,0 +1,22 @@
+import sys
+import os
+
+# Get the parent directory and add it to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+# import aespm as ae
+# Now you can import AFMController
+from lbni_controller import AFMController
+
+def main():
+    # Connect via TCP to LabVIEW running on this machine
+    afm = AFMController("127.0.0.1")
+    
+    # Place the scripte below
+
+    # Disconnect from the AFM system
+    afm.disconnect()
+    print("\n--- AFM disconnected ---")
+    
+if __name__ == "__main__":
+    main()
