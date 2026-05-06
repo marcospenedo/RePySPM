@@ -13,7 +13,7 @@ from .image import AcquiredImage
 from .utils import Utils
 from .sicm import Sicm
 
-from .afm_modes.afmmode import AFMMode, AFMModes, ExcType
+from .afm_modes.afmmode import AFMMode
 from .afm_modes.am import AMMode
 from .afm_modes.fm import FMMode
 from .afm_modes.ort import OffResonanceMode
@@ -37,14 +37,15 @@ def _parse_address(address):
 
 
 class AFMController:
-    def __init__(self, address):
+    def __init__(self, address="127.0.0.1"):
         """Main controller class for an SPM instrument.
 
         Args:
             address: Either a filesystem path to the LabVIEW project root
                      (ActiveX connection) or an IP address string, optionally
                      with port (TCP connection), e.g. ``"192.168.1.1"`` or
-                     ``"192.168.1.1:6340"``.
+                     ``"192.168.1.1:6340"``. Defaults to ``"127.0.0.1"``
+                     (TCP on localhost, port 6340).
         """
         conn_type, host_or_path, port = _parse_address(address)
 

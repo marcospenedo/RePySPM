@@ -10,7 +10,7 @@ from .image import AcquiredImage
 from .utils import Utils
 from .sicm import Sicm
 
-from .afm_modes.afmmode import AFMMode, AFMModes, ExcType
+from .afm_modes.afmmode import AFMMode
 from .afm_modes.am.am import AMMode
 from .afm_modes.fm.fm import FMMode
 from .afm_modes.ort.ort import OffResonanceMode
