@@ -29,14 +29,43 @@ class AcquiredImage:
         pass
     
     def get_channels_names(self):
-        """Retrieve the names of all image channels."""
-        
-        # Retrieve channel names
+        """Retrieve the names of all image channels as a Python list."""
+
         control = "ChannelsNames"
         command = f"{OHCcommands.r_sco}{control}"
-        
-        return self.controller.read_control(command, control)
-    
+
+        channel_names = self.controller.read_control(command, control)
+
+        # If it is already a list, keep it
+        if isinstance(channel_names, list):
+            return channel_names
+
+        # If it is a tuple, convert to list
+        if isinstance(channel_names, tuple):
+            return list(channel_names)
+
+        # If it is a NumPy array, convert to list
+        if hasattr(channel_names, "tolist"):
+            channel_names = channel_names.tolist()
+
+            # In case NumPy returns a single scalar/string
+            if isinstance(channel_names, list):
+                return channel_names
+            else:
+                return [channel_names]
+
+        # If it is a single string, return it as a one-element list
+        if isinstance(channel_names, str):
+            return [channel_names]
+
+        # Fallback: try to convert iterable to list
+        try:
+            return list(channel_names)
+        except TypeError:
+            raise ValueError(
+                f"Could not convert channel names to list. Got {type(channel_names)}: {channel_names}"
+            )
+
     def get_all_channels_data(self):
         """Retrieve the data from all image channels."""
         
@@ -44,46 +73,45 @@ class AcquiredImage:
         command = f"{OHCcommands.r_sco}{control}"
         
         return np.array(self.controller.read_control(command, control))  # Shape: (2, num_channels, pixels_x, pixels_y)
-    
+
     def get_channel(self, name: str, direction: int):
         """
         Retrieve the data from the image channel with the given name.
-    
+
         Args:
             name (str): The name of the channel to retrieve.
             direction (int): Direction, either forward (0) or backward (1).
-    
-        Raises:
-            ValueError: If `name` is not a string.
-            ValueError: If `direction` is not 0 or 1.
-            ValueError: If the channel name is not found.
-    
+
         Returns:
             np.ndarray: The image data corresponding to the requested channel.
         """
-        
+
         if not isinstance(name, str):
             raise ValueError(f"Invalid channel name: {name}. Must be a string.")
-    
+
         if not isinstance(direction, int) or direction not in {0, 1}:
-            raise ValueError(f"Invalid direction: {direction}. Must be an integer (0 for forward, 1 for backward).")
-    
-        # Retrieve all available channels (convert list to NumPy array)
+            raise ValueError(
+                f"Invalid direction: {direction}. Must be an integer (0 for forward, 1 for backward)."
+            )
+
+        # Retrieve all available channels
         all_channels = self.get_all_channels_data()
-    
-        # Retrieve all available channels names
+
+        # get_channels_names() should now always return a list
         channel_names = self.get_channels_names()
-    
-        if not isinstance(channel_names, tuple):
-            raise ValueError(f"Expected a list of channel names, but got {type(channel_names)}.")
-    
+
+        if not isinstance(channel_names, list):
+            raise ValueError(
+                f"Expected a list of channel names, but got {type(channel_names)}."
+            )
+
         if name not in channel_names:
-            raise ValueError(f"Channel '{name}' not found. Available channels: {channel_names}")
-    
-        # Find the index of the requested channel
+            raise ValueError(
+                f"Channel '{name}' not found. Available channels: {channel_names}"
+            )
+
         channel_index = channel_names.index(name)
-    
-        # Extract and return the data for the corresponding channel
+
         return all_channels[direction, channel_index, :, :]
 
     def get_channels_units_ramp(self):
@@ -106,27 +134,35 @@ class AcquiredImage:
     
     def get_last_line(self, name):
         """Retrieves the data of the last line of a specific channel."""
-        
+
         if not isinstance(name, str):
             raise ValueError(f"Invalid channel name: {name}. Must be a string.")
-    
-        # Retrieve all available channels (convert list to NumPy array)
+
+        # Retrieve all available channels
         all_channels = self.get_all_channels_data()
-    
-        # Retrieve all available channels names
+
+        # get_channels_names() should always return a Python list
         channel_names = self.get_channels_names()
-    
-        if not isinstance(channel_names, tuple):
-            raise ValueError(f"Expected a list of channel names, but got {type(channel_names)}.")
-    
+
+        if not isinstance(channel_names, list):
+            try:
+                channel_names = list(channel_names)
+            except TypeError:
+                raise ValueError(
+                    f"Expected channel names to be convertible to list, but got {type(channel_names)}."
+                )
+
         if name not in channel_names:
-            raise ValueError(f"Channel '{name}' not found. Available channels: {channel_names}")
-    
+            raise ValueError(
+                f"Channel '{name}' not found. Available channels: {channel_names}"
+            )
+
         # Find the index of the requested channel
         channel_index = channel_names.index(name)
-    
+
         # Extract and return the data for the corresponding channel line
         line_number = self.controller.scan_control.get_line()
+
         if line_number > 0:
             return all_channels[:, channel_index, line_number - 1, :]
         else:
