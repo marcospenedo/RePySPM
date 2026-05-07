@@ -11,9 +11,16 @@ from lbni_controller import AFMController
 def main():
     # Connect via TCP to LabVIEW running on this machine
     afm = AFMController("127.0.0.1")
-    # It also works like this, taking by default 127.0.0.1 as IP address: afm = AFMController()
     
     # Place the scripte below
+
+    is_paused = afm.scan_control.is_paused()
+    isContinuousScan = afm.scan_control.isContinuousScan()
+
+    print(is_paused)
+    print(isContinuousScan)
+
+    print(afm.image.get_channels_names())
 
     # Disconnect from the AFM system
     afm.disconnect()

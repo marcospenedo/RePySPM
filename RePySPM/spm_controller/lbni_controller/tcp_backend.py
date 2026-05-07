@@ -13,11 +13,37 @@ class TCPBackend:
         self.sock = None
 
     def connect(self):
+        self._close_stale_session()
         print(f"Connecting to LabVIEW via TCP: {self.host}:{self.port}")
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.settimeout(10)
         self.sock.connect((self.host, self.port))
         print(f"Connected to {self.host}:{self.port}")
+
+    def _close_stale_session(self):
+        """Probe for a leftover open session and close it gracefully before connecting."""
+        import time
+        probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        probe.settimeout(2)
+        connected = False
+        try:
+            probe.connect((self.host, self.port))
+            connected = True
+            probe.sendall(b"close\r\n")
+            probe.recv(4096)  # drain LabVIEW's response
+            print(f"Closed previous TCP session on {self.host}:{self.port}")
+            time.sleep(0.5)  # give LabVIEW time to return to listening
+        except OSError:
+            if connected:
+                # Connected but LabVIEW never responded — it is stuck on an old session.
+                raise RuntimeError(
+                    f"LabVIEW at {self.host}:{self.port} accepted the connection but did "
+                    "not respond — a previous session is likely stuck. "
+                    "Please restart the TCP listener VI in LabVIEW and try again."
+                )
+            # Connection refused / unreachable → no server listening yet, proceed normally.
+        finally:
+            probe.close()
 
     def disconnect(self):
         print(f"Disconnecting from {self.host}:{self.port}")
@@ -87,7 +113,15 @@ class TCPBackend:
 
         if typ == "string_array":
             encoding = header.get("encoding", "utf-8")
-            return json.loads(payload.decode(encoding))
+            n_strings = header["shape"][0]
+            result = []
+            offset = 0
+            for _ in range(n_strings):
+                str_len = struct.unpack(">I", payload[offset:offset + 4])[0]
+                offset += 4
+                result.append(payload[offset:offset + str_len].decode(encoding))
+                offset += str_len
+            return result
 
         if typ == "bool":
             if len(payload) != 1:
