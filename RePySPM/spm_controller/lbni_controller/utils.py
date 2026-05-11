@@ -80,6 +80,7 @@ class Utils:
         "lbni_snom_v1":           "lbniAFMController_usbRIO_controllerFPGA_SNOM.lvbitx",
         "lbni_stm_v1":            "lbniAFMController_usbRIO_controllerFPGA_STM.lvbitx",
         "lbni_sicm_v1":           "lbniAFMController_usbRIO_controllerFPGA_SICM.lvbitx",
+        "lbni_afm_v2.5":          "usbRioOHCv2.5.lvbitx",
     }
     
     def get_controller_type_from_init(self, init_xml_path):
